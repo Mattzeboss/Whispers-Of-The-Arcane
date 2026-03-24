@@ -3,7 +3,7 @@ import java.awt.event.KeyListener;
 import java.util.HashMap;
 
 public class KeyManager implements KeyListener {
-    private HashMap<Integer, KeyState> keyStates = new HashMap<>();
+    private final HashMap<Integer, KeyState> keyStates = new HashMap<>();
 
     public enum KeyState {
         Pressed, Released, Down, Up,
