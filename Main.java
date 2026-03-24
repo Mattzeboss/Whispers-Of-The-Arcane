@@ -2,6 +2,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.image.BufferStrategy;
 
 public class Main extends Canvas {
     //our entry point
@@ -22,14 +23,29 @@ public class Main extends Canvas {
     public static final int SCREEN_HEIGHT = SCREEN_TILE_HEIGHT * TILE_SIZE * PIXEL_SCALE;
 
     /*
-    Key manager
+    input managers
 
-    will help us detect keypresses and store them to check later
+    will help us detect inputs and store them to check later
      */
-    private static final KeyManager keyManager= new KeyManager();
+    private static final KeyManager keyManager = new KeyManager();
+    private static final MouseManager mouseManager = new MouseManager();
 
+    /*
+    stuff to calculate offsets for rendering
+     */
+    public static int TITLE_BAR_HEIGHT = 0; //we set this later
 
+    public int get_TITLE_BAR_HEIGHT(){
+        return TITLE_BAR_HEIGHT;
+    }
 
+    /*
+    The game will store all of our game logic
+    I didn't put it in this class because I wanted to separate the window logic from the actual game
+
+    it is going to be initially null until the user starts the game from the title screen
+     */
+    private static Game game;
 
     public Main() {
 
@@ -49,16 +65,41 @@ public class Main extends Canvas {
         //otherwise our height will be incorrect
         SwingUtilities.invokeLater(() -> {
             Insets insets = frame.getInsets();
-            int title_bar_height = insets.top - insets.left; //we need to account for the shadow around the entire window
-            frame.setSize(SCREEN_WIDTH, SCREEN_HEIGHT + title_bar_height);
+            TITLE_BAR_HEIGHT = insets.top - insets.left; //we need to account for the shadow around the entire window
+            frame.setSize(SCREEN_WIDTH, SCREEN_HEIGHT + TITLE_BAR_HEIGHT);
         });
-
 
 
         //lets us listen to keypresses
         addKeyListener(keyManager);
+        addMouseListener(mouseManager);
 
         //focuses us
         requestFocusInWindow();
+
+        //TODO: Add a title screen before this, wait for the user to press a key, then start the game
+        //starts the game
+        game = new Game(keyManager, mouseManager);
+        game.start(this);
+    }
+
+    public void render() {
+        //renders # of frames in the background then shows them in order
+        //the parameter is the number of frames that are cycled through
+        createBufferStrategy(2);
+        BufferStrategy strategy = getBufferStrategy();
+        Graphics g = null;
+        do {
+            try {
+                g = strategy.getDrawGraphics();
+            } finally {
+                if (game != null) { //render can be called before game is initialized
+                    game.paint((Graphics2D) g);
+                }
+            }
+            strategy.show();
+            g.dispose();
+        } while (strategy.contentsLost());
+        Toolkit.getDefaultToolkit().sync();
     }
 }
