@@ -15,10 +15,14 @@ public class GridEntity {
         return id;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        return (obj instanceof GridEntity && ((GridEntity) obj).getId() == getId());
+    }
 
     /*
-    important stats
-     */
+        important stats
+         */
     private final int MAX_HEALTH;
     private int health;
     private int width;
@@ -41,7 +45,7 @@ public class GridEntity {
      */
     private final BufferedImage sprite;
 
-    public BufferedImage getSprite(){
+    public BufferedImage getSprite() {
         return sprite;
     }
 
@@ -54,7 +58,7 @@ public class GridEntity {
         return behavior;
     }
 
-    private GridEntity(BufferedImage sprite, int MAX_HEALTH, int width, int height, Behavior behavior){
+    private GridEntity(BufferedImage sprite, int MAX_HEALTH, int width, int height, Behavior behavior) {
         this.sprite = sprite;
         this.MAX_HEALTH = MAX_HEALTH;
         health = MAX_HEALTH;
@@ -63,16 +67,21 @@ public class GridEntity {
         this.behavior = behavior;
     }
 
-    public boolean is_dead(){
+    public boolean is_dead() {
         return health <= 0;
     }
 
-    public void take_damage(int damage){
-        health = Math.max(0, health - damage); //we want to clamp at 0 so that we don't go below
+    //returns true if this damage killed the entity
+    public boolean take_damage(int damage) {
+        if (health > 0) {
+            health = Math.max(0, health - damage); //we want to clamp at 0 so that we don't go below
+            return is_dead();//are we still alive
+        }
+        return false;
     }
 
-    public void heal(int heal){
-        if (!is_dead()){ //can't heal if we are dead
+    public void heal(int heal) {
+        if (!is_dead()) { //can't heal if we are dead
             health = Math.min(MAX_HEALTH, health + heal);
         }
     }
@@ -81,7 +90,7 @@ public class GridEntity {
     default entities
      */
 
-    public static GridEntity player(){
+    public static GridEntity player() {
         return new GridEntity(Sprites.Player, 100, 1, 1, new PlayerBehavior());
     }
 }

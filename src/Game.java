@@ -54,15 +54,35 @@ public class Game {
     Entities and projectiles
      */
     private final SwapAndPopList<GridEntity> entities;
+    private final Field field;
+
+    public void add_entity(GridEntity e, Field.FieldPosition pos) {
+        entities.add(e);
+        field.add_entity(e, pos);
+    }
+
+    public void remove_entity(int ind) {
+        field.remove_entity(entities.remove(ind));
+    }
+
+    public GridEntity get_player() {
+        return entities.get(0); //the player will always be at index 0 because we never remove him
+    }
+
+    public Field getField() {
+        return field;
+    }
 
     /*
-    Constructor
-     */
+        Constructor
+         */
     public Game(KeyManager keyManager, MouseManager mouseManager) {
         this.keyManager = keyManager;
         this.mouseManager = mouseManager;
         this.entities = new SwapAndPopList<>();
-        this.entities.add(GridEntity.player());
+        this.field = new Field();
+
+        add_entity(GridEntity.player(), new Field.FieldPosition(0, 0));
     }
 
     /*
@@ -80,6 +100,7 @@ public class Game {
                     continue; //if we cannot sleep, we will busy wait
                 }
             }
+            last_tick_time = Instant.now();
 
 
             if (paused != PauseStates.NotPaused) { //if we are paused
@@ -91,6 +112,7 @@ public class Game {
             main.render();
 
             keyManager.update();
+            tick_counter += 1;
         }
     }
 
@@ -99,8 +121,10 @@ public class Game {
     }
 
     private void handle_update_world() {
-
         //TODO: add projectiles
+        for (int i = 0; i < entities.size(); i++) {
+            entities.get(i).getBehavior().update(entities.get(i), this);
+        }
     }
 
     /*
@@ -109,11 +133,56 @@ public class Game {
     //everything that we will render
     public void paint(Graphics2D g2D) {
         g2D.setColor(Color.WHITE);
-        g2D.drawString("centered", transform_x(0), transform_y(0));
-        g2D.drawImage(entities.get(0).getSprite(), transform_x(-Main.TILE_SIZE/2), transform_y(Main.TILE_SIZE/2), Main.TILE_SIZE, Main.TILE_SIZE, null);
+
+        //background
+        for (int i = 0; i < Main.SCREEN_TILE_WIDTH; i++) {
+            for (int j = 0; j < Main.SCREEN_TILE_HEIGHT; j++) {
+                draw_sprite_on_grid(g2D, Sprites.Background, new Field.FieldPosition(i - Main.SCREEN_TILE_WIDTH / 2, j - Main.SCREEN_TILE_HEIGHT / 2));
+            }
+        }
+
+        Field.FieldPosition player_pos = field.get_pos(get_player());
+        //entity rendering
+        for (int i = entities.size() - 1; i >= 0; i--) { //we go in reverse because we always want to draw the player on top
+            GridEntity entity = entities.get(i);
+            Field.FieldPosition relative_pos = field.get_pos(entity).sub(player_pos);
+            //bounds check, if we would be invisible on screen
+            if (
+                    (relative_pos.x + entity.getWidth()) < -Main.SCREEN_TILE_WIDTH / 2 ||
+                            relative_pos.x > Main.SCREEN_TILE_WIDTH / 2 ||
+                            relative_pos.y < -Main.SCREEN_TILE_HEIGHT / 2 ||
+                            (relative_pos.y - entity.getHeight()) > Main.SCREEN_TILE_HEIGHT / 2
+            ) {
+                continue;
+            }
+
+            draw_sprite_on_grid(g2D, entity.getSprite(), relative_pos);
+        }
+        g2D.drawLine(Main.SCREEN_WIDTH / 2, 0, Main.SCREEN_WIDTH / 2, Main.SCREEN_HEIGHT);
+        g2D.drawLine(0, Main.SCREEN_HEIGHT / 2, Main.SCREEN_WIDTH, Main.SCREEN_HEIGHT / 2);
     }
 
     //drawing at tiles from the center
+    private void draw_sprite_on_grid(Graphics2D g2D, BufferedImage sprite, Field.FieldPosition offset) {
+        g2D.drawImage(
+                sprite,
+                transform_x(
+                        (int) (
+                                ((double) offset.x - 0.5) *
+                                        Main.TILE_SIZE_PX
+                        )
+                ),
+                transform_y(
+                        (int) (
+                                ((double) offset.y + 0.5) *
+                                        Main.TILE_SIZE_PX
+                        )
+                ),
+                Main.TILE_SIZE_PX,
+                Main.TILE_SIZE_PX,
+                null
+        );
+    }
 
     //lets us go from the standard Cartesian coordinates( 0,0 at the center +x is right and +y is up) to screen space coordinates
     private int transform_x(int preimage) {
@@ -121,6 +190,6 @@ public class Game {
     }
 
     private int transform_y(int preimage) {
-        return -preimage + Main.SCREEN_HEIGHT / 2 + Main.TITLE_BAR_HEIGHT;
+        return -preimage + Main.SCREEN_HEIGHT / 2;
     }
 }

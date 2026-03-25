@@ -14,5 +14,6 @@ public abstract class Sprites {
         }
     }
 
-    public static final BufferedImage Player = loadImage("./src/graphics/player.png");
+    public static final BufferedImage Player = loadImage("./src/graphics/placeholder.png");
+    public static final BufferedImage Background = loadImage("./src/graphics/placeholder.png");
 }

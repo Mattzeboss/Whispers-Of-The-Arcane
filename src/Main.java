@@ -15,14 +15,16 @@ public class Main extends Canvas {
     /*
     Tile and Screen Sizes
      */
-    public static final int TILE_SIZE = 16; //16x16 px tiles
+    public static final int TILE_SIZE = 16; //16x16 texel tiles
     public static final int PIXEL_SCALE = 4; //each texel is going to be double the size (4x the area)
+
+    public static final int TILE_SIZE_PX = TILE_SIZE * PIXEL_SCALE; //16x16 px tile
     public static final int SCREEN_TILE_WIDTH = 17; //How many tiles across is the screen
     public static final int SCREEN_TILE_HEIGHT = 13; //how many tiles tall is the screen
 
     //our calculated screen width and height in px
-    public static final int SCREEN_WIDTH = SCREEN_TILE_WIDTH * TILE_SIZE * PIXEL_SCALE;
-    public static final int SCREEN_HEIGHT = SCREEN_TILE_HEIGHT * TILE_SIZE * PIXEL_SCALE;
+    public static final int SCREEN_WIDTH = SCREEN_TILE_WIDTH * TILE_SIZE_PX;
+    public static final int SCREEN_HEIGHT = SCREEN_TILE_HEIGHT * TILE_SIZE_PX;
 
     /*
     input managers
@@ -31,15 +33,6 @@ public class Main extends Canvas {
      */
     private static final KeyManager keyManager = new KeyManager();
     private static final MouseManager mouseManager = new MouseManager();
-
-    /*
-    stuff to calculate offsets for rendering
-     */
-    public static int TITLE_BAR_HEIGHT = 0; //we set this later
-
-    public int get_TITLE_BAR_HEIGHT(){
-        return TITLE_BAR_HEIGHT;
-    }
 
     /*
     The game will store all of our game logic
@@ -63,13 +56,10 @@ public class Main extends Canvas {
                 System.exit(0);
             }
         });
-        //we need to set the height after it has opened so that we can get the correct insets
-        //otherwise our height will be incorrect
-        SwingUtilities.invokeLater(() -> {
-            Insets insets = frame.getInsets();
-            TITLE_BAR_HEIGHT = insets.top - insets.left; //we need to account for the shadow around the entire window
-            frame.setSize(SCREEN_WIDTH, SCREEN_HEIGHT + TITLE_BAR_HEIGHT);
-        });
+        frame.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+        SwingUtilities.invokeLater(() ->
+                frame.setSize(2 * SCREEN_WIDTH - this.getSize().width, 2 * SCREEN_HEIGHT - this.getSize().height) //setting the proper height and width is complicated
+        );
 
 
         //lets us listen to keypresses
