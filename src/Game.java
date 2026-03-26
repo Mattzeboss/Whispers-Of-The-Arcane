@@ -82,7 +82,9 @@ public class Game {
         this.entities = new SwapAndPopList<>();
         this.field = new Field();
 
-        add_entity(GridEntity.player(), new Field.FieldPosition(0, 0));
+        add_entity(GridEntity.player(), new Field.FieldPosition(0, 0)); //adding the player
+        //TODO: remove this code, it only for testing
+        add_entity(GridEntity.enemy(), new Field.FieldPosition(1, 2));
     }
 
     /*
@@ -103,10 +105,10 @@ public class Game {
             last_tick_time = Instant.now();
 
 
-            if (paused != PauseStates.NotPaused) { //if we are paused
-                handle_ui_update();
-            } else {
+            if (paused == PauseStates.NotPaused) {
                 handle_update_world();
+            } else { //if we are paused
+                handle_ui_update();
             }
 
             main.render();

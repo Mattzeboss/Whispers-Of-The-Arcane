@@ -19,7 +19,7 @@ public class Field {
 
 
         public FieldPosition sub(FieldPosition other) {
-            return new FieldPosition(other.x + x, other.y + y);
+            return new FieldPosition( x - other.x, y - other.y);
         }
 
         @Override

@@ -1,5 +1,6 @@
 package src;
 
+import src.behaviors.EnemyBehavior;
 import src.behaviors.PlayerBehavior;
 
 import java.awt.image.BufferedImage;
@@ -92,5 +93,9 @@ public class GridEntity {
 
     public static GridEntity player() {
         return new GridEntity(Sprites.Player, 100, 1, 1, new PlayerBehavior());
+    }
+
+    public static GridEntity enemy() {
+        return new GridEntity(Sprites.Enemy, 100, 1, 1, new EnemyBehavior());
     }
 }
