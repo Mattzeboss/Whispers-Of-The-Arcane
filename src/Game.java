@@ -53,8 +53,10 @@ public class Game {
     /*
     Entities and projectiles
      */
-    private final SwapAndPopList<GridEntity> entities;
-    private final Field field;
+    private final SwapAndPopList<GridEntity> entities = new SwapAndPopList<>();
+    private final Field field = new Field();
+
+    private final SwapAndPopList<Projectile> projectiles = new SwapAndPopList<>();
 
     public void add_entity(GridEntity e, Field.FieldPosition pos) {
         entities.add(e);
@@ -79,12 +81,11 @@ public class Game {
     public Game(KeyManager keyManager, MouseManager mouseManager) {
         this.keyManager = keyManager;
         this.mouseManager = mouseManager;
-        this.entities = new SwapAndPopList<>();
-        this.field = new Field();
 
         add_entity(GridEntity.player(), new Field.FieldPosition(0, 0)); //adding the player
         //TODO: remove this code, it only for testing
         add_entity(GridEntity.enemy(), new Field.FieldPosition(1, 2));
+        projectiles.add(new Projectile(true, Sprites.Ball, 0, 0, 0, 0, 0, 1.0));
     }
 
     /*
@@ -139,7 +140,7 @@ public class Game {
         //background
         for (int i = 0; i < Main.SCREEN_TILE_WIDTH; i++) {
             for (int j = 0; j < Main.SCREEN_TILE_HEIGHT; j++) {
-                draw_sprite_on_grid(g2D, Sprites.Background, new Field.FieldPosition(i - Main.SCREEN_TILE_WIDTH / 2, j - Main.SCREEN_TILE_HEIGHT / 2));
+                draw_sprite_on_grid(g2D, Sprites.Background, i - (double) Main.SCREEN_TILE_WIDTH / 2, j - (double) Main.SCREEN_TILE_HEIGHT / 2);
             }
         }
 
@@ -158,25 +159,46 @@ public class Game {
                 continue;
             }
 
-            draw_sprite_on_grid(g2D, entity.getSprite(), relative_pos);
+            draw_sprite_on_grid(g2D, entity.getSprite(), relative_pos.x, relative_pos.y);
         }
-        g2D.drawLine(Main.SCREEN_WIDTH / 2, 0, Main.SCREEN_WIDTH / 2, Main.SCREEN_HEIGHT);
-        g2D.drawLine(0, Main.SCREEN_HEIGHT / 2, Main.SCREEN_WIDTH, Main.SCREEN_HEIGHT / 2);
+
+        //projectile rendering
+        for (int i = 0; i < projectiles.size(); i++) {
+            Projectile projectile = projectiles.get(i);
+            g2D.drawImage(
+                    projectile.getSprite(),
+                    transform_x(
+                            (int) (
+                                    (projectile.getX() - 0.5 * projectile.getSize()) *
+                                            Main.TILE_SIZE_PX
+                            )
+                    ),
+                    transform_y(
+                            (int) (
+                                    (projectile.getY() + 0.5 * projectile.getSize()) *
+                                            Main.TILE_SIZE_PX
+                            )
+                    ),
+                    (int) (Main.TILE_SIZE_PX * projectile.getSize()),
+                    (int) (Main.TILE_SIZE_PX * projectile.getSize()),
+                    null
+            );
+        }
     }
 
     //drawing at tiles from the center
-    private void draw_sprite_on_grid(Graphics2D g2D, BufferedImage sprite, Field.FieldPosition offset) {
+    private void draw_sprite_on_grid(Graphics2D g2D, BufferedImage sprite, double x, double y) {
         g2D.drawImage(
                 sprite,
                 transform_x(
                         (int) (
-                                ((double) offset.x - 0.5) *
+                                (x - 0.5) *
                                         Main.TILE_SIZE_PX
                         )
                 ),
                 transform_y(
                         (int) (
-                                ((double) offset.y + 0.5) *
+                                (y + 0.5) *
                                         Main.TILE_SIZE_PX
                         )
                 ),

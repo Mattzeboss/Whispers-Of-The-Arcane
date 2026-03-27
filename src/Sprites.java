@@ -17,4 +17,5 @@ public abstract class Sprites {
     public static final BufferedImage Player = loadImage("./src/graphics/smile.png");
     public static final BufferedImage Enemy = loadImage("./src/graphics/smile.png");
     public static final BufferedImage Background = loadImage("./src/graphics/placeholder.png");
+    public static final BufferedImage Ball = loadImage("./src/graphics/ball.png");
 }

@@ -7,21 +7,6 @@ import java.awt.image.BufferedImage;
 
 public class GridEntity {
     /*
-    Unique Id for each entity
-     */
-    private static int ENTITY_ID_COUNT = 0;
-    private int id;
-
-    public int getId() {
-        return id;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        return (obj instanceof GridEntity && ((GridEntity) obj).getId() == getId());
-    }
-
-    /*
         important stats
          */
     private final int MAX_HEALTH;
