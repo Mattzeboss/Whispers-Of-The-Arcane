@@ -3,6 +3,7 @@ package src;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.BufferedImageOp;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
 
@@ -17,6 +18,8 @@ public class Game {
     public int getTick_counter() {
         return tick_counter;
     }
+
+    private Instant last_frame_time;
 
     /*
     Input related stuff
@@ -96,9 +99,9 @@ public class Game {
         //main loop start
         while (true) { //this loop will exit when the user closes the app manually
             //wait for the tick to start
-            if (last_tick_time.toEpochMilli() < MILLISECONDS_PER_TICK) {
+            if (Duration.between(last_tick_time, Instant.now()).toMillis() < MILLISECONDS_PER_TICK) {
                 try {
-                    Thread.sleep(MILLISECONDS_PER_TICK - last_tick_time.toEpochMilli());
+                    Thread.sleep(MILLISECONDS_PER_TICK - Duration.between(last_tick_time, Instant.now()).toMillis());
                 } catch (InterruptedException e) {
                     continue; //if we cannot sleep, we will busy wait
                 }
@@ -116,6 +119,8 @@ public class Game {
 
             keyManager.update();
             tick_counter += 1;
+            //TODO: for debugging purposes, remove later
+            last_frame_time = Instant.now();
         }
     }
 
@@ -140,7 +145,7 @@ public class Game {
         //background
         for (int i = 0; i < Main.SCREEN_TILE_WIDTH; i++) {
             for (int j = 0; j < Main.SCREEN_TILE_HEIGHT; j++) {
-                draw_sprite_on_grid(g2D, Sprites.Background, i - (double) Main.SCREEN_TILE_WIDTH / 2, j - (double) Main.SCREEN_TILE_HEIGHT / 2);
+                draw_sprite_on_grid(g2D, Sprites.Background, (i -  Main.SCREEN_TILE_WIDTH / 2), (j - Main.SCREEN_TILE_HEIGHT / 2), 1.0);
             }
         }
 
@@ -159,51 +164,41 @@ public class Game {
                 continue;
             }
 
-            draw_sprite_on_grid(g2D, entity.getSprite(), relative_pos.x, relative_pos.y);
+            draw_sprite_on_grid(g2D, entity.getSprite(), relative_pos.x, relative_pos.y, 1.0);
         }
 
         //projectile rendering
         for (int i = 0; i < projectiles.size(); i++) {
             Projectile projectile = projectiles.get(i);
-            g2D.drawImage(
-                    projectile.getSprite(),
-                    transform_x(
-                            (int) (
-                                    (projectile.getX() - 0.5 * projectile.getSize()) *
-                                            Main.TILE_SIZE_PX
-                            )
-                    ),
-                    transform_y(
-                            (int) (
-                                    (projectile.getY() + 0.5 * projectile.getSize()) *
-                                            Main.TILE_SIZE_PX
-                            )
-                    ),
-                    (int) (Main.TILE_SIZE_PX * projectile.getSize()),
-                    (int) (Main.TILE_SIZE_PX * projectile.getSize()),
-                    null
-            );
+            draw_sprite_on_grid(g2D, projectile.getSprite(), projectile.getX(), projectile.getY(), projectile.getSize());
+        }
+
+        //FPS counter
+        if (last_frame_time != null) {
+            g2D.setColor(Color.RED);
+            g2D.setFont(new Font("Ariel", Font.BOLD, 50));
+            g2D.drawString(Double.toString(1000.0 / Duration.between(last_frame_time, Instant.now()).toMillis()),0 , 50);
         }
     }
 
     //drawing at tiles from the center
-    private void draw_sprite_on_grid(Graphics2D g2D, BufferedImage sprite, double x, double y) {
+    private void draw_sprite_on_grid(Graphics2D g2D, BufferedImage sprite, double x, double y, double size) {
         g2D.drawImage(
                 sprite,
                 transform_x(
                         (int) (
-                                (x - 0.5) *
+                                (x - 0.5 * size) *
                                         Main.TILE_SIZE_PX
                         )
                 ),
                 transform_y(
                         (int) (
-                                (y + 0.5) *
+                                (y + 0.5 * size) *
                                         Main.TILE_SIZE_PX
                         )
                 ),
-                Main.TILE_SIZE_PX,
-                Main.TILE_SIZE_PX,
+                (int) (Main.TILE_SIZE_PX * size),
+                (int) (Main.TILE_SIZE_PX * size),
                 null
         );
     }
