@@ -19,7 +19,7 @@ public class Game {
         return tick_counter;
     }
 
-    private Instant last_frame_time;
+    private Instant last_tick_time;
 
     /*
     Input related stuff
@@ -95,7 +95,7 @@ public class Game {
         src.Main loop
          */
     public void start(Main main) {
-        Instant last_tick_time = Instant.now();
+        last_tick_time = Instant.now();
         //main loop start
         while (true) { //this loop will exit when the user closes the app manually
             //wait for the tick to start
@@ -107,7 +107,6 @@ public class Game {
                     continue; //if we cannot sleep, we will busy wait
                 }
             }
-            last_tick_time = Instant.now();
 
 
             if (paused == PauseStates.NotPaused) {
@@ -120,8 +119,7 @@ public class Game {
 
             keyManager.update();
             tick_counter += 1;
-            //TODO: for debugging purposes, remove later
-            last_frame_time = Instant.now();
+            last_tick_time = Instant.now();
         }
     }
 
@@ -175,10 +173,10 @@ public class Game {
         }
 
         //FPS counter
-        if (last_frame_time != null) {
+        if (last_tick_time != null) {
             g2D.setColor(Color.RED);
             g2D.setFont(new Font("Ariel", Font.BOLD, 50));
-            g2D.drawString(Double.toString(1000.0 / Duration.between(last_frame_time, Instant.now()).toMillis()),0 , 50);
+            g2D.drawString(Double.toString(1000.0 / Duration.between(last_tick_time, Instant.now()).toMillis()),0 , 50);
         }
     }
 
