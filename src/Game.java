@@ -99,9 +99,10 @@ public class Game {
         //main loop start
         while (true) { //this loop will exit when the user closes the app manually
             //wait for the tick to start
-            if (Duration.between(last_tick_time, Instant.now()).toMillis() < MILLISECONDS_PER_TICK) {
+            long time_since_last_tick= Duration.between(last_tick_time, Instant.now()).toMillis();
+            if (time_since_last_tick < MILLISECONDS_PER_TICK) {
                 try {
-                    Thread.sleep(MILLISECONDS_PER_TICK - Duration.between(last_tick_time, Instant.now()).toMillis());
+                    Thread.sleep(MILLISECONDS_PER_TICK - time_since_last_tick);
                 } catch (InterruptedException e) {
                     continue; //if we cannot sleep, we will busy wait
                 }
