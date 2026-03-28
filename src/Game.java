@@ -1,5 +1,6 @@
 package src;
 
+import javax.swing.event.MouseInputListener;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.BufferedImageOp;
@@ -11,8 +12,8 @@ public class Game {
     /*
     Tick related stuff
      */
-    public static final int TICKS_PER_SECOND = 60;
-    public static final int MILLISECONDS_PER_TICK = 1000 / TICKS_PER_SECOND;
+    public static final int TICKS_PER_SECOND = 73;
+    public static final double MILLISECONDS_PER_TICK = 1000.0 / TICKS_PER_SECOND;
     private int tick_counter = 0;
 
     public int getTick_counter() {
@@ -99,13 +100,16 @@ public class Game {
         //main loop start
         while (true) { //this loop will exit when the user closes the app manually
             //wait for the tick to start
-            long time_since_last_tick= Duration.between(last_tick_time, Instant.now()).toMillis();
+            double time_since_last_tick= Duration.between(last_tick_time, Instant.now()).toNanos() / 1.0e6;
             if (time_since_last_tick < MILLISECONDS_PER_TICK) {
-                try {
-                    Thread.sleep(MILLISECONDS_PER_TICK - time_since_last_tick);
-                } catch (InterruptedException e) {
-                    continue; //if we cannot sleep, we will busy wait
+                if (MILLISECONDS_PER_TICK - time_since_last_tick > 5) {
+                    try {
+                        Thread.sleep(1);
+                    } catch (InterruptedException e) {
+                         //if we cannot sleep, we will busy wait
+                    }
                 }
+                continue;
             }
 
 
@@ -169,14 +173,16 @@ public class Game {
         //projectile rendering
         for (int i = 0; i < projectiles.size(); i++) {
             Projectile projectile = projectiles.get(i);
-            draw_sprite_on_grid(g2D, projectile.getSprite(), projectile.getX(), projectile.getY(), projectile.getSize());
+            draw_sprite_on_grid(g2D, projectile.getSprite(), projectile.getX() - player_pos.x, projectile.getY() - player_pos.y, projectile.getSize());
         }
 
         //FPS counter
         if (last_tick_time != null) {
             g2D.setColor(Color.RED);
             g2D.setFont(new Font("Ariel", Font.BOLD, 50));
-            g2D.drawString(Double.toString(1000.0 / Duration.between(last_tick_time, Instant.now()).toMillis()),0 , 50);
+            double test = Duration.between(last_tick_time, Instant.now()).toNanos() / 1.0e6;
+            double fps = 1e9 / Duration.between(last_tick_time, Instant.now()).toNanos();
+            g2D.drawString(Double.toString(fps),0 , 50);
         }
     }
 

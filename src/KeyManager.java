@@ -3,9 +3,13 @@ package src;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.HashMap;
+import java.util.HashSet;
 
 public class KeyManager implements KeyListener {
-    private final HashMap<Integer, KeyState> keyStates = new HashMap<>();
+    private final HashSet<Integer> down = new HashSet<>();
+    private final HashSet<Integer> pressed = new HashSet<>();
+    private final HashSet<Integer> released = new HashSet<>();
+
 
     public enum KeyState {
         Pressed, Released, Down, Up,
@@ -19,48 +23,39 @@ public class KeyManager implements KeyListener {
     public void keyPressed(KeyEvent e) {
         //java will send multiple keyPressed events if the key is held down, we don't want this behavior
         if (!isDown(e.getKeyCode())) {
-            this.keyStates.put(e.getKeyCode(), KeyState.Pressed);
+            this.pressed.add(e.getKeyCode());
+            this.down.add(e.getKeyCode());
         }
     }
 
     @Override
     public void keyReleased(KeyEvent e) {
-        this.keyStates.put(e.getKeyCode(), KeyState.Released);
+        this.released.add(e.getKeyCode());
+        this.down.remove(e.getKeyCode());
     }
 
     //pressed -> down, released -> up
     //remember to call every frame
     public void update() {
-        this.keyStates.replaceAll((keyCode_, state) -> {
-            if (state == KeyState.Pressed) {
-                return KeyState.Down;
-            } else if (state == KeyState.Released) {
-                return KeyState.Up;
-            } else {
-                return state;
-            }
-        });
+        this.pressed.clear();
+        this.released.clear();
     }
 
     //pressed counts as down
     public boolean isDown(int keycode){
-        KeyState state = this.keyStates.getOrDefault(keycode, KeyState.Up);
-        return state == KeyState.Down || state == KeyState.Pressed;
+        return down.contains(keycode);
     }
 
     //released counts as up
     public boolean isUp(int keycode){
-        KeyState state = this.keyStates.getOrDefault(keycode, KeyState.Up);
-        return state == KeyState.Up || state == KeyState.Released;
+        return !down.contains(keycode);
     }
 
     public boolean isPressed(int keycode){
-        KeyState state = this.keyStates.getOrDefault(keycode, KeyState.Up);
-        return state == KeyState.Pressed;
+        return pressed.contains(keycode);
     }
 
     public boolean isReleased(int keycode){
-        KeyState state = this.keyStates.getOrDefault(keycode, KeyState.Up);
-        return state == KeyState.Released;
+        return released.contains(keycode);
     }
 }
