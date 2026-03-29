@@ -1,18 +1,18 @@
 package src;
 
-import javax.swing.event.MouseInputListener;
+import src.behaviors.PlayerBehavior;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.awt.image.BufferedImageOp;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
 
 public class Game {
     /*
     Tick related stuff
      */
-    public static final int TICKS_PER_SECOND = 73;
+    public static final int TICKS_PER_SECOND = 60;
     public static final double MILLISECONDS_PER_TICK = 1000.0 / TICKS_PER_SECOND;
     private int tick_counter = 0;
 
@@ -57,7 +57,8 @@ public class Game {
     /*
     Entities and projectiles
      */
-    private final SwapAndPopList<GridEntity> entities = new SwapAndPopList<>();
+    private final GridEntity player = GridEntity.player();
+    private final HashSet<GridEntity> entities = new HashSet<>();
     private final Field field = new Field();
 
     private final SwapAndPopList<Projectile> projectiles = new SwapAndPopList<>();
@@ -67,12 +68,13 @@ public class Game {
         field.add_entity(e, pos);
     }
 
-    public void remove_entity(int ind) {
-        field.remove_entity(entities.remove(ind));
+    public void remove_entity(GridEntity entity) {
+        entities.remove(entity);
+        field.remove_entity(entity);
     }
 
     public GridEntity get_player() {
-        return entities.get(0); //the player will always be at index 0 because we never remove him
+        return player; //the player will always be at index 0 because we never remove him
     }
 
     public Field getField() {
@@ -86,10 +88,10 @@ public class Game {
         this.keyManager = keyManager;
         this.mouseManager = mouseManager;
 
-        add_entity(GridEntity.player(), new Field.FieldPosition(0, 0)); //adding the player
-        //TODO: remove this code, it only for testing
-        add_entity(GridEntity.enemy(), new Field.FieldPosition(1, 2));
-        projectiles.add(new Projectile(true, Sprites.Ball, 0, 0, 0, 0, 0, 1.0));
+        add_entity(get_player(), new Field.FieldPosition(0, 0)); //adding the player
+        //TODO: remove this code eventually, it only for testing
+        add_entity(GridEntity.enemy(), new Field.FieldPosition(5, 0));
+        projectiles.add(new Projectile(false, Sprites.Ball, -5, 0, Math.PI/4, 2.0/TICKS_PER_SECOND, 100, 1.0));
     }
 
     /*
@@ -118,10 +120,10 @@ public class Game {
             } else { //if we are paused
                 handle_ui_update();
             }
+            keyManager.update();
 
             main.render();
 
-            keyManager.update();
             tick_counter += 1;
             last_tick_time = Instant.now();
         }
@@ -132,9 +134,39 @@ public class Game {
     }
 
     private void handle_update_world() {
-        //TODO: add projectiles
-        for (int i = 0; i < entities.size(); i++) {
-            entities.get(i).getBehavior().update(entities.get(i), this);
+        //entity updating
+        Iterator<GridEntity> entityIterator = entities.iterator();
+        while (entityIterator.hasNext()) {
+            GridEntity entity = entityIterator.next();
+            entity.getBehavior().update(entity, this);
+        }
+
+        //projectile movement & hitting
+        for (int i = projectiles.size() - 1; i >= 0; i--) {
+            Projectile projectile = projectiles.get(i);
+
+            //movement
+            projectile.move();
+
+            //hit detection
+            damage: for (Field.FieldPosition tile: projectile.hitting()) {
+                for (GridEntity ent: getField().get_entities(tile)){
+                    if (projectile.isParent_is_player() != ent.getBehavior() instanceof PlayerBehavior){ //if our projectile and entity aren't on the same team
+                        if (ent.take_damage(projectile.getDamage())){ // we killed it
+                            ent.getBehavior().on_death(ent, this);
+                        }
+                        projectiles.remove(i);
+                        break damage; // we only want to damage one entity per projectile
+                    }
+                }
+            }
+
+            //removal if out of bounds
+            Field.FieldPosition player_pos = field.get_pos(get_player());
+            double projectile_distance_from_camera = Math.hypot(projectile.getX() - player_pos.x, projectile.getY() - player_pos.y) - projectile.getSize()/2;
+            if (projectile_distance_from_camera > Math.hypot(Main.SCREEN_TILE_WIDTH, Main.SCREEN_TILE_HEIGHT)/2 * 1.5){
+                projectiles.remove(i);
+            }
         }
     }
 
@@ -154,8 +186,9 @@ public class Game {
 
         Field.FieldPosition player_pos = field.get_pos(get_player());
         //entity rendering
-        for (int i = entities.size() - 1; i >= 0; i--) { //we go in reverse because we always want to draw the player on top
-            GridEntity entity = entities.get(i);
+        Iterator<GridEntity> entityIterator = entities.iterator();
+        while (entityIterator.hasNext()) {
+            GridEntity entity = entityIterator.next();
             Field.FieldPosition relative_pos = field.get_pos(entity).sub(player_pos);
             //bounds check, if we would be invisible on screen
             if (
@@ -169,6 +202,9 @@ public class Game {
 
             draw_sprite_on_grid(g2D, entity.getSprite(), relative_pos.x, relative_pos.y, 1.0);
         }
+
+        //draw player
+        draw_sprite_on_grid(g2D, get_player().getSprite(), 0, 0, 1.0);
 
         //projectile rendering
         for (int i = 0; i < projectiles.size(); i++) {

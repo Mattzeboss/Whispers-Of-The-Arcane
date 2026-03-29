@@ -1,14 +1,30 @@
 package src;
 
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.HashMap;
 import java.util.HashSet;
 
-public class KeyManager implements KeyListener {
+public class KeyManager implements KeyListener, FocusListener {
     private final HashSet<Integer> down = new HashSet<>();
     private final HashSet<Integer> pressed = new HashSet<>();
     private final HashSet<Integer> released = new HashSet<>();
+
+    //we need this to handle loosing focus when we have a key down
+    @Override
+    public void focusGained(FocusEvent e) {
+        //nothing needs to be done
+    }
+
+    //release all keys when we loose focus
+    @Override
+    public void focusLost(FocusEvent e) {
+        released.addAll(down);
+        down.clear();
+        pressed.clear();
+    }
 
 
     public enum KeyState {

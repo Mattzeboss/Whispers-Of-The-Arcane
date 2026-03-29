@@ -62,8 +62,9 @@ public class Main extends Canvas {
         );
 
 
-        //lets us listen to keypresses
+        //lets us listen to inputs
         addKeyListener(keyManager);
+        addFocusListener(keyManager);
         addMouseListener(mouseManager);
 
         //focuses us

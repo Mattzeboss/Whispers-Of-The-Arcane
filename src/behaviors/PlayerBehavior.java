@@ -13,15 +13,18 @@ public class PlayerBehavior implements Behavior {
     private int last_action_tick = 0;
     private Action current_action = Action.None;
 
-    private static final int[] keys = new int[]{KeyEvent.VK_E};
-    private static final Action[] acitons = new Action[]{Action.Left};
+    private static final int[] keys = new int[]{KeyEvent.VK_W, KeyEvent.VK_A, KeyEvent.VK_S, KeyEvent.VK_D};
+    private static final Action[] actions = new Action[]{Action.Up, Action.Right, Action.Down, Action.Left};
 
     static {
-        assert keys.length == acitons.length : "keys and action have to be the same length";
+        assert keys.length == actions.length : "keys and action have to be the same length";
     }
-    private static enum Action{
+    private enum Action{
         None,
+        Up,
+        Down,
         Left,
+        Right,
     }
     
     @Override
@@ -30,7 +33,7 @@ public class PlayerBehavior implements Behavior {
         //updates current action
         for (int i = 0; i < keys.length; i++) {
             int key = keys[i];
-            Action action = acitons[i];
+            Action action = actions[i];
             if (game.getKeyManager().isPressed(key)){
                 current_action = action;
             }
@@ -44,8 +47,18 @@ public class PlayerBehavior implements Behavior {
         //resolves current action
         if (game.getTick_counter() - last_action_tick > 20 && current_action != Action.None){
             switch (current_action){
+                case Up:
+                    game.getField().move_entity(entity, new Field.FieldPosition(0, 1));
+                    break;
+                case Down:
+                    game.getField().move_entity(entity, new Field.FieldPosition(0, -1));
+                    break;
                 case Left:
                     game.getField().move_entity(entity, new Field.FieldPosition(1, 0));
+                    break;
+                case Right:
+                    game.getField().move_entity(entity, new Field.FieldPosition(-1, 0));
+                    break;
             }
             last_action_tick = game.getTick_counter();
         }
