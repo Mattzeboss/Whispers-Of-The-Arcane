@@ -27,7 +27,15 @@ public class Game {
      */
     private double cameraX = 0.0;
     private double cameraY = 0.0;
-    private static final double camera_follow_speed = 0.05; // 0 means it will not move at all, 1 means it will follow the player perfectly
+    private static final double camera_follow_speed = 1.0-Math.pow(.25, 1.0/TICKS_PER_SECOND); // 0 means it will not move at all, 1 means it will follow the player perfectly
+
+    public double getCameraX(){
+        return cameraX;
+    }
+
+    public double getCameraY(){
+        return cameraY;
+    }
 
     /*
     Input related stuff
@@ -198,23 +206,24 @@ public class Game {
         }
 
         //entity rendering
-        Iterator<GridEntity> entityIterator = entities.iterator();
-        while (entityIterator.hasNext()) {
-            GridEntity entity = entityIterator.next();
+        for (GridEntity entity : entities) {
             Field.FieldPosition pos = field.get_pos(entity);
             double relative_pos_x = pos.x - cameraX;
             double relative_pos_y = pos.y - cameraY;
-            //bounds check, if we would be invisible on screen
+
+            //bounds check, if we would be visible on screen
             if (
-                    (relative_pos_x + entity.getWidth()) < -Main.SCREEN_TILE_WIDTH / 2 ||
-                            relative_pos_x > Main.SCREEN_TILE_WIDTH / 2 ||
-                            relative_pos_y < -Main.SCREEN_TILE_HEIGHT / 2 ||
-                            (relative_pos_y - entity.getHeight()) > Main.SCREEN_TILE_HEIGHT / 2
+                    !(
+                            (relative_pos_x + entity.getWidth()) < (double) -Main.SCREEN_TILE_WIDTH / 2 ||
+                            (relative_pos_x - entity.getWidth()) > (double) Main.SCREEN_TILE_WIDTH / 2 ||
+                            (relative_pos_y + entity.getHeight()) < (double) -Main.SCREEN_TILE_HEIGHT / 2 ||
+                            (relative_pos_y - entity.getHeight()) > (double) Main.SCREEN_TILE_HEIGHT / 2
+                    )
             ) {
-                continue;
+                draw_sprite_on_grid(g2D, entity.getSprite(), relative_pos_x, relative_pos_y, 1.0);
             }
 
-            draw_sprite_on_grid(g2D, entity.getSprite(), relative_pos_x, relative_pos_y, 1.0);
+            entity.getBehavior().paint(entity, this, g2D);
         }
 
         //draw player
@@ -224,6 +233,7 @@ public class Game {
         //projectile rendering
         for (int i = 0; i < projectiles.size(); i++) {
             Projectile projectile = projectiles.get(i);
+            //we don't need to worry about rendering things that are too far out of the camera's view because we despawn projectiles that go too far away from the camera
             draw_sprite_on_grid(g2D, projectile.getSprite(), projectile.getX() - cameraX, projectile.getY() - cameraY, projectile.getSize());
         }
 
@@ -238,7 +248,7 @@ public class Game {
     }
 
     //drawing at tiles from the center
-    private void draw_sprite_on_grid(Graphics2D g2D, BufferedImage sprite, double x, double y, double size) {
+    public void draw_sprite_on_grid(Graphics2D g2D, BufferedImage sprite, double x, double y, double size) {
         g2D.drawImage(
                 sprite,
                 transform_x(

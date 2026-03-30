@@ -5,6 +5,7 @@ import src.Field;
 import src.Game;
 import src.GridEntity;
 
+import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 
@@ -65,5 +66,11 @@ public class PlayerBehavior implements Behavior {
     @Override
     public void on_death(GridEntity entity, Game game) {
         game.setPaused(Game.PauseStates.LoseScreen);
+    }
+
+    //use this to paint card specific effects, we don't want to litter the Game.java file
+    @Override
+    public void paint(GridEntity entity, Game game, Graphics2D g2D) {
+
     }
 }
