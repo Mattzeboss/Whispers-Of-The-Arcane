@@ -1,10 +1,10 @@
 package src;
 
 import src.behaviors.PlayerBehavior;
+
+import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.time.Duration;
-import java.time.Instant;
 import java.util.HashSet;
 import java.util.Iterator;
 
@@ -20,7 +20,8 @@ public class Game {
         return tick_counter;
     }
 
-    private Instant last_tick_time;
+    private long last_tick_time;
+    private double fps = TICKS_PER_SECOND;
 
     /*
     Camera stuff
@@ -113,13 +114,14 @@ public class Game {
         src.Main loop
          */
     public void start(Main main) {
-        last_tick_time = Instant.now();
+        last_tick_time = System.nanoTime();
         //main loop start
         while (true) { //this loop will exit when the user closes the app manually
             //wait for the tick to start
-            double time_since_last_tick= Duration.between(last_tick_time, Instant.now()).toNanos() / 1.0e6;
+            long tick_start = System.nanoTime();
+            double time_since_last_tick = (tick_start - last_tick_time) / 1.0e6;
             if (time_since_last_tick < MILLISECONDS_PER_TICK) {
-                if (MILLISECONDS_PER_TICK - time_since_last_tick > 5) {
+                if (MILLISECONDS_PER_TICK - time_since_last_tick > 1) {
                     try {
                         Thread.sleep(1);
                     } catch (InterruptedException e) {
@@ -128,6 +130,10 @@ public class Game {
                 }
                 continue;
             }
+            //prep for next tick
+            fps = 1e3/time_since_last_tick;
+            last_tick_time = tick_start;
+            tick_counter += 1;
 
             //update state
             if (paused == PauseStates.NotPaused) {
@@ -143,11 +149,7 @@ public class Game {
             cameraY = cameraY + camera_follow_speed*(player_pos.y - cameraY);
 
             //render
-            main.render();
-
-            //prep for next tick
-            tick_counter += 1;
-            last_tick_time = Instant.now();
+            SwingUtilities.invokeLater(main::render);
         }
     }
 
@@ -231,13 +233,9 @@ public class Game {
         }
 
         //FPS counter
-        if (last_tick_time != null) {
-            g2D.setColor(Color.RED);
-            g2D.setFont(new Font("Ariel", Font.BOLD, 50));
-            double test = Duration.between(last_tick_time, Instant.now()).toNanos() / 1.0e6;
-            double fps = 1e9 / Duration.between(last_tick_time, Instant.now()).toNanos();
-            g2D.drawString(Double.toString(fps),0 , 50);
-        }
+        g2D.setColor(Color.RED);
+        g2D.setFont(new Font("Ariel", Font.BOLD, 50));
+        g2D.drawString("FPS: " + (int)Math.round(fps),0 , 50);
     }
 
     //drawing at tiles from the center
