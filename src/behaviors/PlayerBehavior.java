@@ -70,7 +70,7 @@ public class PlayerBehavior implements Behavior {
 
     //use this to paint card specific effects, we don't want to litter the Game.java file
     @Override
-    public void paint(GridEntity entity, Game game, Graphics2D g2D) {
+    public void paint(GridEntity entity, Game game, double screen_x, double screen_y, Graphics2D g2D) {
 
     }
 }

@@ -212,18 +212,11 @@ public class Game {
             double relative_pos_y = pos.y - cameraY;
 
             //bounds check, if we would be visible on screen
-            if (
-                    !(
-                            (relative_pos_x + entity.getWidth()) < (double) -Main.SCREEN_TILE_WIDTH / 2 ||
-                            (relative_pos_x - entity.getWidth()) > (double) Main.SCREEN_TILE_WIDTH / 2 ||
-                            (relative_pos_y + entity.getHeight()) < (double) -Main.SCREEN_TILE_HEIGHT / 2 ||
-                            (relative_pos_y - entity.getHeight()) > (double) Main.SCREEN_TILE_HEIGHT / 2
-                    )
-            ) {
+            if (is_rect_on_screen(pos.x, pos.y, entity.getWidth(), entity.getHeight())) {
                 draw_sprite_on_grid(g2D, entity.getSprite(), relative_pos_x, relative_pos_y, 1.0);
             }
 
-            entity.getBehavior().paint(entity, this, g2D);
+            entity.getBehavior().paint(entity, this, relative_pos_x, relative_pos_y, g2D);
         }
 
         //draw player
@@ -248,7 +241,7 @@ public class Game {
     }
 
     //drawing at tiles from the center
-    public void draw_sprite_on_grid(Graphics2D g2D, BufferedImage sprite, double x, double y, double size) {
+    public static void draw_sprite_on_grid(Graphics2D g2D, BufferedImage sprite, double x, double y, double size) {
         g2D.drawImage(
                 sprite,
                 transform_x(
@@ -269,12 +262,23 @@ public class Game {
         );
     }
 
+    //used for occulsion culling
+    //x and y are given in field space not screen space
+    public boolean is_rect_on_screen(double x, double y, double w, double h){
+        double left_bound = cameraX - Main.SCREEN_TILE_WIDTH/2.0;
+        double right_bound = cameraX + Main.SCREEN_TILE_WIDTH/2.0;
+        double top_bound = cameraY + Main.SCREEN_TILE_HEIGHT/2.0;
+        double bottom_bound = cameraY - Main.SCREEN_TILE_HEIGHT/2.0;
+
+        return !( x - 0.5 > right_bound || x - 0.5 +w < left_bound || y - 0.5 > top_bound || y - 0.5 +h < bottom_bound);
+    }
+
     //lets us go from the standard Cartesian coordinates( 0,0 at the center +x is right and +y is up) to screen space coordinates
-    private int transform_x(int preimage) {
+    private static int transform_x(int preimage) {
         return preimage + Main.SCREEN_WIDTH / 2;
     }
 
-    private int transform_y(int preimage) {
+    private static int transform_y(int preimage) {
         return -preimage + Main.SCREEN_HEIGHT / 2;
     }
 }

@@ -18,5 +18,5 @@ public interface Behavior {
     /*
     used to draw extra effects if needed
      */
-    default void paint(GridEntity entity, Game game, Graphics2D g2D){}
+    default void paint(GridEntity entity, Game game, double screen_x, double screen_y, Graphics2D g2D){}
 }
