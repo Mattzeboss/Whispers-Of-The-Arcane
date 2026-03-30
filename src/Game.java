@@ -23,10 +23,17 @@ public class Game {
     private Instant last_tick_time;
 
     /*
+    Camera stuff
+     */
+    private double cameraX = 0.0;
+    private double cameraY = 0.0;
+    private static final double camera_follow_speed = 0.05; // 0 means it will not move at all, 1 means it will follow the player perfectly
+
+    /*
     Input related stuff
      */
-    private KeyManager keyManager;
-    private MouseManager mouseManager;
+    private final KeyManager keyManager;
+    private final MouseManager mouseManager;
 
 
     public MouseManager getMouseManager() {
@@ -88,7 +95,7 @@ public class Game {
         this.keyManager = keyManager;
         this.mouseManager = mouseManager;
 
-        add_entity(get_player(), new Field.FieldPosition(0, 0)); //adding the player
+        add_entity(get_player(), new Field.FieldPosition((int)cameraX, (int)cameraY)); //adding the player
         //TODO: remove this code eventually, it only for testing
         add_entity(GridEntity.enemy(), new Field.FieldPosition(5, 0));
         projectiles.add(new Projectile(false, Sprites.Ball, -5, 0, Math.PI/4, 2.0/TICKS_PER_SECOND, 100, 1.0));
@@ -114,7 +121,7 @@ public class Game {
                 continue;
             }
 
-
+            //update state
             if (paused == PauseStates.NotPaused) {
                 handle_update_world();
             } else { //if we are paused
@@ -122,8 +129,15 @@ public class Game {
             }
             keyManager.update();
 
+            //update camera
+            Field.FieldPosition player_pos = field.get_pos(get_player());
+            cameraX = cameraX + camera_follow_speed*(player_pos.x - cameraX);
+            cameraY = cameraY + camera_follow_speed*(player_pos.y - cameraY);
+
+            //render
             main.render();
 
+            //prep for next tick
             tick_counter += 1;
             last_tick_time = Instant.now();
         }
@@ -162,8 +176,7 @@ public class Game {
             }
 
             //removal if out of bounds
-            Field.FieldPosition player_pos = field.get_pos(get_player());
-            double projectile_distance_from_camera = Math.hypot(projectile.getX() - player_pos.x, projectile.getY() - player_pos.y) - projectile.getSize()/2;
+            double projectile_distance_from_camera = Math.hypot(projectile.getX() - cameraX, projectile.getY() - cameraY) - projectile.getSize()/2;
             if (projectile_distance_from_camera > Math.hypot(Main.SCREEN_TILE_WIDTH, Main.SCREEN_TILE_HEIGHT)/2 * 1.5){
                 projectiles.remove(i);
             }
@@ -178,38 +191,40 @@ public class Game {
         g2D.setColor(Color.WHITE);
 
         //background
-        for (int i = 0; i < Main.SCREEN_TILE_WIDTH; i++) {
-            for (int j = 0; j < Main.SCREEN_TILE_HEIGHT; j++) {
-                draw_sprite_on_grid(g2D, Sprites.Background, (i -  Main.SCREEN_TILE_WIDTH / 2), (j - Main.SCREEN_TILE_HEIGHT / 2), 1.0);
+        for (int i = 0; i <= Main.SCREEN_TILE_WIDTH; i++) {
+            for (int j = 0; j <= Main.SCREEN_TILE_HEIGHT; j++) {
+                draw_sprite_on_grid(g2D, Sprites.Background, (i -  Main.SCREEN_TILE_WIDTH / 2) - Util.true_mod(cameraX, 1.0), (j - Main.SCREEN_TILE_HEIGHT / 2) - Util.true_mod(cameraY, 1.0), 1.0);
             }
         }
 
-        Field.FieldPosition player_pos = field.get_pos(get_player());
         //entity rendering
         Iterator<GridEntity> entityIterator = entities.iterator();
         while (entityIterator.hasNext()) {
             GridEntity entity = entityIterator.next();
-            Field.FieldPosition relative_pos = field.get_pos(entity).sub(player_pos);
+            Field.FieldPosition pos = field.get_pos(entity);
+            double relative_pos_x = pos.x - cameraX;
+            double relative_pos_y = pos.y - cameraY;
             //bounds check, if we would be invisible on screen
             if (
-                    (relative_pos.x + entity.getWidth()) < -Main.SCREEN_TILE_WIDTH / 2 ||
-                            relative_pos.x > Main.SCREEN_TILE_WIDTH / 2 ||
-                            relative_pos.y < -Main.SCREEN_TILE_HEIGHT / 2 ||
-                            (relative_pos.y - entity.getHeight()) > Main.SCREEN_TILE_HEIGHT / 2
+                    (relative_pos_x + entity.getWidth()) < -Main.SCREEN_TILE_WIDTH / 2 ||
+                            relative_pos_x > Main.SCREEN_TILE_WIDTH / 2 ||
+                            relative_pos_y < -Main.SCREEN_TILE_HEIGHT / 2 ||
+                            (relative_pos_y - entity.getHeight()) > Main.SCREEN_TILE_HEIGHT / 2
             ) {
                 continue;
             }
 
-            draw_sprite_on_grid(g2D, entity.getSprite(), relative_pos.x, relative_pos.y, 1.0);
+            draw_sprite_on_grid(g2D, entity.getSprite(), relative_pos_x, relative_pos_y, 1.0);
         }
 
         //draw player
-        draw_sprite_on_grid(g2D, get_player().getSprite(), 0, 0, 1.0);
+        Field.FieldPosition player_pos = field.get_pos(get_player());
+        draw_sprite_on_grid(g2D, get_player().getSprite(), player_pos.x - cameraX, player_pos.y - cameraY, 1.0);
 
         //projectile rendering
         for (int i = 0; i < projectiles.size(); i++) {
             Projectile projectile = projectiles.get(i);
-            draw_sprite_on_grid(g2D, projectile.getSprite(), projectile.getX() - player_pos.x, projectile.getY() - player_pos.y, projectile.getSize());
+            draw_sprite_on_grid(g2D, projectile.getSprite(), projectile.getX() - cameraX, projectile.getY() - cameraY, projectile.getSize());
         }
 
         //FPS counter
