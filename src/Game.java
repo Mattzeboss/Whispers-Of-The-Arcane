@@ -105,8 +105,8 @@ public class Game {
 
         add_entity(get_player(), new Field.FieldPosition((int)cameraX, (int)cameraY)); //adding the player
         //TODO: remove this code eventually, it only for testing
-        add_entity(GridEntity.enemy(), new Field.FieldPosition(5, 0));
-        projectiles.add(new Projectile(false, Sprites.Ball, -5, 0, Math.PI/4, 2.0/TICKS_PER_SECOND, 100, 1.0));
+        add_entity(GridEntity.large_enemy(), new Field.FieldPosition(5, 1));
+        projectiles.add(new Projectile(true, Sprites.Ball, -5, 0.5, 0, 2.0/TICKS_PER_SECOND, 100, 1.0));
     }
 
     /*
@@ -201,7 +201,7 @@ public class Game {
         //background
         for (int i = 0; i <= Main.SCREEN_TILE_WIDTH; i++) {
             for (int j = 0; j <= Main.SCREEN_TILE_HEIGHT; j++) {
-                draw_sprite_on_grid(g2D, Sprites.Background, (i -  Main.SCREEN_TILE_WIDTH / 2) - Util.true_mod(cameraX, 1.0), (j - Main.SCREEN_TILE_HEIGHT / 2) - Util.true_mod(cameraY, 1.0), 1.0);
+                draw_sprite_on_grid(g2D, Sprites.Background, (i -  Main.SCREEN_TILE_WIDTH / 2) - Util.true_mod(cameraX, 1.0), (j - Main.SCREEN_TILE_HEIGHT / 2) - Util.true_mod(cameraY, 1.0), 1.0, 1.0);
             }
         }
 
@@ -213,7 +213,7 @@ public class Game {
 
             //bounds check, if we would be visible on screen
             if (is_rect_on_screen(pos.x, pos.y, entity.getWidth(), entity.getHeight())) {
-                draw_sprite_on_grid(g2D, entity.getSprite(), relative_pos_x, relative_pos_y, 1.0);
+                draw_sprite_on_grid(g2D, entity.getSprite(), relative_pos_x, relative_pos_y, entity.getWidth(), entity.getHeight());
             }
 
             entity.getBehavior().paint(entity, this, relative_pos_x, relative_pos_y, g2D);
@@ -221,13 +221,13 @@ public class Game {
 
         //draw player
         Field.FieldPosition player_pos = field.get_pos(get_player());
-        draw_sprite_on_grid(g2D, get_player().getSprite(), player_pos.x - cameraX, player_pos.y - cameraY, 1.0);
+        draw_sprite_on_grid(g2D, get_player().getSprite(), player_pos.x - cameraX, player_pos.y - cameraY, get_player().getWidth(), get_player().getHeight());
 
         //projectile rendering
         for (int i = 0; i < projectiles.size(); i++) {
             Projectile projectile = projectiles.get(i);
             //we don't need to worry about rendering things that are too far out of the camera's view because we despawn projectiles that go too far away from the camera
-            draw_sprite_on_grid(g2D, projectile.getSprite(), projectile.getX() - cameraX, projectile.getY() - cameraY, projectile.getSize());
+            draw_sprite_on_grid(g2D, projectile.getSprite(), projectile.getX() - cameraX, projectile.getY() - cameraY, projectile.getSize(), projectile.getSize());
         }
 
         //FPS counter
@@ -241,23 +241,23 @@ public class Game {
     }
 
     //drawing at tiles from the center
-    public static void draw_sprite_on_grid(Graphics2D g2D, BufferedImage sprite, double x, double y, double size) {
+    public static void draw_sprite_on_grid(Graphics2D g2D, BufferedImage sprite, double x, double y, double width, double height) {
         g2D.drawImage(
                 sprite,
                 transform_x(
                         (int) (
-                                (x - 0.5 * size) *
+                                (x - 0.5) *
                                         Main.TILE_SIZE_PX
                         )
                 ),
                 transform_y(
                         (int) (
-                                (y + 0.5 * size) *
+                                (y + 0.5) *
                                         Main.TILE_SIZE_PX
                         )
                 ),
-                (int) (Main.TILE_SIZE_PX * size),
-                (int) (Main.TILE_SIZE_PX * size),
+                (int) (Main.TILE_SIZE_PX * width),
+                (int) (Main.TILE_SIZE_PX * height),
                 null
         );
     }
@@ -270,7 +270,7 @@ public class Game {
         double top_bound = cameraY + Main.SCREEN_TILE_HEIGHT/2.0;
         double bottom_bound = cameraY - Main.SCREEN_TILE_HEIGHT/2.0;
 
-        return !( x - 0.5 > right_bound || x - 0.5 +w < left_bound || y - 0.5 > top_bound || y - 0.5 +h < bottom_bound);
+        return !( x - 0.5 > right_bound || x - 0.5 +w < left_bound || y + 0.5 - h > top_bound || y + 0.5 < bottom_bound);
     }
 
     //lets us go from the standard Cartesian coordinates( 0,0 at the center +x is right and +y is up) to screen space coordinates

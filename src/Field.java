@@ -55,7 +55,7 @@ public class Field {
         //an entity can take up multiple tiles, if it does, we put it in every tile
         for (int i = 0; i < e.getWidth(); i++) {
             for (int j = 0; j < e.getHeight(); j++) {
-                position_to_entity.computeIfAbsent(pos.add(new FieldPosition(i, j)), (_a) -> new ArrayList<>()).add(e);
+                position_to_entity.computeIfAbsent(pos.add(new FieldPosition(i, -j)), (_a) -> new ArrayList<>()).add(e);
             }
         }
 
@@ -66,7 +66,7 @@ public class Field {
         for (int i = 0; i < e.getWidth(); i++) {
             for (int j = 0; j < e.getHeight(); j++) {
                 //we only remove if we already inserted
-                FieldPosition pos = get_pos(e).add(new FieldPosition(i, j));
+                FieldPosition pos = get_pos(e).add(new FieldPosition(i, -j));
                 ArrayList<GridEntity> entites = position_to_entity.get(pos);
                 entites.remove(e);
                 if (entites.isEmpty()){ //no need to keep empty arrays around
