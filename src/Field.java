@@ -19,7 +19,7 @@ public class Field {
 
 
         public FieldPosition sub(FieldPosition other) {
-            return new FieldPosition( x - other.x, y - other.y);
+            return new FieldPosition(x - other.x, y - other.y);
         }
 
         @Override
@@ -30,7 +30,12 @@ public class Field {
 
         @Override
         public int hashCode() {
-            return Integer.hashCode(x+y);
+            return Integer.hashCode(x + y);
+        }
+
+        @Override
+        public String toString() {
+            return "("+x+", "+y+")";
         }
     }
 
@@ -41,11 +46,16 @@ public class Field {
         return entity_to_position.get(e);
     }
 
+    public ArrayList<GridEntity> get_entities(FieldPosition pos) {
+        ArrayList<GridEntity> entities;
+        return ((entities = position_to_entity.get(pos)) != null) ? entities : new ArrayList<>();
+    }
+
     public void add_entity(GridEntity e, FieldPosition pos) {
         //an entity can take up multiple tiles, if it does, we put it in every tile
         for (int i = 0; i < e.getWidth(); i++) {
             for (int j = 0; j < e.getHeight(); j++) {
-                position_to_entity.computeIfAbsent(pos.add(new FieldPosition(i, j)), (_a) -> new ArrayList<>()).add(e);
+                position_to_entity.computeIfAbsent(pos.add(new FieldPosition(i, -j)), (_a) -> new ArrayList<>()).add(e);
             }
         }
 
@@ -56,7 +66,12 @@ public class Field {
         for (int i = 0; i < e.getWidth(); i++) {
             for (int j = 0; j < e.getHeight(); j++) {
                 //we only remove if we already inserted
-                position_to_entity.get(get_pos(e).add(new FieldPosition(i, j))).remove(e);
+                FieldPosition pos = get_pos(e).add(new FieldPosition(i, -j));
+                ArrayList<GridEntity> entites = position_to_entity.get(pos);
+                entites.remove(e);
+                if (entites.isEmpty()){ //no need to keep empty arrays around
+                    position_to_entity.remove(pos);
+                }
             }
         }
         entity_to_position.remove(e);
@@ -74,7 +89,7 @@ public class Field {
 
     public ArrayList<GridEntity> get_overlapping_entities(GridEntity e) {
         ArrayList<GridEntity> overlapping = new ArrayList<>();
-        for (int i = 0; i <  e.getWidth(); i++) {
+        for (int i = 0; i < e.getWidth(); i++) {
             for (int j = 0; j < e.getHeight(); j++) {
                 //we only remove if we already inserted
                 position_to_entity.get(get_pos(e).add(new FieldPosition(i, j))).forEach((ent) -> {

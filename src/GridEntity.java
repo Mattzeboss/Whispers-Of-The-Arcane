@@ -83,4 +83,8 @@ public class GridEntity {
     public static GridEntity enemy() {
         return new GridEntity(Sprites.Enemy, 100, 1, 1, new EnemyBehavior());
     }
+
+    public static GridEntity large_enemy() {
+        return new GridEntity(Sprites.LargeEnemy, 100, 2, 2, new EnemyBehavior());
+    }
 }

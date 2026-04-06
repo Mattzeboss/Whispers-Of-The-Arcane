@@ -62,12 +62,13 @@ public class Main extends Canvas {
         );
 
 
-        //lets us listen to keypresses
+        //lets us listen to inputs
         addKeyListener(keyManager);
+        addFocusListener(keyManager);
         addMouseListener(mouseManager);
 
         //focuses us
-        requestFocusInWindow();
+        requestFocusInWindow(false);
 
         //TODO: Add a title screen before this, wait for the user to press a key, then start the game
         //starts the game

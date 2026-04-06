@@ -1,31 +1,48 @@
 package src;
 
+import src.behaviors.PlayerBehavior;
+
+import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.awt.image.BufferedImageOp;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
 
 public class Game {
     /*
     Tick related stuff
      */
     public static final int TICKS_PER_SECOND = 60;
-    public static final int MILLISECONDS_PER_TICK = 1000 / TICKS_PER_SECOND;
+    public static final double MILLISECONDS_PER_TICK = 1000.0 / TICKS_PER_SECOND;
     private int tick_counter = 0;
 
     public int getTick_counter() {
         return tick_counter;
     }
 
-    private Instant last_tick_time;
+    private long last_tick_time;
+    private double fps = TICKS_PER_SECOND;
+
+    /*
+    Camera stuff
+     */
+    private double cameraX = 0.0;
+    private double cameraY = 0.0;
+    private static final double camera_follow_speed = 1.0-Math.pow(.25, 1.0/TICKS_PER_SECOND); // 0 means it will not move at all, 1 means it will follow the player perfectly
+
+    public double getCameraX(){
+        return cameraX;
+    }
+
+    public double getCameraY(){
+        return cameraY;
+    }
 
     /*
     Input related stuff
      */
-    private KeyManager keyManager;
-    private MouseManager mouseManager;
+    private final KeyManager keyManager;
+    private final MouseManager mouseManager;
 
 
     public MouseManager getMouseManager() {
@@ -56,7 +73,8 @@ public class Game {
     /*
     Entities and projectiles
      */
-    private final SwapAndPopList<GridEntity> entities = new SwapAndPopList<>();
+    private final GridEntity player = GridEntity.player();
+    private final HashSet<GridEntity> entities = new HashSet<>();
     private final Field field = new Field();
 
     private final SwapAndPopList<Projectile> projectiles = new SwapAndPopList<>();
@@ -66,12 +84,13 @@ public class Game {
         field.add_entity(e, pos);
     }
 
-    public void remove_entity(int ind) {
-        field.remove_entity(entities.remove(ind));
+    public void remove_entity(GridEntity entity) {
+        entities.remove(entity);
+        field.remove_entity(entity);
     }
 
     public GridEntity get_player() {
-        return entities.get(0); //the player will always be at index 0 because we never remove him
+        return player; //the player will always be at index 0 because we never remove him
     }
 
     public Field getField() {
@@ -85,41 +104,52 @@ public class Game {
         this.keyManager = keyManager;
         this.mouseManager = mouseManager;
 
-        add_entity(GridEntity.player(), new Field.FieldPosition(0, 0)); //adding the player
-        //TODO: remove this code, it only for testing
-        add_entity(GridEntity.enemy(), new Field.FieldPosition(1, 2));
-        projectiles.add(new Projectile(true, Sprites.Ball, 0, 0, 0, 0, 0, 1.0));
+        add_entity(get_player(), new Field.FieldPosition((int)cameraX, (int)cameraY)); //adding the player
+        //TODO: remove this code eventually, it only for testing
+        add_entity(GridEntity.large_enemy(), new Field.FieldPosition(5, 1));
+        projectiles.add(new Projectile(true, Sprites.Ball, -5, 0.5, 0, 2.0/TICKS_PER_SECOND, 100, 1.0));
     }
 
     /*
         src.Main loop
          */
     public void start(Main main) {
-        last_tick_time = Instant.now();
+        last_tick_time = System.nanoTime();
         //main loop start
         while (true) { //this loop will exit when the user closes the app manually
             //wait for the tick to start
-            long time_since_last_tick= Duration.between(last_tick_time, Instant.now()).toMillis();
+            long tick_start = System.nanoTime();
+            double time_since_last_tick = (tick_start - last_tick_time) / 1.0e6;
             if (time_since_last_tick < MILLISECONDS_PER_TICK) {
-                try {
-                    Thread.sleep(MILLISECONDS_PER_TICK - time_since_last_tick);
-                } catch (InterruptedException e) {
-                    continue; //if we cannot sleep, we will busy wait
+                if (MILLISECONDS_PER_TICK - time_since_last_tick > 1) {
+                    try {
+                        Thread.sleep(1);
+                    } catch (InterruptedException e) {
+                         //if we cannot sleep, we will busy wait
+                    }
                 }
+                continue;
             }
+            //prep for next tick
+            fps = 1e3/time_since_last_tick;
+            last_tick_time = tick_start;
+            tick_counter += 1;
 
-
+            //update state
             if (paused == PauseStates.NotPaused) {
                 handle_update_world();
             } else { //if we are paused
                 handle_ui_update();
             }
-
-            main.render();
-
             keyManager.update();
-            tick_counter += 1;
-            last_tick_time = Instant.now();
+
+            //update camera
+            Field.FieldPosition player_pos = field.get_pos(get_player());
+            cameraX = cameraX + camera_follow_speed*(player_pos.x - cameraX);
+            cameraY = cameraY + camera_follow_speed*(player_pos.y - cameraY);
+
+            //render
+            SwingUtilities.invokeLater(main::render);
         }
     }
 
@@ -128,9 +158,38 @@ public class Game {
     }
 
     private void handle_update_world() {
-        //TODO: add projectiles
-        for (int i = 0; i < entities.size(); i++) {
-            entities.get(i).getBehavior().update(entities.get(i), this);
+        //entity updating
+        Iterator<GridEntity> entityIterator = entities.iterator();
+        while (entityIterator.hasNext()) {
+            GridEntity entity = entityIterator.next();
+            entity.getBehavior().update(entity, this);
+        }
+
+        //projectile movement & hitting
+        for (int i = projectiles.size() - 1; i >= 0; i--) {
+            Projectile projectile = projectiles.get(i);
+
+            //movement
+            projectile.move();
+
+            //hit detection
+            damage: for (Field.FieldPosition tile: projectile.hitting()) {
+                for (GridEntity ent: getField().get_entities(tile)){
+                    if (projectile.isParent_is_player() != ent.getBehavior() instanceof PlayerBehavior){ //if our projectile and entity aren't on the same team
+                        if (ent.take_damage(projectile.getDamage())){ // we killed it
+                            ent.getBehavior().on_death(ent, this);
+                        }
+                        projectiles.remove(i);
+                        break damage; // we only want to damage one entity per projectile
+                    }
+                }
+            }
+
+            //removal if out of bounds
+            double projectile_distance_from_camera = Math.hypot(projectile.getX() - cameraX, projectile.getY() - cameraY) - projectile.getSize()/2;
+            if (projectile_distance_from_camera > Math.hypot(Main.SCREEN_TILE_WIDTH, Main.SCREEN_TILE_HEIGHT)/2 * 1.5){
+                projectiles.remove(i);
+            }
         }
     }
 
@@ -142,72 +201,82 @@ public class Game {
         g2D.setColor(Color.WHITE);
 
         //background
-        for (int i = 0; i < Main.SCREEN_TILE_WIDTH; i++) {
-            for (int j = 0; j < Main.SCREEN_TILE_HEIGHT; j++) {
-                draw_sprite_on_grid(g2D, Sprites.Background, (i -  Main.SCREEN_TILE_WIDTH / 2), (j - Main.SCREEN_TILE_HEIGHT / 2), 1.0);
+        for (int i = 0; i <= Main.SCREEN_TILE_WIDTH; i++) {
+            for (int j = 0; j <= Main.SCREEN_TILE_HEIGHT; j++) {
+                draw_sprite_on_grid(g2D, Sprites.Background, (i -  Main.SCREEN_TILE_WIDTH / 2) - Util.true_mod(cameraX, 1.0), (j - Main.SCREEN_TILE_HEIGHT / 2) - Util.true_mod(cameraY, 1.0), 1.0, 1.0);
             }
         }
 
-        Field.FieldPosition player_pos = field.get_pos(get_player());
         //entity rendering
-        for (int i = entities.size() - 1; i >= 0; i--) { //we go in reverse because we always want to draw the player on top
-            GridEntity entity = entities.get(i);
-            Field.FieldPosition relative_pos = field.get_pos(entity).sub(player_pos);
-            //bounds check, if we would be invisible on screen
-            if (
-                    (relative_pos.x + entity.getWidth()) < -Main.SCREEN_TILE_WIDTH / 2 ||
-                            relative_pos.x > Main.SCREEN_TILE_WIDTH / 2 ||
-                            relative_pos.y < -Main.SCREEN_TILE_HEIGHT / 2 ||
-                            (relative_pos.y - entity.getHeight()) > Main.SCREEN_TILE_HEIGHT / 2
-            ) {
-                continue;
+        for (GridEntity entity : entities) {
+            Field.FieldPosition pos = field.get_pos(entity);
+            double relative_pos_x = pos.x - cameraX;
+            double relative_pos_y = pos.y - cameraY;
+
+            //bounds check, if we would be visible on screen
+            if (is_rect_on_screen(pos.x, pos.y, entity.getWidth(), entity.getHeight())) {
+                draw_sprite_on_grid(g2D, entity.getSprite(), relative_pos_x, relative_pos_y, entity.getWidth(), entity.getHeight());
             }
 
-            draw_sprite_on_grid(g2D, entity.getSprite(), relative_pos.x, relative_pos.y, 1.0);
+            entity.getBehavior().paint(entity, this, relative_pos_x, relative_pos_y, g2D);
         }
+
+        //draw player
+        Field.FieldPosition player_pos = field.get_pos(get_player());
+        draw_sprite_on_grid(g2D, get_player().getSprite(), player_pos.x - cameraX, player_pos.y - cameraY, get_player().getWidth(), get_player().getHeight());
 
         //projectile rendering
         for (int i = 0; i < projectiles.size(); i++) {
             Projectile projectile = projectiles.get(i);
-            draw_sprite_on_grid(g2D, projectile.getSprite(), projectile.getX(), projectile.getY(), projectile.getSize());
+            //we don't need to worry about rendering things that are too far out of the camera's view because we despawn projectiles that go too far away from the camera
+            draw_sprite_on_grid(g2D, projectile.getSprite(), projectile.getX() - cameraX, projectile.getY() - cameraY, projectile.getSize(), projectile.getSize());
         }
 
         //FPS counter
-        if (last_tick_time != null) {
-            g2D.setColor(Color.RED);
-            g2D.setFont(new Font("Ariel", Font.BOLD, 50));
-            g2D.drawString(Double.toString(1000.0 / Duration.between(last_tick_time, Instant.now()).toMillis()),0 , 50);
-        }
+        g2D.setColor(Color.RED);
+        g2D.setFont(new Font("Ariel", Font.BOLD, 50));
+        g2D.drawString("FPS: " + (int)Math.round(fps),0 , 50);
     }
 
     //drawing at tiles from the center
-    private void draw_sprite_on_grid(Graphics2D g2D, BufferedImage sprite, double x, double y, double size) {
+    public static void draw_sprite_on_grid(Graphics2D g2D, BufferedImage sprite, double x, double y, double width, double height) {
         g2D.drawImage(
                 sprite,
                 transform_x(
                         (int) (
-                                (x - 0.5 * size) *
+                                (x - 0.5) *
                                         Main.TILE_SIZE_PX
                         )
                 ),
                 transform_y(
                         (int) (
-                                (y + 0.5 * size) *
+                                (y + 0.5) *
                                         Main.TILE_SIZE_PX
                         )
                 ),
-                (int) (Main.TILE_SIZE_PX * size),
-                (int) (Main.TILE_SIZE_PX * size),
+                (int) (Main.TILE_SIZE_PX * width),
+                (int) (Main.TILE_SIZE_PX * height),
                 null
         );
     }
 
+    //used for occulsion culling
+    //x and y are given in field space not screen space
+    public boolean is_rect_on_screen(double x, double y, double w, double h){
+        double left_bound = cameraX - Main.SCREEN_TILE_WIDTH/2.0;
+        double right_bound = cameraX + Main.SCREEN_TILE_WIDTH/2.0;
+        double top_bound = cameraY + Main.SCREEN_TILE_HEIGHT/2.0;
+        double bottom_bound = cameraY - Main.SCREEN_TILE_HEIGHT/2.0;
+
+        return !( x - 0.5 > right_bound || x - 0.5 +w < left_bound || y + 0.5 - h > top_bound || y + 0.5 < bottom_bound);
+    }
+
     //lets us go from the standard Cartesian coordinates( 0,0 at the center +x is right and +y is up) to screen space coordinates
-    private int transform_x(int preimage) {
+    private static int transform_x(int preimage) {
         return preimage + Main.SCREEN_WIDTH / 2;
     }
 
-    private int transform_y(int preimage) {
+    private static int transform_y(int preimage) {
         return -preimage + Main.SCREEN_HEIGHT / 2;
     }
 }
