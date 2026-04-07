@@ -107,7 +107,7 @@ public class Game {
         add_entity(get_player(), new Field.FieldPosition((int)cameraX, (int)cameraY)); //adding the player
         //TODO: remove this code eventually, it only for testing
         add_entity(GridEntity.large_enemy(), new Field.FieldPosition(5, 1));
-        projectiles.add(new Projectile(true, Sprites.Ball, -5, 0.5, 0, 2.0/TICKS_PER_SECOND, 100, 1.0));
+        projectiles.add(new Projectile(false, Sprites.Ball, -5, 0.5, 0, 2.0/TICKS_PER_SECOND, 59, 1.0));
     }
 
     /*
@@ -230,6 +230,19 @@ public class Game {
             Projectile projectile = projectiles.get(i);
             //we don't need to worry about rendering things that are too far out of the camera's view because we despawn projectiles that go too far away from the camera
             draw_sprite_on_grid(g2D, projectile.getSprite(), projectile.getX() - cameraX, projectile.getY() - cameraY, projectile.getSize(), projectile.getSize());
+        }
+
+        //draw side ui
+        {
+            //background
+            g2D.setColor(Color.BLACK);
+            g2D.fillRect(Main.SCREEN_WIDTH, 0, Main.UI_WIDTH, Main.SCREEN_HEIGHT);
+            //separator line
+            g2D.setColor(Color.WHITE);
+            g2D.setStroke(new BasicStroke(6.0f));
+            g2D.drawLine(Main.SCREEN_WIDTH - 3, 0, Main.SCREEN_WIDTH - 3, Main.SCREEN_HEIGHT);
+            //health
+            GameFont.draw(g2D, "Health: " + get_player().getHealth(), Main.SCREEN_TILE_WIDTH + 0.1, 0, Color.WHITE);
         }
 
         //FPS counter

@@ -21,10 +21,12 @@ public class Main extends Canvas {
     public static final int TILE_SIZE_PX = TILE_SIZE * PIXEL_SCALE; //16x16 px tile
     public static final int SCREEN_TILE_WIDTH = 17; //How many tiles across is the screen
     public static final int SCREEN_TILE_HEIGHT = 13; //how many tiles tall is the screen
+    public static final int UI_TILE_WIDTH = 4; //how many extra tiles does the UI take
 
     //our calculated screen width and height in px
     public static final int SCREEN_WIDTH = SCREEN_TILE_WIDTH * TILE_SIZE_PX;
     public static final int SCREEN_HEIGHT = SCREEN_TILE_HEIGHT * TILE_SIZE_PX;
+    public static final int UI_WIDTH = UI_TILE_WIDTH * TILE_SIZE_PX;
 
     /*
     input managers
@@ -56,9 +58,9 @@ public class Main extends Canvas {
                 System.exit(0);
             }
         });
-        frame.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+        frame.setSize(SCREEN_WIDTH + UI_WIDTH, SCREEN_HEIGHT);
         SwingUtilities.invokeLater(() ->
-                frame.setSize(2 * SCREEN_WIDTH - this.getSize().width, 2 * SCREEN_HEIGHT - this.getSize().height) //setting the proper height and width is complicated
+                frame.setSize(2 * (SCREEN_WIDTH + UI_WIDTH) - this.getSize().width, 2 * SCREEN_HEIGHT - this.getSize().height) //setting the proper height and width is complicated
         );
 
 

@@ -21,4 +21,5 @@ public abstract class Sprites {
     public static final BufferedImage LargeEnemy = loadImage("./src/graphics/large_frown.png");
     public static final BufferedImage Background = loadImage("./src/graphics/placeholder.png");
     public static final BufferedImage Ball = loadImage("./src/graphics/ball.png");
+    public static final BufferedImage Font = loadImage("./src/graphics/bitmap_font_8x16.png");
 }
