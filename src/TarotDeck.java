@@ -1,6 +1,6 @@
 package src;
 
-import src.*;
+import java.awt.image.BufferedImage;
 import java.util.*;
 
 public class TarotDeck {
@@ -27,15 +27,18 @@ public class TarotDeck {
     }
 
     public void shuffle() {
-        ArrayList<Card> temp = new ArrayList<Card>();
+        //TODO: remove the commented out code
+//        ArrayList<Card> temp = new ArrayList<Card>();
+//
+//        while(!deck.isEmpty()) {
+//            temp.add(deck.remove((int)(Math.random() * deck.size())));
+//        }
+//
+//        while(!temp.isEmpty()) {
+//            deck.add(temp.remove(0));
+//        }
 
-        while(!deck.isEmpty()) {
-            temp.add(deck.remove((int)(Math.random() * deck.size())));
-        }
-
-        while(!temp.isEmpty()) {
-            deck.add(temp.remove(0));
-        }
+        Collections.shuffle(deck);
     }
 
     public Card getTopCard() {
@@ -61,12 +64,22 @@ public class TarotDeck {
     }
 
     public enum Card {
-        THE_MAGICIAN,
-        THE_LOVERS,
-        THE_CHARIOT,
-        STRENGTH,
-        THE_HANGED_MAN,
-        THE_MOON,
-        THE_SUN
+        THE_MAGICIAN("./src/graphics/cards/placeholder_card.png"),
+        THE_LOVERS("./src/graphics/cards/placeholder_card.png"),
+        THE_CHARIOT("./src/graphics/cards/placeholder_card.png"),
+        STRENGTH("./src/graphics/cards/placeholder_card.png"),
+        THE_HANGED_MAN("./src/graphics/cards/placeholder_card.png"),
+        THE_MOON("./src/graphics/cards/placeholder_card.png"),
+        THE_SUN("./src/graphics/cards/placeholder_card.png");
+
+        private final BufferedImage sprite;
+
+        Card(String path){
+            this.sprite = Sprites.loadImage(path);
+        }
+
+        public BufferedImage getSprite() {
+            return sprite;
+        }
     }
 }
