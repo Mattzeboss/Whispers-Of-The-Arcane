@@ -5,6 +5,8 @@ import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferStrategy;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class Main extends Canvas {
     //our entry point
@@ -59,8 +61,15 @@ public class Main extends Canvas {
             }
         });
         frame.setSize(SCREEN_WIDTH + UI_WIDTH, SCREEN_HEIGHT);
-        SwingUtilities.invokeLater(() ->
-                frame.setSize(2 * (SCREEN_WIDTH + UI_WIDTH) - this.getSize().width, 2 * SCREEN_HEIGHT - this.getSize().height) //setting the proper height and width is complicated
+
+        (new Timer()).schedule(
+                new TimerTask() {
+                    @Override
+                    public void run() {
+                        frame.setSize(2 * (SCREEN_WIDTH + UI_WIDTH) - Main.this.getSize().width, 2 * SCREEN_HEIGHT - Main.this.getSize().height);
+                    }
+                }, //setting the proper height and width is complicated
+                100
         );
 
 
