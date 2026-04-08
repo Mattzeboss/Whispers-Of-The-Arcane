@@ -44,7 +44,7 @@ public class Projectile {
         for (int i = (int)Math.floor(x-size/2); i <= (int)Math.ceil(x+size/2); i++) {
             for (int j = (int)Math.floor(y-size/2); j <= (int)Math.ceil(y+size/2); j++) {
                 //the +0.5 means that we are checking if the projectile is touching a circle of diameter 0.95 positioned at the center of the tile
-                if (Math.hypot(i - x, j - y) - 0.475 < size/2) {
+                if (Math.hypot(i - x + 0.5, j - y - 0.5) - 0.475 < size/2) {
                     out.add(new Field.FieldPosition(i, j));
                 }
             }

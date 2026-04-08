@@ -111,7 +111,7 @@ public class Game {
         add_entity(get_player(), new Field.FieldPosition((int)cameraX, (int)cameraY)); //adding the player
         //TODO: remove this code eventually, it only for testing
         add_entity(GridEntity.large_enemy(), new Field.FieldPosition(5, 1));
-//        projectiles.add(new Projectile(true, Sprites.Ball, -5, 0.5, 0, 2.0/TICKS_PER_SECOND, 100, 1.0));
+        //projectiles.add(new Projectile(true, Sprites.Ball, -5, 0.5, 0, 2.0/TICKS_PER_SECOND, 100, 0.5));
     }
 
     /*
@@ -235,7 +235,7 @@ public class Game {
         for (int i = 0; i < projectiles.size(); i++) {
             Projectile projectile = projectiles.get(i);
             //we don't need to worry about rendering things that are too far out of the camera's view because we despawn projectiles that go too far away from the camera
-            draw_sprite_on_grid(g2D, projectile.getSprite(), projectile.getX() - cameraX, projectile.getY() - cameraY, projectile.getSize(), projectile.getSize());
+            draw_sprite_on_grid(g2D, projectile.getSprite(), projectile.getX() - cameraX - projectile.getSize()/2, projectile.getY() - cameraY + projectile.getSize()/2, projectile.getSize(), projectile.getSize());
         }
 
         //draw side ui

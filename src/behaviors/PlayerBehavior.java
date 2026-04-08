@@ -7,9 +7,21 @@ import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 
 public class PlayerBehavior implements Behavior {
-    private int projectile_fired_tick = Integer.MIN_VALUE;
-    private final static int RELOAD_TIME = 10;
-    private int last_action_tick = 0;
+    /*
+    projectile stuff
+     */
+    private static final int SHOTS_PER_SECOND = 3;
+    private static final int TICKS_PER_SHOT = Game.TICKS_PER_SECOND / SHOTS_PER_SECOND;
+    private int last_shoot_tick = -TICKS_PER_SHOT;
+    private static final double PROJECTILE_SPEED = 2.0; //unit is tiles per second
+    private static final double PROJECTILE_SIZE = 0.5; //unit is tiles per second
+
+    /*
+    moment stuff
+     */
+    private static final int ACTIONS_PER_SECOND = 3;
+    private static final int TICKS_PER_ACTION = Game.TICKS_PER_SECOND / ACTIONS_PER_SECOND;
+    private int last_action_tick = -TICKS_PER_ACTION;
     private ArrayList<Action> current_actions = new ArrayList<>();
 
     private static final int[] keys = new int[]{KeyEvent.VK_W, KeyEvent.VK_A, KeyEvent.VK_S, KeyEvent.VK_D};
@@ -43,7 +55,7 @@ public class PlayerBehavior implements Behavior {
 
 
         //resolves current action
-        if (game.getTick_counter() - last_action_tick > 20 && !current_actions.isEmpty()){
+        if (game.getTick_counter() - last_action_tick > TICKS_PER_ACTION && !current_actions.isEmpty()){
             switch (current_actions.get(current_actions.size() - 1)){
                 case Up:
                     game.getField().move_entity(entity, new Field.FieldPosition(0, 1));
@@ -61,7 +73,8 @@ public class PlayerBehavior implements Behavior {
             last_action_tick = game.getTick_counter();
         }
 
-        if (game.getKeyManager().isReleased(KeyEvent.VK_E)){
+        if (game.getTick_counter() - last_shoot_tick > TICKS_PER_SHOT && game.getKeyManager().isDown(KeyEvent.VK_E)){
+            //calculate mousex and y relative to player
             Field.FieldPosition pos = game.getField().get_pos(entity);
             double mouse_x = game.getMouseManager().getMouse_x();
             double mouse_y = game.getMouseManager().getMouse_y();
@@ -70,7 +83,20 @@ public class PlayerBehavior implements Behavior {
             mouse_y = -mouse_y;
             mouse_x -= (pos.x - game.getCameraX()) * Main.TILE_SIZE_PX;
             mouse_y -= (pos.y - game.getCameraY()) * Main.TILE_SIZE_PX;
-            game.getProjectiles().add(new Projectile(true, Sprites.Ball, pos.x, pos.y, Math.atan2(mouse_y, mouse_x), 1.0/Game.TICKS_PER_SECOND, 4, 1.0));
+
+            //spawn projectile
+            game.getProjectiles().add(new Projectile(
+                    true,
+                    Sprites.Ball,
+                    pos.x + 0.5,
+                    pos.y - 0.5,
+                    Math.atan2(mouse_y, mouse_x),
+                    PROJECTILE_SPEED/Game.TICKS_PER_SECOND,
+                    4,
+                    PROJECTILE_SIZE
+            ));
+
+            last_shoot_tick = game.getTick_counter();
         }
     }
 
