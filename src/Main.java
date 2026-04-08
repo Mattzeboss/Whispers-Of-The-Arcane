@@ -68,6 +68,7 @@ public class Main extends Canvas {
         addKeyListener(keyManager);
         addFocusListener(keyManager);
         addMouseListener(mouseManager);
+        addMouseMotionListener(mouseManager);
 
         //focuses us
         requestFocusInWindow(false);

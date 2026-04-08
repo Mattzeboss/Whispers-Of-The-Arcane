@@ -2,9 +2,10 @@ package src;
 
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 
 //stores the mouse position for use later
-public class MouseManager implements MouseListener {
+public class MouseManager implements MouseListener, MouseMotionListener {
     private int mouse_x = 0;
     private int mouse_y = 0;
 
@@ -33,6 +34,16 @@ public class MouseManager implements MouseListener {
         handleEvent(e);
     }
 
+    @Override
+    public void mouseDragged(MouseEvent e) {
+        handleEvent(e);
+    }
+
+    @Override
+    public void mouseMoved(MouseEvent e) {
+        handleEvent(e);
+    }
+
     private void handleEvent(MouseEvent e){
         mouse_x = e.getX();
         mouse_y = e.getY();
@@ -45,4 +56,6 @@ public class MouseManager implements MouseListener {
     public int getMouse_x() {
         return mouse_x;
     }
+
+
 }

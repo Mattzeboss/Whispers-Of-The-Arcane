@@ -1,9 +1,6 @@
 package src.behaviors;
 
-import src.Behavior;
-import src.Field;
-import src.Game;
-import src.GridEntity;
+import src.*;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -35,11 +32,13 @@ public class PlayerBehavior implements Behavior {
         for (int i = 0; i < keys.length; i++) {
             int key = keys[i];
             Action action = actions[i];
-            if (game.getKeyManager().isPressed(key)){
+            if (game.getKeyManager().isPressed(key) && !current_actions.contains(action)){
                 current_actions.add(action);
+                System.out.println((char)key + " press was detected");
             }
             if (game.getKeyManager().isReleased(key)){
                 current_actions.remove(action);
+                System.out.println((char)key + " release was detected");
             }
         }
 
@@ -60,6 +59,18 @@ public class PlayerBehavior implements Behavior {
                     break;
             }
             last_action_tick = game.getTick_counter();
+        }
+
+        if (game.getKeyManager().isReleased(KeyEvent.VK_E)){
+            Field.FieldPosition pos = game.getField().get_pos(entity);
+            double mouse_x = game.getMouseManager().getMouse_x();
+            double mouse_y = game.getMouseManager().getMouse_y();
+            mouse_x -= Main.SCREEN_WIDTH/2.0;
+            mouse_y -= Main.SCREEN_HEIGHT/2.0;
+            mouse_y = -mouse_y;
+            mouse_x -= (pos.x - game.getCameraX()) * Main.TILE_SIZE_PX;
+            mouse_y -= (pos.y - game.getCameraY()) * Main.TILE_SIZE_PX;
+            game.getProjectiles().add(new Projectile(true, Sprites.Ball, pos.x, pos.y, Math.atan2(mouse_y, mouse_x), 1.0/Game.TICKS_PER_SECOND, 4, 1.0));
         }
     }
 
