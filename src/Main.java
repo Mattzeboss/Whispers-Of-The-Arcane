@@ -47,7 +47,7 @@ public class Main extends Canvas {
     public Main() {
 
         //Code from Game that creates the window for the display
-        JFrame frame = new JFrame("Whispers of the arcane");
+        JFrame frame = new JFrame("Whispers of the Arcane");
         frame.add(this);
         //set our screen settings
         frame.getContentPane().setBackground(Color.BLACK);

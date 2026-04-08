@@ -111,7 +111,7 @@ public class Game {
         add_entity(get_player(), new Field.FieldPosition((int)cameraX, (int)cameraY)); //adding the player
         //TODO: remove this code eventually, it only for testing
         add_entity(GridEntity.large_enemy(), new Field.FieldPosition(5, 1));
-        projectiles.add(new Projectile(true, Sprites.Ball, -5, 0.5, 0, 2.0/TICKS_PER_SECOND, 100, 1.0));
+//        projectiles.add(new Projectile(true, Sprites.Ball, -5, 0.5, 0, 2.0/TICKS_PER_SECOND, 100, 1.0));
     }
 
     /*
