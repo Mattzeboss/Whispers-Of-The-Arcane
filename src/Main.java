@@ -69,7 +69,7 @@ public class Main extends Canvas {
                         frame.setSize(2 * (SCREEN_WIDTH + UI_WIDTH) - Main.this.getSize().width, 2 * SCREEN_HEIGHT - Main.this.getSize().height);
                     }
                 }, //setting the proper height and width is complicated
-                1
+                100
         );
 
 
