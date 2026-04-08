@@ -5,6 +5,7 @@ import src.behaviors.PlayerBehavior;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 
@@ -24,17 +25,23 @@ public class Game {
     private double fps = TICKS_PER_SECOND;
 
     /*
+    Card related stuff
+     */
+    private final TarotDeck deck = new TarotDeck();
+    private final ArrayList<TarotDeck.Card> cards = new ArrayList<>();
+
+    /*
     Camera stuff
      */
     private double cameraX = 0.0;
     private double cameraY = 0.0;
-    private static final double camera_follow_speed = 1.0-Math.pow(.25, 1.0/TICKS_PER_SECOND); // 0 means it will not move at all, 1 means it will follow the player perfectly
+    private static final double camera_follow_speed = 1.0 - Math.pow(.25, 1.0 / TICKS_PER_SECOND); // 0 means it will not move at all, 1 means it will follow the player perfectly
 
-    public double getCameraX(){
+    public double getCameraX() {
         return cameraX;
     }
 
-    public double getCameraY(){
+    public double getCameraY() {
         return cameraY;
     }
 
@@ -108,10 +115,14 @@ public class Game {
         this.keyManager = keyManager;
         this.mouseManager = mouseManager;
 
-        add_entity(get_player(), new Field.FieldPosition((int)cameraX, (int)cameraY)); //adding the player
+        add_entity(get_player(), new Field.FieldPosition((int) cameraX, (int) cameraY)); //adding the player
         //TODO: remove this code eventually, it only for testing
         add_entity(GridEntity.large_enemy(), new Field.FieldPosition(5, 1));
         //projectiles.add(new Projectile(true, Sprites.Ball, -5, 0.5, 0, 2.0/TICKS_PER_SECOND, 100, 0.5));
+        cards.add(TarotDeck.Card.STRENGTH);
+        cards.add(TarotDeck.Card.STRENGTH);
+        cards.add(TarotDeck.Card.STRENGTH);
+        cards.add(TarotDeck.Card.STRENGTH);
     }
 
     /*
@@ -129,13 +140,13 @@ public class Game {
                     try {
                         Thread.sleep(1);
                     } catch (InterruptedException e) {
-                         //if we cannot sleep, we will busy wait
+                        //if we cannot sleep, we will busy wait
                     }
                 }
                 continue;
             }
             //prep for next tick
-            fps = 1e3/time_since_last_tick;
+            fps = 1e3 / time_since_last_tick;
             last_tick_time = tick_start;
             tick_counter += 1;
 
@@ -150,8 +161,8 @@ public class Game {
 
             //update camera
             Field.FieldPosition player_pos = field.get_pos(get_player());
-            cameraX = cameraX + camera_follow_speed*(player_pos.x - cameraX);
-            cameraY = cameraY + camera_follow_speed*(player_pos.y - cameraY);
+            cameraX = cameraX + camera_follow_speed * (player_pos.x - cameraX);
+            cameraY = cameraY + camera_follow_speed * (player_pos.y - cameraY);
 
             //render
             SwingUtilities.invokeLater(main::render);
@@ -179,10 +190,11 @@ public class Game {
             projectile.move();
 
             //hit detection
-            damage: for (Field.FieldPosition tile: projectile.hitting()) {
-                for (GridEntity ent: getField().get_entities(tile)){
-                    if (projectile.isParent_is_player() != ent.getBehavior() instanceof PlayerBehavior){ //if our projectile and entity aren't on the same team
-                        if (ent.take_damage(projectile.getDamage())){ // we killed it
+            damage:
+            for (Field.FieldPosition tile : projectile.hitting()) {
+                for (GridEntity ent : getField().get_entities(tile)) {
+                    if (projectile.isParent_is_player() != ent.getBehavior() instanceof PlayerBehavior) { //if our projectile and entity aren't on the same team
+                        if (ent.take_damage(projectile.getDamage())) { // we killed it
                             ent.getBehavior().on_death(ent, this);
                         }
                         projectiles.remove(i);
@@ -192,8 +204,8 @@ public class Game {
             }
 
             //removal if out of bounds
-            double projectile_distance_from_camera = Math.hypot(projectile.getX() - cameraX, projectile.getY() - cameraY) - projectile.getSize()/2;
-            if (projectile_distance_from_camera > Math.hypot(Main.SCREEN_TILE_WIDTH, Main.SCREEN_TILE_HEIGHT)/2 * 1.5){
+            double projectile_distance_from_camera = Math.hypot(projectile.getX() - cameraX, projectile.getY() - cameraY) - projectile.getSize() / 2;
+            if (projectile_distance_from_camera > Math.hypot(Main.SCREEN_TILE_WIDTH, Main.SCREEN_TILE_HEIGHT) / 2 * 1.5) {
                 projectiles.remove(i);
             }
         }
@@ -209,7 +221,7 @@ public class Game {
         //background
         for (int i = 0; i <= Main.SCREEN_TILE_WIDTH; i++) {
             for (int j = 0; j <= Main.SCREEN_TILE_HEIGHT; j++) {
-                draw_sprite_on_grid(g2D, Sprites.Background, (i -  Main.SCREEN_TILE_WIDTH / 2) - Util.true_mod(cameraX, 1.0), (j - Main.SCREEN_TILE_HEIGHT / 2) - Util.true_mod(cameraY, 1.0), 1.0, 1.0);
+                draw_sprite_on_grid(g2D, Sprites.Background, (i - Main.SCREEN_TILE_WIDTH / 2) - Util.true_mod(cameraX, 1.0), (j - Main.SCREEN_TILE_HEIGHT / 2) - Util.true_mod(cameraY, 1.0), 1.0, 1.0);
             }
         }
 
@@ -235,7 +247,7 @@ public class Game {
         for (int i = 0; i < projectiles.size(); i++) {
             Projectile projectile = projectiles.get(i);
             //we don't need to worry about rendering things that are too far out of the camera's view because we despawn projectiles that go too far away from the camera
-            draw_sprite_on_grid(g2D, projectile.getSprite(), projectile.getX() - cameraX - projectile.getSize()/2, projectile.getY() - cameraY + projectile.getSize()/2, projectile.getSize(), projectile.getSize());
+            draw_sprite_on_grid(g2D, projectile.getSprite(), projectile.getX() - cameraX - projectile.getSize() / 2, projectile.getY() - cameraY + projectile.getSize() / 2, projectile.getSize(), projectile.getSize());
         }
 
         //draw side ui
@@ -249,12 +261,25 @@ public class Game {
             g2D.drawLine(Main.SCREEN_WIDTH - 3, 0, Main.SCREEN_WIDTH - 3, Main.SCREEN_HEIGHT);
             //health
             GameFont.draw(g2D, "Health: " + get_player().getHealth(), Main.SCREEN_TILE_WIDTH + 0.1, 0, Color.WHITE);
+            //cards
+            GameFont.draw(g2D, "Cards:", Main.SCREEN_TILE_WIDTH + 0.1, 2, Color.WHITE);
+            for (int i = 0; i < cards.size(); i++) {
+                TarotDeck.Card card = cards.get(i);
+                draw_sprite_on_screen(
+                        g2D,
+                        card.getSprite(),
+                        Main.SCREEN_TILE_WIDTH + 0.1 + 1.1 * (i%3),
+                        3 + 1.6*(i/3),
+                        1.0,
+                        1.5
+                );
+            }
         }
 
         //FPS counter
         g2D.setColor(Color.RED);
         g2D.setFont(new Font("Ariel", Font.BOLD, 50));
-        g2D.drawString("FPS: " + (int)Math.round(fps),0 , 50);
+        g2D.drawString("FPS: " + (int) Math.round(fps), 0, 50);
     }
 
     //drawing at tiles from the center
@@ -279,15 +304,32 @@ public class Game {
         );
     }
 
+    public static void draw_sprite_on_screen(Graphics2D g2D, BufferedImage sprite, double x, double y, double width, double height) {
+        g2D.drawImage(
+                sprite,
+                (int) (
+                        (x) *
+                                Main.TILE_SIZE_PX
+                ),
+                (int) (
+                        (y) *
+                                Main.TILE_SIZE_PX
+                ),
+                (int) (Main.TILE_SIZE_PX * width),
+                (int) (Main.TILE_SIZE_PX * height),
+                null
+        );
+    }
+
     //used for occulsion culling
     //x and y are given in field space not screen space
-    public boolean is_rect_on_screen(double x, double y, double w, double h){
-        double left_bound = cameraX - Main.SCREEN_TILE_WIDTH/2.0;
-        double right_bound = cameraX + Main.SCREEN_TILE_WIDTH/2.0;
-        double top_bound = cameraY + Main.SCREEN_TILE_HEIGHT/2.0;
-        double bottom_bound = cameraY - Main.SCREEN_TILE_HEIGHT/2.0;
+    public boolean is_rect_on_screen(double x, double y, double w, double h) {
+        double left_bound = cameraX - Main.SCREEN_TILE_WIDTH / 2.0;
+        double right_bound = cameraX + Main.SCREEN_TILE_WIDTH / 2.0;
+        double top_bound = cameraY + Main.SCREEN_TILE_HEIGHT / 2.0;
+        double bottom_bound = cameraY - Main.SCREEN_TILE_HEIGHT / 2.0;
 
-        return !( x - 0.5 > right_bound || x - 0.5 +w < left_bound || y + 0.5 - h > top_bound || y + 0.5 < bottom_bound);
+        return !(x - 0.5 > right_bound || x - 0.5 + w < left_bound || y + 0.5 - h > top_bound || y + 0.5 < bottom_bound);
     }
 
     //lets us go from the standard Cartesian coordinates( 0,0 at the center +x is right and +y is up) to screen space coordinates
