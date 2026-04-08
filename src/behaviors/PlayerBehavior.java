@@ -36,11 +36,11 @@ public class PlayerBehavior implements Behavior {
                 current_actions.add(action);
                 System.out.println((char)key + " press was detected");
             }
-            if (game.getKeyManager().isReleased(key)){
+            if (!game.getKeyManager().isDown(key)){
                 current_actions.remove(action);
-                System.out.println((char)key + " release was detected");
             }
         }
+
 
         //resolves current action
         if (game.getTick_counter() - last_action_tick > 20 && !current_actions.isEmpty()){

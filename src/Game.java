@@ -144,8 +144,9 @@ public class Game {
                 handle_update_world();
             } else { //if we are paused
                 handle_ui_update();
+                keyManager.update();
             }
-            keyManager.update();
+
 
             //update camera
             Field.FieldPosition player_pos = field.get_pos(get_player());
@@ -168,6 +169,7 @@ public class Game {
             GridEntity entity = entityIterator.next();
             entity.getBehavior().update(entity, this);
         }
+        keyManager.update();
 
         //projectile movement & hitting
         for (int i = projectiles.size() - 1; i >= 0; i--) {
