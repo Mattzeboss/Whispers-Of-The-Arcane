@@ -46,7 +46,6 @@ public class PlayerBehavior implements Behavior {
             Action action = actions[i];
             if (game.getKeyManager().isPressed(key) && !current_actions.contains(action)){
                 current_actions.add(action);
-                System.out.println((char)key + " press was detected");
             }
             if (!game.getKeyManager().isDown(key)){
                 current_actions.remove(action);

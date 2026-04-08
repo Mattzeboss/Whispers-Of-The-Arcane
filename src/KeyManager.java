@@ -41,7 +41,6 @@ public class KeyManager implements KeyListener, FocusListener {
         if (!isDown(e.getKeyCode())) {
             this.pressed.add(e.getKeyCode());
             this.down.add(e.getKeyCode());
-            System.out.println(e.getKeyCode() + " was pressed");
         }
     }
 
@@ -49,7 +48,6 @@ public class KeyManager implements KeyListener, FocusListener {
     public void keyReleased(KeyEvent e) {
         this.released.add(e.getKeyCode());
         this.down.remove(e.getKeyCode());
-        System.out.println(e.getKeyCode() + " was released");
     }
 
     //pressed -> down, released -> up
