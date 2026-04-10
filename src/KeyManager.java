@@ -74,4 +74,8 @@ public class KeyManager implements KeyListener, FocusListener {
     public boolean isReleased(int keycode){
         return released.contains(keycode);
     }
+
+    public boolean isAnyDown(){
+        return !down.isEmpty();
+    }
 }

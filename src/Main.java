@@ -2,6 +2,7 @@ package src;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferStrategy;
@@ -86,10 +87,23 @@ public class Main extends Canvas {
         //focuses us
         requestFocusInWindow(false);
 
-        //TODO: Add a title screen before this, wait for the user to press a key, then start the game
+        //wait for keypress
+        while (!keyManager.isAnyDown()){
+            keyManager.update();
+            render();
+            try {
+                Thread.sleep(16);
+            } catch (InterruptedException ignored) {
+            }
+        }
         //starts the game
         game = new Game(keyManager, mouseManager);
         game.start(this);
+    }
+
+    //TODO: Improve title screen
+    public void paint_title_screen(Graphics2D g2D){
+        GameFont.draw(g2D, "Press any key to start", 0, 0, Color.WHITE);
     }
 
     public void render() {
@@ -104,6 +118,8 @@ public class Main extends Canvas {
             } finally {
                 if (game != null) { //render can be called before game is initialized
                     game.paint((Graphics2D) g);
+                }else{
+                    paint_title_screen((Graphics2D) g);
                 }
             }
             strategy.show();
