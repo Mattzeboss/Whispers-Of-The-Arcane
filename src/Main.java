@@ -62,13 +62,17 @@ public class Main extends Canvas {
         });
         frame.setSize(SCREEN_WIDTH + UI_WIDTH, SCREEN_HEIGHT);
 
+        //setting the proper height and width is complicated
+        //basically, because of window decoration, our canvas will not actually be our desired side
+        //to get around this, we calculate the frame size by seeing how far off we are from our desired size and adjusting accordingly
+        //we need to wait a bit before we can get the canvas size because it is not set automatically
         (new Timer()).schedule(
                 new TimerTask() {
                     @Override
                     public void run() {
                         frame.setSize(2 * (SCREEN_WIDTH + UI_WIDTH) - Main.this.getSize().width, 2 * SCREEN_HEIGHT - Main.this.getSize().height);
                     }
-                }, //setting the proper height and width is complicated
+                },
                 100
         );
 
