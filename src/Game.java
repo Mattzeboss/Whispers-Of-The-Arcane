@@ -276,6 +276,26 @@ public class Game {
             }
         }
 
+        //draw pause screens
+        if (paused != PauseStates.NotPaused){
+            g2D.setColor(new Color(105, 45, 230, 173)); // nice semi-transparent purple
+            g2D.fillRect(0, 0, Main.SCREEN_WIDTH, Main.SCREEN_HEIGHT);
+        }
+
+        switch (paused){
+            case NotPaused:
+                break;
+            case CardSelect:
+                GameFont.draw(g2D, "select a card", 0, 0, Color.WHITE);
+                break;
+            case WinScreen:
+                GameFont.draw(g2D, "you win", 0, 0, Color.WHITE);
+                break;
+            case LoseScreen:
+                GameFont.draw(g2D, "you ded", 0, 0, Color.WHITE);
+                break;
+        }
+
         //FPS counter
         g2D.setColor(Color.RED);
         g2D.setFont(new Font("Ariel", Font.BOLD, 50));
