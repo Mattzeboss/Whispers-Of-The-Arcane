@@ -85,6 +85,30 @@ public class Game {
     private int current_selected_card = 1;
     private TarotDeck.Card[] drawn_cards = new TarotDeck.Card[0];
 
+    private void draw_cards(){
+        setPaused(PauseStates.CardSelect);
+        drawn_cards = new TarotDeck.Card[Math.min(3, deck.size())];
+        for (int i = 0; i < drawn_cards.length; i++) {
+            drawn_cards[i] = deck.getTopCard();
+        }
+        current_selected_card = 1;
+    }
+
+    private void select_card(){
+        if (drawn_cards.length != 0) {
+            TarotDeck.Card card = drawn_cards[current_selected_card];
+            cards.add(card);
+        }
+
+        //cards that weren't selected are sent to the bottom of the deck
+        for (int i = 0; i < drawn_cards.length; i++) {
+            if (i == current_selected_card){ continue;}
+            deck.putOnBottom(drawn_cards[i]);
+        }
+
+        setPaused(PauseStates.NotPaused);
+    }
+
     /*
     Entities and projectiles
      */
@@ -157,12 +181,7 @@ public class Game {
 
             //TODO: Remove this code, it is for testing
             if (keyManager.isPressed(KeyEvent.VK_C)){
-                setPaused(PauseStates.CardSelect);
-                drawn_cards = new TarotDeck.Card[3];
-                for (int i = 0; i < drawn_cards.length; i++) {
-                    drawn_cards[i] = deck.getTopCard();
-                }
-                current_selected_card = 1;
+                draw_cards();
             }
 
             //update state
@@ -197,20 +216,13 @@ public class Game {
                 if (keyManager.isPressed(KeyEvent.VK_D)){
                     current_selected_card += 1;
                 }
-                current_selected_card = Math.floorMod(current_selected_card, drawn_cards.length);
+                if (drawn_cards.length != 0) {
+                    current_selected_card = Math.floorMod(current_selected_card, drawn_cards.length);
+                }
 
                 //finalize selection
                 if (keyManager.isReleased(KeyEvent.VK_ENTER)){
-                    TarotDeck.Card card = drawn_cards[current_selected_card];
-                    cards.add(card);
-
-                    //cards that weren't selected are sent to the bottom of the deck
-                    for (int i = 0; i < drawn_cards.length; i++) {
-                        if (i == current_selected_card){ continue;}
-                        deck.putOnBottom(drawn_cards[i]);
-                    }
-
-                    setPaused(PauseStates.NotPaused);
+                    select_card();
                 }
                 break;
             case WinScreen:
