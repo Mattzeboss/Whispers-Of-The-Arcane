@@ -22,7 +22,6 @@ public class Game {
         return tick_counter;
     }
 
-    private long last_tick_time;
     private double fps = TICKS_PER_SECOND;
 
     /*
@@ -175,7 +174,7 @@ public class Game {
         src.Main loop
          */
     public void start(Main main) {
-        last_tick_time = System.nanoTime();
+        long last_tick_time = System.nanoTime();
         //main loop start
         while (true) { //this loop will exit when the user closes the app manually
             //wait for the tick to start
@@ -252,9 +251,7 @@ public class Game {
 
     private void handle_update_world() {
         //entity updating
-        Iterator<GridEntity> entityIterator = entities.iterator();
-        while (entityIterator.hasNext()) {
-            GridEntity entity = entityIterator.next();
+        for (GridEntity entity : entities) {
             entity.getBehavior().update(entity, this);
         }
         keyManager.update();
@@ -327,8 +324,7 @@ public class Game {
         draw_sprite_on_grid(g2D, get_player().getSprite(), player_pos.x - cameraX, player_pos.y - cameraY, get_player().getWidth(), get_player().getHeight());
 
         //projectile rendering
-        for (int i = 0; i < projectiles.size(); i++) {
-            Projectile projectile = projectiles.get(i);
+        for (Projectile projectile : projectiles) {
             //we don't need to worry about rendering things that are too far out of the camera's view because we despawn projectiles that go too far away from the camera
             draw_sprite_on_grid(g2D, projectile.getSprite(), projectile.getX() - cameraX - projectile.getSize() / 2, projectile.getY() - cameraY + projectile.getSize() / 2, projectile.getSize(), projectile.getSize());
         }
@@ -373,13 +369,12 @@ public class Game {
             case CardSelect:
                 for (int i = 0; i < drawn_cards.length; i++) {
                     final double card_distance = 5;
-                    final double card_scale = 3;
+                    final double width = 3;
 
                     TarotDeck.Card card = drawn_cards[i];
                     double y = Main.SCREEN_TILE_HEIGHT/2.0;
                     double x = Main.SCREEN_TILE_WIDTH/2.0 + (i - (drawn_cards.length - 1)/2.0)*card_distance;
-                    double width = card_scale;
-                    double height = 1.5 * card_scale;
+                    double height = 1.5 * width;
                     draw_sprite_on_screen(g2D, card.getSprite(), x-width/2, y - height/2, width, height);
                     if (current_selected_card == i){
                         draw_sprite_on_screen(g2D, Sprites.CardSelect, x-width/2, y - height/2, width, height);
