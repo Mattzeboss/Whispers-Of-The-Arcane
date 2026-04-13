@@ -110,6 +110,24 @@ public class Game {
     }
 
     /*
+    XP system
+     */
+    private int xp = 0;
+
+    public int getXp(){
+        return xp;
+    }
+
+    public void gainXp(int amount){
+        xp += amount;
+    }
+
+    public int requiredXp(){
+        return 15 * (int)Math.pow(2, cards.size());
+    }
+
+
+    /*
     Entities and projectiles
      */
     private final GridEntity player = GridEntity.player();
@@ -268,6 +286,12 @@ public class Game {
                 projectiles.remove(i);
             }
         }
+
+        //handling xp
+        if (xp >= requiredXp()){
+            xp -= requiredXp();
+            draw_cards();
+        }
     }
 
     /*
@@ -320,15 +344,17 @@ public class Game {
             g2D.drawLine(Main.SCREEN_WIDTH - 3, 0, Main.SCREEN_WIDTH - 3, Main.SCREEN_HEIGHT);
             //health
             GameFont.draw(g2D, "Health: " + get_player().getHealth(), Main.SCREEN_TILE_WIDTH + 0.1, 0, Color.WHITE);
+            //xp
+            GameFont.draw(g2D, "XP: " + xp + "/" + requiredXp(), Main.SCREEN_TILE_WIDTH + 0.1, 2, Color.WHITE);
             //cards
-            GameFont.draw(g2D, "Cards:", Main.SCREEN_TILE_WIDTH + 0.1, 2, Color.WHITE);
+            GameFont.draw(g2D, "Cards:", Main.SCREEN_TILE_WIDTH + 0.1, 4, Color.WHITE);
             for (int i = 0; i < cards.size(); i++) {
                 TarotDeck.Card card = cards.get(i);
                 draw_sprite_on_screen(
                         g2D,
                         card.getSprite(),
                         Main.SCREEN_TILE_WIDTH + 0.1 + 1.1 * (i%3),
-                        3 + 1.6*(i/3),
+                        5 + 1.6*(i/3),
                         1.0,
                         1.5
                 );
