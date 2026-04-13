@@ -22,7 +22,7 @@ public class PlayerBehavior implements Behavior {
     private static final int ACTIONS_PER_SECOND = 3;
     private static final int TICKS_PER_ACTION = Game.TICKS_PER_SECOND / ACTIONS_PER_SECOND;
     private int last_action_tick = -TICKS_PER_ACTION;
-    private ArrayList<Action> current_actions = new ArrayList<>();
+    private final ArrayList<Action> current_actions = new ArrayList<>();
 
     private static final int[] keys = new int[]{KeyEvent.VK_W, KeyEvent.VK_A, KeyEvent.VK_S, KeyEvent.VK_D};
     private static final Action[] actions = new Action[]{Action.Up, Action.Right, Action.Down, Action.Left};
