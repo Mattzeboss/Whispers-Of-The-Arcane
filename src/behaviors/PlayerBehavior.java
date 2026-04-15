@@ -16,12 +16,13 @@ public class PlayerBehavior implements Behavior {
     private static final double PROJECTILE_SPEED = 2.0; //unit is tiles per second
     private static final double PROJECTILE_SIZE = 0.5; //unit is tiles per second
 
+    private double DAMAGE_MULTIPLIER = 1.0d;
+
     /*
     moment stuff
      */
-    private static final int ACTIONS_PER_SECOND = 3;
-    private static final int TICKS_PER_ACTION = Game.TICKS_PER_SECOND / ACTIONS_PER_SECOND;
-    private int last_action_tick = -TICKS_PER_ACTION;
+    private int ACTIONS_PER_SECOND = 3;
+    private int last_action_tick = -get_ticks_per_action();
     private final ArrayList<Action> current_actions = new ArrayList<>();
 
     private static final int[] keys = new int[]{KeyEvent.VK_W, KeyEvent.VK_A, KeyEvent.VK_S, KeyEvent.VK_D};
@@ -54,7 +55,7 @@ public class PlayerBehavior implements Behavior {
 
 
         //resolves current action
-        if (game.getTick_counter() - last_action_tick > TICKS_PER_ACTION && !current_actions.isEmpty()){
+        if (game.getTick_counter() - last_action_tick > get_ticks_per_action() && !current_actions.isEmpty()){
             switch (current_actions.get(current_actions.size() - 1)){
                 case Up:
                     game.getField().move_entity(entity, new Field.FieldPosition(0, 1));
@@ -108,5 +109,43 @@ public class PlayerBehavior implements Behavior {
     @Override
     public void paint(GridEntity entity, Game game, double screen_x, double screen_y, Graphics2D g2D) {
 
+    }
+
+    public int get_ticks_per_action() {
+        return Game.TICKS_PER_SECOND / ACTIONS_PER_SECOND;
+    }
+
+    public void handle_card_behavior(Field.FieldPosition pos, int mouse_x, int mouse_y, Game game, GridEntity player) {
+        ArrayList<TarotDeck.Card> cards = game.getCards();
+
+        handle_static_cards(cards);
+
+        for(TarotDeck.Card card : cards) {
+            if(card == TarotDeck.Card.THE_MAGICIAN) {
+                game.getProjectiles().add(new Projectile(
+                        true,
+                        Sprites.Ball,
+                        pos.x + 0.5,
+                        pos.y - 0.5,
+                        Math.atan2(mouse_y, mouse_x),
+                        PROJECTILE_SPEED/Game.TICKS_PER_SECOND,
+                        (int)(4 * DAMAGE_MULTIPLIER),
+                        PROJECTILE_SIZE
+                ));
+            }
+        }
+    }
+
+    public void handle_static_cards(ArrayList<TarotDeck.Card> cards) {
+        DAMAGE_MULTIPLIER = 1.0d;
+        ACTIONS_PER_SECOND = 3;
+
+        for(TarotDeck.Card card : cards) {
+            if (card == TarotDeck.Card.STRENGTH) {
+                DAMAGE_MULTIPLIER *= 1.5;
+            } else if(card == TarotDeck.Card.THE_CHARIOT) {
+                ACTIONS_PER_SECOND *= 2;
+            }
+        }
     }
 }

@@ -22,6 +22,7 @@ public class Game {
         return tick_counter;
     }
 
+    private long last_tick_time;
     private double fps = TICKS_PER_SECOND;
 
     /*
@@ -157,6 +158,10 @@ public class Game {
         return projectiles;
     }
 
+    public ArrayList<TarotDeck.Card> getCards() {
+        return cards;
+    }
+
     /*
             Constructor
              */
@@ -168,6 +173,12 @@ public class Game {
         //TODO: remove this code eventually, it only for testing
         add_entity(GridEntity.large_enemy(), new Field.FieldPosition(5, 1));
         //projectiles.add(new Projectile(true, Sprites.Ball, -5, 0.5, 0, 2.0/TICKS_PER_SECOND, 100, 0.5));
+        cards.add(TarotDeck.Card.STRENGTH);
+        cards.add(TarotDeck.Card.STRENGTH);
+        cards.add(TarotDeck.Card.STRENGTH);
+        cards.add(TarotDeck.Card.STRENGTH);
+        cards.add(TarotDeck.Card.THE_CHARIOT);
+        cards.add(TarotDeck.Card.THE_MAGICIAN);
     }
 
     /*
