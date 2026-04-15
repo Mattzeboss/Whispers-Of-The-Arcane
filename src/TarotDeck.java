@@ -36,6 +36,10 @@ public class TarotDeck {
         Collections.shuffle(deck);
     }
 
+    public int size(){
+        return deck.size();
+    }
+
     public Card getTopCard() {
         if(deck.isEmpty()) {
             throw new EmptyStackException();

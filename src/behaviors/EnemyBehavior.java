@@ -60,5 +60,6 @@ public class EnemyBehavior implements Behavior {
     @Override
     public void on_death(GridEntity entity, Game game) {
         game.remove_entity(entity);
+        game.gainXp(15);
     }
 }

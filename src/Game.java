@@ -4,6 +4,7 @@ import src.behaviors.PlayerBehavior;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -31,8 +32,8 @@ public class Game {
     private final ArrayList<TarotDeck.Card> cards = new ArrayList<>();
 
     /*
-    Camera stuff
-     */
+        Camera stuff
+         */
     private double cameraX = 0.0;
     private double cameraY = 0.0;
     private static final double camera_follow_speed = 1.0 - Math.pow(.25, 1.0 / TICKS_PER_SECOND); // 0 means it will not move at all, 1 means it will follow the player perfectly
@@ -76,6 +77,55 @@ public class Game {
     public void setPaused(PauseStates paused) {
         this.paused = paused;
     }
+
+    /*
+    Card select related stuff
+     */
+
+    private int current_selected_card = 1;
+    private TarotDeck.Card[] drawn_cards = new TarotDeck.Card[0];
+
+    private void draw_cards(){
+        setPaused(PauseStates.CardSelect);
+        drawn_cards = new TarotDeck.Card[Math.min(3, deck.size())];
+        for (int i = 0; i < drawn_cards.length; i++) {
+            drawn_cards[i] = deck.getTopCard();
+        }
+        current_selected_card = 1;
+    }
+
+    private void select_card(){
+        if (drawn_cards.length != 0) {
+            TarotDeck.Card card = drawn_cards[current_selected_card];
+            cards.add(card);
+        }
+
+        //cards that weren't selected are sent to the bottom of the deck
+        for (int i = 0; i < drawn_cards.length; i++) {
+            if (i == current_selected_card){ continue;}
+            deck.putOnBottom(drawn_cards[i]);
+        }
+
+        setPaused(PauseStates.NotPaused);
+    }
+
+    /*
+    XP system
+     */
+    private int xp = 0;
+
+    public int getXp(){
+        return xp;
+    }
+
+    public void gainXp(int amount){
+        xp += amount;
+    }
+
+    public int requiredXp(){
+        return 15 * (int)Math.pow(2, cards.size());
+    }
+
 
     /*
     Entities and projectiles
@@ -135,7 +185,7 @@ public class Game {
         src.Main loop
          */
     public void start(Main main) {
-        last_tick_time = System.nanoTime();
+        long last_tick_time = System.nanoTime();
         //main loop start
         while (true) { //this loop will exit when the user closes the app manually
             //wait for the tick to start
@@ -155,6 +205,12 @@ public class Game {
             fps = 1e3 / time_since_last_tick;
             last_tick_time = tick_start;
             tick_counter += 1;
+
+
+            //TODO: Remove this code, it is for testing
+            if (keyManager.isPressed(KeyEvent.VK_C)){
+                draw_cards();
+            }
 
             //update state
             if (paused == PauseStates.NotPaused) {
@@ -177,13 +233,36 @@ public class Game {
 
     private void handle_ui_update() {
         //TODO: finish implementing
+        switch (paused){
+            case NotPaused:
+                break;
+            case CardSelect:
+                //change selected card
+                if (keyManager.isPressed(KeyEvent.VK_A)){
+                    current_selected_card -= 1;
+                }
+                if (keyManager.isPressed(KeyEvent.VK_D)){
+                    current_selected_card += 1;
+                }
+                if (drawn_cards.length != 0) {
+                    current_selected_card = Math.floorMod(current_selected_card, drawn_cards.length);
+                }
+
+                //finalize selection
+                if (keyManager.isReleased(KeyEvent.VK_ENTER)){
+                    select_card();
+                }
+                break;
+            case WinScreen:
+                break;
+            case LoseScreen:
+                break;
+        }
     }
 
     private void handle_update_world() {
         //entity updating
-        Iterator<GridEntity> entityIterator = entities.iterator();
-        while (entityIterator.hasNext()) {
-            GridEntity entity = entityIterator.next();
+        for (GridEntity entity : entities) {
             entity.getBehavior().update(entity, this);
         }
         keyManager.update();
@@ -214,6 +293,12 @@ public class Game {
             if (projectile_distance_from_camera > Math.hypot(Main.SCREEN_TILE_WIDTH, Main.SCREEN_TILE_HEIGHT) / 2 * 1.5) {
                 projectiles.remove(i);
             }
+        }
+
+        //handling xp
+        if (xp >= requiredXp()){
+            xp -= requiredXp();
+            draw_cards();
         }
     }
 
@@ -250,8 +335,7 @@ public class Game {
         draw_sprite_on_grid(g2D, get_player().getSprite(), player_pos.x - cameraX, player_pos.y - cameraY, get_player().getWidth(), get_player().getHeight());
 
         //projectile rendering
-        for (int i = 0; i < projectiles.size(); i++) {
-            Projectile projectile = projectiles.get(i);
+        for (Projectile projectile : projectiles) {
             //we don't need to worry about rendering things that are too far out of the camera's view because we despawn projectiles that go too far away from the camera
             draw_sprite_on_grid(g2D, projectile.getSprite(), projectile.getX() - cameraX - projectile.getSize() / 2, projectile.getY() - cameraY + projectile.getSize() / 2, projectile.getSize(), projectile.getSize());
         }
@@ -267,15 +351,17 @@ public class Game {
             g2D.drawLine(Main.SCREEN_WIDTH - 3, 0, Main.SCREEN_WIDTH - 3, Main.SCREEN_HEIGHT);
             //health
             GameFont.draw(g2D, "Health: " + get_player().getHealth(), Main.SCREEN_TILE_WIDTH + 0.1, 0, Color.WHITE);
+            //xp
+            GameFont.draw(g2D, "XP: " + xp + "/" + requiredXp(), Main.SCREEN_TILE_WIDTH + 0.1, 2, Color.WHITE);
             //cards
-            GameFont.draw(g2D, "Cards:", Main.SCREEN_TILE_WIDTH + 0.1, 2, Color.WHITE);
+            GameFont.draw(g2D, "Cards:", Main.SCREEN_TILE_WIDTH + 0.1, 4, Color.WHITE);
             for (int i = 0; i < cards.size(); i++) {
                 TarotDeck.Card card = cards.get(i);
                 draw_sprite_on_screen(
                         g2D,
                         card.getSprite(),
                         Main.SCREEN_TILE_WIDTH + 0.1 + 1.1 * (i%3),
-                        3 + 1.6*(i/3),
+                        5 + 1.6*(i/3),
                         1.0,
                         1.5
                 );
@@ -292,7 +378,19 @@ public class Game {
             case NotPaused:
                 break;
             case CardSelect:
-                GameFont.draw(g2D, "select a card", 0, 0, Color.WHITE);
+                for (int i = 0; i < drawn_cards.length; i++) {
+                    final double card_distance = 5;
+                    final double width = 3;
+
+                    TarotDeck.Card card = drawn_cards[i];
+                    double y = Main.SCREEN_TILE_HEIGHT/2.0;
+                    double x = Main.SCREEN_TILE_WIDTH/2.0 + (i - (drawn_cards.length - 1)/2.0)*card_distance;
+                    double height = 1.5 * width;
+                    draw_sprite_on_screen(g2D, card.getSprite(), x-width/2, y - height/2, width, height);
+                    if (current_selected_card == i){
+                        draw_sprite_on_screen(g2D, Sprites.CardSelect, x-width/2, y - height/2, width, height);
+                    }
+                }
                 break;
             case WinScreen:
                 GameFont.draw(g2D, "you win", 0, 0, Color.WHITE);
