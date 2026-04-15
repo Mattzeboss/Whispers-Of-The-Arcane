@@ -2,8 +2,10 @@ package src.behaviors;
 
 import src.*;
 
+import javax.swing.text.html.parser.Entity;
 import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 public class PlayerBehavior implements Behavior {
@@ -17,6 +19,8 @@ public class PlayerBehavior implements Behavior {
     private static final double PROJECTILE_SIZE = 0.5; //unit is tiles per second
 
     private double DAMAGE_MULTIPLIER = 1.0d;
+
+    private boolean has_shot_yet = false;
 
     /*
     moment stuff
@@ -41,6 +45,8 @@ public class PlayerBehavior implements Behavior {
     @Override
     public void update(GridEntity entity, Game game) {
         //TODO: Movement and projectile spawning
+        handle_static_cards(game.getCards());
+
         //updates current action
         for (int i = 0; i < keys.length; i++) {
             int key = keys[i];
@@ -73,31 +79,19 @@ public class PlayerBehavior implements Behavior {
             last_action_tick = game.getTick_counter();
         }
 
+
+        //projectiles
+        has_shot_yet = false;
         if (game.getTick_counter() - last_shoot_tick > TICKS_PER_SHOT && game.getKeyManager().isDown(KeyEvent.VK_E)){
-            //calculate mousex and y relative to player
-            Field.FieldPosition pos = game.getField().get_pos(entity);
-            double mouse_x = game.getMouseManager().getMouse_x();
-            double mouse_y = game.getMouseManager().getMouse_y();
-            mouse_x -= Main.SCREEN_WIDTH/2.0;
-            mouse_y -= Main.SCREEN_HEIGHT/2.0;
-            mouse_y = -mouse_y;
-            mouse_x -= (pos.x - game.getCameraX()) * Main.TILE_SIZE_PX;
-            mouse_y -= (pos.y - game.getCameraY()) * Main.TILE_SIZE_PX;
-
-            //spawn projectile
-            game.getProjectiles().add(new Projectile(
-                    true,
-                    Sprites.Ball,
-                    pos.x + 0.5,
-                    pos.y - 0.5,
-                    Math.atan2(mouse_y, mouse_x),
-                    PROJECTILE_SPEED/Game.TICKS_PER_SECOND,
-                    4,
-                    PROJECTILE_SIZE
-            ));
-
+            handle_card_behavior(game, entity);
+            if (!has_shot_yet){
+                launch_projectile_at_mouse(game, entity, (int) (4 * DAMAGE_MULTIPLIER), 0.5, Sprites.Ball);
+            }
             last_shoot_tick = game.getTick_counter();
+
         }
+
+
     }
 
     @Override
@@ -115,23 +109,15 @@ public class PlayerBehavior implements Behavior {
         return Game.TICKS_PER_SECOND / ACTIONS_PER_SECOND;
     }
 
-    public void handle_card_behavior(Field.FieldPosition pos, int mouse_x, int mouse_y, Game game, GridEntity player) {
+    public void handle_card_behavior(Game game, GridEntity player) {
         ArrayList<TarotDeck.Card> cards = game.getCards();
 
         handle_static_cards(cards);
 
         for(TarotDeck.Card card : cards) {
             if(card == TarotDeck.Card.THE_MAGICIAN) {
-                game.getProjectiles().add(new Projectile(
-                        true,
-                        Sprites.Ball,
-                        pos.x + 0.5,
-                        pos.y - 0.5,
-                        Math.atan2(mouse_y, mouse_x),
-                        PROJECTILE_SPEED/Game.TICKS_PER_SECOND,
-                        (int)(4 * DAMAGE_MULTIPLIER),
-                        PROJECTILE_SIZE
-                ));
+                launch_projectile_at_mouse(game, player, (int) (4 * DAMAGE_MULTIPLIER), .75, Sprites.Ball);
+                has_shot_yet = true;
             }
         }
     }
@@ -147,5 +133,34 @@ public class PlayerBehavior implements Behavior {
                 ACTIONS_PER_SECOND *= 2;
             }
         }
+    }
+
+    private void launch_projectile_at_mouse(Game game, GridEntity entity, int damage, double size, BufferedImage sprite){
+        Field.FieldPosition pos = game.getField().get_pos(entity);
+        //spawn projectile
+        game.getProjectiles().add(new Projectile(
+                true,
+                sprite,
+                pos.x + 0.5,
+                pos.y - 0.5,
+                angle_to_mouse(game, entity),
+                PROJECTILE_SPEED/Game.TICKS_PER_SECOND,
+                damage,
+                size
+        ));
+    }
+
+    private double angle_to_mouse(Game game, GridEntity entity){
+        //calculate mousex and y relative to player
+        Field.FieldPosition pos = game.getField().get_pos(entity);
+        double mouse_x = game.getMouseManager().getMouse_x();
+        double mouse_y = game.getMouseManager().getMouse_y();
+        mouse_x -= Main.SCREEN_WIDTH/2.0;
+        mouse_y -= Main.SCREEN_HEIGHT/2.0;
+        mouse_y = -mouse_y;
+        mouse_x -= (pos.x - game.getCameraX()) * Main.TILE_SIZE_PX;
+        mouse_y -= (pos.y - game.getCameraY()) * Main.TILE_SIZE_PX;
+
+        return Math.atan2(mouse_y, mouse_x);
     }
 }
