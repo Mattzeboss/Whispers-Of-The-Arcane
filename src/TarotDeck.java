@@ -6,11 +6,6 @@ import java.util.*;
 public class TarotDeck {
     private final ArrayList<Card> deck = new ArrayList<Card>();
 
-    // TODO: Make this give some form of anonymous or generic projectile from the enum
-    public static Projectile getProjectile(Card card) {
-        return null;
-    }
-
     public TarotDeck() {
         deck.addAll(Arrays.asList(Card.values()));
         shuffle();

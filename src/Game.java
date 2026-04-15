@@ -108,6 +108,10 @@ public class Game {
         return projectiles;
     }
 
+    public ArrayList<TarotDeck.Card> getCards() {
+        return cards;
+    }
+
     /*
             Constructor
              */
@@ -123,6 +127,8 @@ public class Game {
         cards.add(TarotDeck.Card.STRENGTH);
         cards.add(TarotDeck.Card.STRENGTH);
         cards.add(TarotDeck.Card.STRENGTH);
+        cards.add(TarotDeck.Card.THE_CHARIOT);
+        cards.add(TarotDeck.Card.THE_MAGICIAN);
     }
 
     /*
