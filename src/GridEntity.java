@@ -14,6 +14,13 @@ public class GridEntity {
     private int width;
     private int height;
 
+    public enum EnemyType {
+        NORMAL,
+        RANGED,
+        FAST,
+        TANK
+    }
+
     public int getHealth() {
         return health;
     }
@@ -80,11 +87,14 @@ public class GridEntity {
         return new GridEntity(Sprites.Player, 100, 1, 1, new PlayerBehavior());
     }
 
-    public static GridEntity enemy() {
-        return new GridEntity(Sprites.Enemy, 100, 1, 1, new EnemyBehavior());
-    }
-
-    public static GridEntity large_enemy() {
-        return new GridEntity(Sprites.LargeEnemy, 100, 2, 2, new EnemyBehavior());
+    public static GridEntity enemy(EnemyType type) {
+        switch (type) {
+            case NORMAL:
+                return new GridEntity(Sprites.Enemy, 100, 1, 1, new EnemyBehavior());
+            case TANK:
+                return new GridEntity(Sprites.LargeEnemy, 100, 2, 2, new EnemyBehavior());
+            default:
+                return enemy(EnemyType.NORMAL);
+        }
     }
 }

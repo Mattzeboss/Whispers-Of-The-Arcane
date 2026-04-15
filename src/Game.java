@@ -16,6 +16,7 @@ public class Game {
      */
     public static final int TICKS_PER_SECOND = 60;
     public static final double MILLISECONDS_PER_TICK = 1000.0 / TICKS_PER_SECOND;
+    public static final int ENEMIES_PER_WAVE = 3;
     private int tick_counter = 0;
 
     public int getTick_counter() {
@@ -171,7 +172,7 @@ public class Game {
 
         add_entity(get_player(), new Field.FieldPosition((int) cameraX, (int) cameraY)); //adding the player
         //TODO: remove this code eventually, it only for testing
-        add_entity(GridEntity.large_enemy(), new Field.FieldPosition(5, 1));
+        add_entity(GridEntity.enemy(GridEntity.EnemyType.TANK), new Field.FieldPosition(5, 1));
         //projectiles.add(new Projectile(true, Sprites.Ball, -5, 0.5, 0, 2.0/TICKS_PER_SECOND, 100, 0.5));
         cards.add(TarotDeck.Card.STRENGTH);
         cards.add(TarotDeck.Card.STRENGTH);
@@ -300,6 +301,11 @@ public class Game {
             xp -= requiredXp();
             draw_cards();
         }
+
+        //handling wave spawning
+        if (entities.size()==1) { // if our only entity is the player, may need updates if we do grid-based weapons
+            spawn_wave();
+        }
     }
 
     /*
@@ -360,8 +366,8 @@ public class Game {
                 draw_sprite_on_screen(
                         g2D,
                         card.getSprite(),
-                        Main.SCREEN_TILE_WIDTH + 0.1 + 1.1 * (i%3),
-                        5 + 1.6*(i/3),
+                        Main.SCREEN_TILE_WIDTH + 0.1 + 1.1 * (i % 3),
+                        5 + 1.6 * (i / 3),
                         1.0,
                         1.5
                 );
@@ -369,12 +375,12 @@ public class Game {
         }
 
         //draw pause screens
-        if (paused != PauseStates.NotPaused){
+        if (paused != PauseStates.NotPaused) {
             g2D.setColor(new Color(105, 45, 230, 173)); // nice semi-transparent purple
             g2D.fillRect(0, 0, Main.SCREEN_WIDTH, Main.SCREEN_HEIGHT);
         }
 
-        switch (paused){
+        switch (paused) {
             case NotPaused:
                 break;
             case CardSelect:
@@ -383,12 +389,12 @@ public class Game {
                     final double width = 3;
 
                     TarotDeck.Card card = drawn_cards[i];
-                    double y = Main.SCREEN_TILE_HEIGHT/2.0;
-                    double x = Main.SCREEN_TILE_WIDTH/2.0 + (i - (drawn_cards.length - 1)/2.0)*card_distance;
+                    double y = Main.SCREEN_TILE_HEIGHT / 2.0;
+                    double x = Main.SCREEN_TILE_WIDTH / 2.0 + (i - (drawn_cards.length - 1) / 2.0) * card_distance;
                     double height = 1.5 * width;
-                    draw_sprite_on_screen(g2D, card.getSprite(), x-width/2, y - height/2, width, height);
-                    if (current_selected_card == i){
-                        draw_sprite_on_screen(g2D, Sprites.CardSelect, x-width/2, y - height/2, width, height);
+                    draw_sprite_on_screen(g2D, card.getSprite(), x - width / 2, y - height / 2, width, height);
+                    if (current_selected_card == i) {
+                        draw_sprite_on_screen(g2D, Sprites.CardSelect, x - width / 2, y - height / 2, width, height);
                     }
                 }
                 break;
@@ -463,5 +469,21 @@ public class Game {
 
     private static int transform_y(int preimage) {
         return -preimage + Main.SCREEN_HEIGHT / 2;
+    }
+
+    public void spawn_wave() {
+        for(int i = 0; i < ENEMIES_PER_WAVE; i++) {
+            spawn_enemy();
+        }
+    }
+
+    public void spawn_enemy() {
+        //maybe add some more implementation to do different enemy types, randomize between the things in GridEntity
+        GridEntity.EnemyType type = GridEntity.EnemyType.NORMAL;
+
+        int xPos = (int)((Math.random() - 1.0d/2) * Main.SCREEN_TILE_WIDTH) + field.get_pos(player).x;
+        int yPos = (int)((Math.random() - 1.0d/2) * Main.SCREEN_TILE_HEIGHT) + field.get_pos(player).y;
+
+        add_entity(GridEntity.enemy(type), new Field.FieldPosition(xPos, yPos));
     }
 }
