@@ -227,7 +227,7 @@ public class Game {
             cameraY = cameraY + camera_follow_speed * (player_pos.y - cameraY);
 
             //render
-            SwingUtilities.invokeLater(main::render);
+            main.render();
         }
     }
 
