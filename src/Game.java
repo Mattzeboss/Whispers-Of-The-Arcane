@@ -6,6 +6,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -22,7 +23,11 @@ public class Game {
         return tick_counter;
     }
 
-    private long last_tick_time;
+    private long start_time;
+
+    public int time_since_start_seconds(){
+        return (int) ((System.nanoTime() - start_time)/1e9);
+    }
     private double fps = TICKS_PER_SECOND;
 
     /*
@@ -186,6 +191,7 @@ public class Game {
          */
     public void start(Main main) {
         long last_tick_time = System.nanoTime();
+        start_time = System.nanoTime();
         //main loop start
         while (true) { //this loop will exit when the user closes the app manually
             //wait for the tick to start
@@ -349,19 +355,22 @@ public class Game {
             g2D.setColor(Color.WHITE);
             g2D.setStroke(new BasicStroke(6.0f));
             g2D.drawLine(Main.SCREEN_WIDTH - 3, 0, Main.SCREEN_WIDTH - 3, Main.SCREEN_HEIGHT);
+            //timer
+            int s = time_since_start_seconds();
+            GameFont.draw(g2D, "Time: " + String.format("%d:%02d", (s % 3600) / 60, (s % 60)), Main.SCREEN_TILE_WIDTH + 0.1, 0, Color.WHITE);
             //health
-            GameFont.draw(g2D, "Health: " + get_player().getHealth(), Main.SCREEN_TILE_WIDTH + 0.1, 0, Color.WHITE);
+            GameFont.draw(g2D, "Health: " + get_player().getHealth(), Main.SCREEN_TILE_WIDTH + 0.1, 2, Color.WHITE);
             //xp
-            GameFont.draw(g2D, "XP: " + xp + "/" + requiredXp(), Main.SCREEN_TILE_WIDTH + 0.1, 2, Color.WHITE);
+            GameFont.draw(g2D, "XP: " + xp + "/" + requiredXp(), Main.SCREEN_TILE_WIDTH + 0.1, 4, Color.WHITE);
             //cards
-            GameFont.draw(g2D, "Cards:", Main.SCREEN_TILE_WIDTH + 0.1, 4, Color.WHITE);
+            GameFont.draw(g2D, "Cards:", Main.SCREEN_TILE_WIDTH + 0.1, 6, Color.WHITE);
             for (int i = 0; i < cards.size(); i++) {
                 TarotDeck.Card card = cards.get(i);
                 draw_sprite_on_screen(
                         g2D,
                         card.getSprite(),
                         Main.SCREEN_TILE_WIDTH + 0.1 + 1.1 * (i%3),
-                        5 + 1.6*(i/3),
+                        7 + 1.6*(i/3),
                         1.0,
                         1.5
                 );
