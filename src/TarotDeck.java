@@ -65,32 +65,32 @@ public class TarotDeck {
     public enum Card {
         THE_MAGICIAN(
                 "./src/graphics/cards/placeholder_card.png",
-                "Fireball replaces regular projectile"
+                "+ Fireball replaces projectile"
         ),
         THE_LOVERS(
                 "./src/graphics/cards/placeholder_card.png",
-                "Dual wield pistols for chip damage"
+                "+ Dual wield pistols"
         ),
         THE_CHARIOT(
                 "./src/graphics/cards/placeholder_card.png",
-                "Increased Movement Speed"
+                "+ Movement Speed"
         ),
         STRENGTH(
                 "./src/graphics/cards/placeholder_card.png",
-                "Projectile damage\n" +
-                        "Attack Speed"
+                "+ Projectile damage\n" +
+                        "+ Attack Speed"
         ),
         THE_HANGED_MAN(
                 "./src/graphics/cards/placeholder_card.png",
-                "One time revive"
+                "+ Revive"
         ),
         THE_MOON(
                 "./src/graphics/cards/placeholder_card.png",
-                "Slows Enemies near the Moon"
+                "+ Slows Enemies near the Moon"
         ),
         THE_SUN(
                 "./src/graphics/cards/placeholder_card.png",
-                "Damage enemies near the Sun"
+                "+ Damage enemies near the Sun"
         );
 
         private final BufferedImage sprite;
@@ -103,6 +103,10 @@ public class TarotDeck {
 
         public BufferedImage getSprite() {
             return sprite;
+        }
+
+        public String getDescription() {
+            return description;
         }
     }
 }

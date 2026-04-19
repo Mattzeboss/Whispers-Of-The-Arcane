@@ -388,17 +388,26 @@ public class Game {
                 break;
             case CardSelect:
                 for (int i = 0; i < drawn_cards.length; i++) {
+                    //distance between card centers in Tiles
                     final double card_distance = 5;
+                    //Card width in Tiles
                     final double width = 3;
 
+                    //draw the card
                     TarotDeck.Card card = drawn_cards[i];
-                    double y = Main.SCREEN_TILE_HEIGHT/2.0;
+                    double y = Main.SCREEN_TILE_HEIGHT/3.0;
                     double x = Main.SCREEN_TILE_WIDTH/2.0 + (i - (drawn_cards.length - 1)/2.0)*card_distance;
                     double height = 1.5 * width;
                     draw_sprite_on_screen(g2D, card.getSprite(), x-width/2, y - height/2, width, height);
+                    //draw outline if the card is selected
                     if (current_selected_card == i){
                         draw_sprite_on_screen(g2D, Sprites.CardSelect, x-width/2, y - height/2, width, height);
                     }
+
+                    //draw card description
+                    String desc = card.getDescription();
+                    double desc_width = GameFont.get_width(desc);
+                    GameFont.draw(g2D, desc, x-(width/4 + card_distance/4), y+ height/2.0 + 1, width/2 + card_distance/2, Color.GREEN);
                 }
                 break;
             case WinScreen:
