@@ -328,9 +328,12 @@ public class Game {
             double relative_pos_x = pos.x - cameraX;
             double relative_pos_y = pos.y - cameraY;
 
-            //bounds check, if we would be visible on screen
-            if (is_rect_on_screen(pos.x, pos.y, entity.getWidth(), entity.getHeight())) {
-                draw_sprite_on_grid(g2D, entity.getSprite(), relative_pos_x, relative_pos_y, entity.getWidth(), entity.getHeight());
+            //we want to draw the player later on top of the other entities
+            if (entity != get_player()) {
+                //bounds check, if we would be visible on screen
+                if (is_rect_on_screen(pos.x, pos.y, entity.getWidth(), entity.getHeight())) {
+                    draw_sprite_on_grid(g2D, entity.getSprite(), relative_pos_x, relative_pos_y, entity.getWidth(), entity.getHeight());
+                }
             }
 
             entity.getBehavior().paint(entity, this, relative_pos_x, relative_pos_y, g2D);
