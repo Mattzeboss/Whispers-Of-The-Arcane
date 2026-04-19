@@ -82,7 +82,7 @@ public class PlayerBehavior implements Behavior {
 
         //projectiles
         has_shot_yet = false;
-        if (game.getTick_counter() - last_shoot_tick > TICKS_PER_SHOT && game.getKeyManager().isDown(KeyEvent.VK_E)){
+        if (game.getTick_counter() - last_shoot_tick > TICKS_PER_SHOT && game.getKeyManager().isDown(KeyEvent.VK_SPACE)){
             handle_card_behavior(game, entity);
             if (!has_shot_yet){
                 launch_projectile_at_mouse(game, entity, (int) (4 * DAMAGE_MULTIPLIER), 0.5, Sprites.Ball);
