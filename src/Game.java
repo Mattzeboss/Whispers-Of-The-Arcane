@@ -207,7 +207,7 @@ public class Game {
                 continue;
             }
             //prep for next tick
-            fps = 1e3 / time_since_last_tick;
+            fps = 1e9 / time_since_last_tick;
             last_tick_time = tick_start;
             tick_counter += 1;
 
@@ -298,6 +298,36 @@ public class Game {
             double projectile_distance_from_camera = Math.hypot(projectile.getX() - cameraX, projectile.getY() - cameraY) - projectile.getSize() / 2;
             if (projectile_distance_from_camera > Math.hypot(Main.SCREEN_TILE_WIDTH, Main.SCREEN_TILE_HEIGHT) / 2 * 1.5) {
                 projectiles.remove(i);
+            }
+        }
+
+        //enemy spawning
+        if (tick_counter % (TICKS_PER_SECOND * 5) == 0){ //every 5 seconds
+
+            int max_enemies = (int) (5 + Math.pow(Math.min(time_since_start_seconds(), 5 * 60) / 30.0, 2));
+            int current_enemies = entities.size() - 1; //subtract 1 for the player
+            if (current_enemies < max_enemies){ //if we can spawn more enemies
+                int enemies_to_spawn = (int)Math.ceil((max_enemies - current_enemies)/4.0); //spawn 1/4 of however many we can spawn
+                for (int i = 0; i < enemies_to_spawn; i++) {
+                    final int spawn_radius = 10;
+
+                    int left_bound = (int)Math.ceil(cameraX - Main.SCREEN_TILE_WIDTH / 2.0) - spawn_radius;
+                    int right_bound = (int)Math.ceil(cameraX + Main.SCREEN_TILE_WIDTH / 2.0) + spawn_radius;
+                    int top_bound = (int)Math.floor(cameraY + Main.SCREEN_TILE_HEIGHT / 2.0) + spawn_radius;
+                    int bottom_bound =(int)Math.floor( cameraY - Main.SCREEN_TILE_HEIGHT / 2.0) - spawn_radius;
+
+                    for (int j = 0; j < 100; j++) { // we get 100 attempts to spawn choose a spawn location
+                        int x = (int) (Math.random() * (right_bound - left_bound) + left_bound);
+                        int y = (int) (Math.random() * (top_bound - bottom_bound) + bottom_bound);
+
+                        if (!is_rect_on_screen(x, y, 1.0, 1.0)) { //rejection sampling
+                            add_entity(GridEntity.enemy(), new Field.FieldPosition(x, y));
+                            break; //we only want to spawn one enemy
+                        }
+                    }
+
+
+                }
             }
         }
 
