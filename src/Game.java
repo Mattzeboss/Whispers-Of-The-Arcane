@@ -23,10 +23,10 @@ public class Game {
         return tick_counter;
     }
 
-    private long start_time;
+    private long time_since_start = 0;
 
     public int time_since_start_seconds(){
-        return (int) ((System.nanoTime() - start_time)/1e9);
+        return (int) (time_since_start/1e9);
     }
     private double fps = TICKS_PER_SECOND;
 
@@ -191,13 +191,12 @@ public class Game {
          */
     public void start(Main main) {
         long last_tick_time = System.nanoTime();
-        start_time = System.nanoTime();
         //main loop start
         while (true) { //this loop will exit when the user closes the app manually
             //wait for the tick to start
             long tick_start = System.nanoTime();
-            double time_since_last_tick = (tick_start - last_tick_time) / 1.0e6;
-            if (time_since_last_tick < MILLISECONDS_PER_TICK) {
+            long time_since_last_tick = (tick_start - last_tick_time);
+            if (time_since_last_tick / 1.0e6 < MILLISECONDS_PER_TICK) {
                 if (MILLISECONDS_PER_TICK - time_since_last_tick > 1) {
                     try {
                         Thread.sleep(1);
@@ -221,6 +220,7 @@ public class Game {
             //update state
             if (paused == PauseStates.NotPaused) {
                 handle_update_world();
+                time_since_start += time_since_last_tick;
             } else { //if we are paused
                 handle_ui_update();
                 keyManager.update();
