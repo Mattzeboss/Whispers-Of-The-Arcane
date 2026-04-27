@@ -5,6 +5,11 @@ import src.Field;
 import src.Game;
 import src.GridEntity;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.stream.IntStream;
+
 
 //TODO: make it move towards the player
 public class EnemyBehavior implements Behavior {
@@ -14,43 +19,57 @@ public class EnemyBehavior implements Behavior {
 
     @Override
     public void update(GridEntity entity, Game game) {
-        if(game.getTick_counter() - time_of_last_move > time_to_move) {
+        if (game.getTick_counter() - time_of_last_move > time_to_move) {
             Field field = game.getField();
-            int xDist = field.get_pos(entity).x - field.get_pos(game.get_player()).x;
-            int yDist = field.get_pos(entity).y - field.get_pos(game.get_player()).y;
+            Field.FieldPosition our_pos = field.get_pos(entity);
+            GridEntity player = game.get_player();
+            Field.FieldPosition player_pos = field.get_pos(game.get_player());
 
-            if(xDist < 0 && entity.getWidth() < xDist) {
-                xDist = 0;
-            }
+            //every possible move we can make
+            Field.FieldPosition[] movements = new Field.FieldPosition[]{
+                    new Field.FieldPosition(0, 0),
+                    new Field.FieldPosition(-1, 0),
+                    new Field.FieldPosition(0, 1),
+                    new Field.FieldPosition(1, 0),
+                    new Field.FieldPosition(0, -1),
+            };
 
-            if(yDist > 0 && entity.getHeight() > yDist) {
-                yDist = 0;
-            }
+            //sort our movements by how close they will make us towards the player
+            Field.FieldPosition[] sorted_movements = Arrays.stream(movements)
+                    .sorted(Comparator.comparing((move) ->
+                                    //this formula is a bit weird, but it gets the distance between two axis-aligned-bounding boxes(non-rotated rectangles)
+                                    //The formula is made weirder by the fact that entity positions are stored in the top left and not the bottom left
+                                    //I checked in Desmos and the math seems to work (desmos link https://www.desmos.com/calculator/pe7og0kzzk)
+                                    Math.hypot(
+                                        Math.max(Math.abs((our_pos.x + move.x) * 2 + entity.getWidth() - player_pos.x * 2 - player.getWidth()) - entity.getWidth() - player.getWidth() + 2, 0),
+                                        Math.max(Math.abs((our_pos.y + move.y) * 2 - entity.getHeight() - player_pos.y * 2 + player.getHeight()) - entity.getHeight() - player.getHeight() + 2, 0)
+                                    )
+                                    //technically we should divide by two, but it doesn't change the ordering so it doesn't matter
+                                    //I just wanted to avoid using floating point as much as possible
+                    ))
+                    .toArray(Field.FieldPosition[]::new);
 
-            if (Math.abs(yDist) >= Math.abs(xDist) && yDist != 0) {
-                field.move_entity(entity, yDist > 0 ?
-                        new Field.FieldPosition(0, -1) :
-                        new Field.FieldPosition(0, 1));
-                if(yDist > 0) {
-                    yDist--;
-                } else {
-                    yDist++;
+            //we go through each movement
+            for (Field.FieldPosition move : sorted_movements) {
+                //move in that direction
+                field.move_entity(entity, move);
+                ArrayList<GridEntity> overlap = field.get_overlapping_entities(entity);
+
+                //if we would overlap another enemy, move back and continue to the next movement
+                if (overlap.stream().anyMatch((ent) -> ent != game.get_player())) {
+                    field.move_entity(entity, move.mult(-1));
+                    continue;
                 }
-            } else if (xDist != 0) {
-                field.move_entity(entity, xDist > 0 ?
-                        new Field.FieldPosition(-1, 0) :
-                        new Field.FieldPosition(1, 0));
-                if(xDist > 0) {
-                    xDist--;
-                } else {
-                    xDist++;
-                }
-            }
 
-            if(xDist == 0 && yDist == 0) {
-                if(game.get_player().take_damage(damage)) {
-                    game.get_player().getBehavior().on_death(game.get_player(), game);
+                //if we would overlap the player, deal them damage
+                if (overlap.contains(game.get_player())) {
+                    if (game.get_player().take_damage(damage)) {
+                        game.get_player().getBehavior().on_death(game.get_player(), game);
+                    }
                 }
+
+                //we moved and did not overlap with another enemy so we don't need to move anymore
+                break;
             }
 
             time_of_last_move = game.getTick_counter();
