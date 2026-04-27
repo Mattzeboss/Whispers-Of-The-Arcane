@@ -19,7 +19,11 @@ public abstract class Sprites {
     public static final BufferedImage Player = loadImage("./src/graphics/player.png");
     public static final BufferedImage Enemy = loadImage("./src/graphics/smile_pink.png");
     public static final BufferedImage LargeEnemy = loadImage("./src/graphics/large_frown.png");
-    public static final BufferedImage Background = loadImage("./src/graphics/placeholder.png");
+    public static final BufferedImage Jack = loadImage("./src/graphics/enemyjack.png");
+    public static final BufferedImage Joker = loadImage("./src/graphics/enemyjoker.png");
+    public static final BufferedImage King = loadImage("./src/graphics/enemyking.png");
+    public static final BufferedImage Queen = loadImage("./src/graphics/enemyqueen.png");
+    public static final BufferedImage Background = loadImage("./src/graphics/tile.png");
     public static final BufferedImage Ball = loadImage("./src/graphics/ball.png");
     public static final BufferedImage Font = loadImage("./src/graphics/bitmap_font_8x16.png");
     public static final BufferedImage CardSelect = loadImage("./src/graphics/cards/card_select.png");

@@ -4,6 +4,7 @@ import src.behaviors.EnemyBehavior;
 import src.behaviors.PlayerBehavior;
 
 import java.awt.image.BufferedImage;
+import java.util.Random;
 
 public class GridEntity {
     /*
@@ -18,7 +19,30 @@ public class GridEntity {
         NORMAL,
         RANGED,
         FAST,
-        TANK
+        TANK;
+
+        // NORMAL, RANGED, FAST, TANK
+        private static final int[] WEIGHTS = {50, 25, 15, 10};
+        private static final int TOTAL_WEIGHT;
+
+        static {
+            int sum = 0;
+            for (int w : WEIGHTS) sum += w;
+            TOTAL_WEIGHT = sum;
+        }
+
+        public static EnemyType generate_random() {
+            int roll = (int) (Math.random() * (TOTAL_WEIGHT + 1));
+            int sum = 0;
+            EnemyType[] values = values();
+
+            for (int i = 0; i < values.length; i++) {
+                sum += WEIGHTS[i];
+                if (roll < sum) return values[i];
+            }
+
+            return NORMAL;
+        }
     }
 
     public int getHealth() {
@@ -91,9 +115,13 @@ public class GridEntity {
     public static GridEntity enemy(EnemyType type) {
         switch (type) {
             case NORMAL:
-                return new GridEntity(Sprites.Enemy, 100, 1, 1, new EnemyBehavior());
+                return new GridEntity(Sprites.Jack, 100, 1, 1, new EnemyBehavior());
             case TANK:
-                return new GridEntity(Sprites.LargeEnemy, 100, 2, 2, new EnemyBehavior());
+                return new GridEntity(Sprites.King, 100, 2, 2, new EnemyBehavior());
+            case RANGED:
+                return new GridEntity(Sprites.Queen, 100, 1, 1, new EnemyBehavior());
+            case FAST:
+                return new GridEntity(Sprites.Joker, 100,1, 1, new EnemyBehavior());
             default:
                 return enemy(EnemyType.NORMAL);
         }

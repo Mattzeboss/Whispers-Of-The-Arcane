@@ -345,7 +345,7 @@ public class Game {
                         int y = (int) (Math.random() * (top_bound - bottom_bound) + bottom_bound);
 
                         if (!is_rect_on_screen(x, y, 1.0, 1.0)) { //rejection sampling
-                            add_entity(GridEntity.enemy(GridEntity.EnemyType.NORMAL), new Field.FieldPosition(x, y));
+                            add_entity(GridEntity.enemy(GridEntity.EnemyType.generate_random()), new Field.FieldPosition(x, y));
                             break; //we only want to spawn one enemy
                         }
                     }
