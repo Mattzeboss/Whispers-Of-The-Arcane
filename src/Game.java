@@ -387,15 +387,15 @@ public class Game {
                 //bounds check, if we would be visible on screen
                 if (is_rect_on_screen(pos.x, pos.y, entity.getWidth(), entity.getHeight())) {
                     draw_sprite_on_grid(g2D, entity.getSprite(), relative_pos_x, relative_pos_y, entity.getWidth(), entity.getHeight());
-                }
+                }entity.getBehavior().paint(entity, this, relative_pos_x, relative_pos_y, g2D);
             }
 
-            entity.getBehavior().paint(entity, this, relative_pos_x, relative_pos_y, g2D);
         }
 
         //draw player
         Field.FieldPosition player_pos = field.get_pos(get_player());
         draw_sprite_on_grid(g2D, get_player().getSprite(), player_pos.x - cameraX, player_pos.y - cameraY, get_player().getWidth(), get_player().getHeight());
+        get_player().getBehavior().paint(get_player(), this, player_pos.x - cameraX, player_pos.y - cameraY, g2D);
 
         //projectile rendering
         for (Projectile projectile : projectiles) {
