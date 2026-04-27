@@ -17,6 +17,7 @@ public class Game {
      */
     public static final int TICKS_PER_SECOND = 60;
     public static final double MILLISECONDS_PER_TICK = 1000.0 / TICKS_PER_SECOND;
+    public static final int ENEMIES_PER_WAVE = 3;
     private int tick_counter = 0;
 
     public int getTick_counter() {
@@ -176,7 +177,7 @@ public class Game {
 
         add_entity(get_player(), new Field.FieldPosition((int) cameraX, (int) cameraY)); //adding the player
         //TODO: remove this code eventually, it only for testing
-        add_entity(GridEntity.large_enemy(), new Field.FieldPosition(5, 1));
+        add_entity(GridEntity.enemy(GridEntity.EnemyType.TANK), new Field.FieldPosition(5, 1));
         //projectiles.add(new Projectile(true, Sprites.Ball, -5, 0.5, 0, 2.0/TICKS_PER_SECOND, 100, 0.5));
         cards.add(TarotDeck.Card.STRENGTH);
         cards.add(TarotDeck.Card.STRENGTH);
@@ -321,7 +322,7 @@ public class Game {
                         int y = (int) (Math.random() * (top_bound - bottom_bound) + bottom_bound);
 
                         if (!is_rect_on_screen(x, y, 1.0, 1.0)) { //rejection sampling
-                            add_entity(GridEntity.enemy(), new Field.FieldPosition(x, y));
+                            add_entity(GridEntity.enemy(GridEntity.EnemyType.NORMAL), new Field.FieldPosition(x, y));
                             break; //we only want to spawn one enemy
                         }
                     }
