@@ -224,6 +224,7 @@ public class Game {
             } else { //if we are paused
                 handle_ui_update();
                 keyManager.update();
+                tick_counter--;
             }
 
 
