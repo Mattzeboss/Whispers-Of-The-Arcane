@@ -178,12 +178,13 @@ public class Game {
         //TODO: remove this code eventually, it only for testing
         add_entity(GridEntity.large_enemy(), new Field.FieldPosition(5, 1));
         //projectiles.add(new Projectile(true, Sprites.Ball, -5, 0.5, 0, 2.0/TICKS_PER_SECOND, 100, 0.5));
-        cards.add(TarotDeck.Card.STRENGTH);
-        cards.add(TarotDeck.Card.STRENGTH);
-        cards.add(TarotDeck.Card.STRENGTH);
-        cards.add(TarotDeck.Card.STRENGTH);
-        cards.add(TarotDeck.Card.THE_CHARIOT);
-        cards.add(TarotDeck.Card.THE_MAGICIAN);
+//        cards.add(TarotDeck.Card.STRENGTH);
+//        cards.add(TarotDeck.Card.STRENGTH);
+//        cards.add(TarotDeck.Card.STRENGTH);
+//        cards.add(TarotDeck.Card.STRENGTH);
+//        cards.add(TarotDeck.Card.THE_CHARIOT);
+//        cards.add(TarotDeck.Card.THE_MAGICIAN);
+//        cards.add(TarotDeck.Card.THE_MAGICIAN);
     }
 
     /*
@@ -321,7 +322,7 @@ public class Game {
                         int y = (int) (Math.random() * (top_bound - bottom_bound) + bottom_bound);
 
                         if (!is_rect_on_screen(x, y, 1.0, 1.0)) { //rejection sampling
-                            add_entity(GridEntity.enemy(), new Field.FieldPosition(x, y));
+                            add_entity(Math.random()<0.15?GridEntity.large_enemy():GridEntity.enemy(), new Field.FieldPosition(x, y));
                             break; //we only want to spawn one enemy
                         }
                     }
