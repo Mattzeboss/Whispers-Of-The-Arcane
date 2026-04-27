@@ -116,7 +116,7 @@ public class PlayerBehavior implements Behavior {
 
         for(TarotDeck.Card card : cards) {
             if(card == TarotDeck.Card.THE_MAGICIAN) {
-                launch_projectile_at_mouse(game, player, (int) (4 * DAMAGE_MULTIPLIER), .75, Sprites.Ball);
+                launch_projectile_at_mouse(game, player, (int) (16 * DAMAGE_MULTIPLIER), 1.25, Sprites.Ball);
                 has_shot_yet = true;
             }
         }

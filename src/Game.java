@@ -17,7 +17,6 @@ public class Game {
      */
     public static final int TICKS_PER_SECOND = 60;
     public static final double MILLISECONDS_PER_TICK = 1000.0 / TICKS_PER_SECOND;
-    public static final int ENEMIES_PER_WAVE = 3;
     private int tick_counter = 0;
 
     public int getTick_counter() {
