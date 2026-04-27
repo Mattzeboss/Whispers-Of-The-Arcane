@@ -274,6 +274,7 @@ public class Game {
         keyManager.update();
 
         //projectile movement & hitting
+        proj:
         for (int i = projectiles.size() - 1; i >= 0; i--) {
             Projectile projectile = projectiles.get(i);
 
@@ -281,7 +282,6 @@ public class Game {
             projectile.move();
 
             //hit detection
-            damage:
             for (Field.FieldPosition tile : projectile.hitting()) {
                 for (GridEntity ent : getField().get_entities(tile)) {
                     if (projectile.isParent_is_player() != ent.getBehavior() instanceof PlayerBehavior) { //if our projectile and entity aren't on the same team
@@ -289,7 +289,7 @@ public class Game {
                             ent.getBehavior().on_death(ent, this);
                         }
                         projectiles.remove(i);
-                        break damage; // we only want to damage one entity per projectile
+                        continue proj; // we only want to damage one entity per projectile
                     }
                 }
             }
