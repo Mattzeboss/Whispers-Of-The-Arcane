@@ -6,6 +6,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -16,14 +17,17 @@ public class Game {
      */
     public static final int TICKS_PER_SECOND = 60;
     public static final double MILLISECONDS_PER_TICK = 1000.0 / TICKS_PER_SECOND;
-    public static final int ENEMIES_PER_WAVE = 3;
     private int tick_counter = 0;
 
     public int getTick_counter() {
         return tick_counter;
     }
 
-    private long last_tick_time;
+    private long time_since_start = 0;
+
+    public int time_since_start_seconds(){
+        return (int) (time_since_start/1e9);
+    }
     private double fps = TICKS_PER_SECOND;
 
     /*
@@ -172,7 +176,7 @@ public class Game {
 
         add_entity(get_player(), new Field.FieldPosition((int) cameraX, (int) cameraY)); //adding the player
         //TODO: remove this code eventually, it only for testing
-        add_entity(GridEntity.enemy(GridEntity.EnemyType.TANK), new Field.FieldPosition(5, 1));
+        add_entity(GridEntity.large_enemy(), new Field.FieldPosition(5, 1));
         //projectiles.add(new Projectile(true, Sprites.Ball, -5, 0.5, 0, 2.0/TICKS_PER_SECOND, 100, 0.5));
         cards.add(TarotDeck.Card.STRENGTH);
         cards.add(TarotDeck.Card.STRENGTH);
@@ -191,8 +195,8 @@ public class Game {
         while (true) { //this loop will exit when the user closes the app manually
             //wait for the tick to start
             long tick_start = System.nanoTime();
-            double time_since_last_tick = (tick_start - last_tick_time) / 1.0e6;
-            if (time_since_last_tick < MILLISECONDS_PER_TICK) {
+            long time_since_last_tick = (tick_start - last_tick_time);
+            if (time_since_last_tick / 1.0e6 < MILLISECONDS_PER_TICK) {
                 if (MILLISECONDS_PER_TICK - time_since_last_tick > 1) {
                     try {
                         Thread.sleep(1);
@@ -203,7 +207,7 @@ public class Game {
                 continue;
             }
             //prep for next tick
-            fps = 1e3 / time_since_last_tick;
+            fps = 1e9 / time_since_last_tick;
             last_tick_time = tick_start;
             tick_counter += 1;
 
@@ -216,6 +220,7 @@ public class Game {
             //update state
             if (paused == PauseStates.NotPaused) {
                 handle_update_world();
+                time_since_start += time_since_last_tick;
             } else { //if we are paused
                 handle_ui_update();
                 keyManager.update();
@@ -269,6 +274,7 @@ public class Game {
         keyManager.update();
 
         //projectile movement & hitting
+        proj:
         for (int i = projectiles.size() - 1; i >= 0; i--) {
             Projectile projectile = projectiles.get(i);
 
@@ -276,7 +282,6 @@ public class Game {
             projectile.move();
 
             //hit detection
-            damage:
             for (Field.FieldPosition tile : projectile.hitting()) {
                 for (GridEntity ent : getField().get_entities(tile)) {
                     if (projectile.isParent_is_player() != ent.getBehavior() instanceof PlayerBehavior) { //if our projectile and entity aren't on the same team
@@ -284,7 +289,7 @@ public class Game {
                             ent.getBehavior().on_death(ent, this);
                         }
                         projectiles.remove(i);
-                        break damage; // we only want to damage one entity per projectile
+                        continue proj; // we only want to damage one entity per projectile
                     }
                 }
             }
@@ -296,15 +301,40 @@ public class Game {
             }
         }
 
+        //enemy spawning
+        if (tick_counter % (TICKS_PER_SECOND * 5) == 0){ //every 5 seconds
+
+            int max_enemies = (int) (5 + Math.pow(Math.min(time_since_start_seconds(), 5 * 60) / 30.0, 2));
+            int current_enemies = entities.size() - 1; //subtract 1 for the player
+            if (current_enemies < max_enemies){ //if we can spawn more enemies
+                int enemies_to_spawn = (int)Math.ceil((max_enemies - current_enemies)/4.0); //spawn 1/4 of however many we can spawn
+                for (int i = 0; i < enemies_to_spawn; i++) {
+                    final int spawn_radius = 10;
+
+                    int left_bound = (int)Math.ceil(cameraX - Main.SCREEN_TILE_WIDTH / 2.0) - spawn_radius;
+                    int right_bound = (int)Math.ceil(cameraX + Main.SCREEN_TILE_WIDTH / 2.0) + spawn_radius;
+                    int top_bound = (int)Math.floor(cameraY + Main.SCREEN_TILE_HEIGHT / 2.0) + spawn_radius;
+                    int bottom_bound =(int)Math.floor( cameraY - Main.SCREEN_TILE_HEIGHT / 2.0) - spawn_radius;
+
+                    for (int j = 0; j < 100; j++) { // we get 100 attempts to spawn choose a spawn location
+                        int x = (int) (Math.random() * (right_bound - left_bound) + left_bound);
+                        int y = (int) (Math.random() * (top_bound - bottom_bound) + bottom_bound);
+
+                        if (!is_rect_on_screen(x, y, 1.0, 1.0)) { //rejection sampling
+                            add_entity(GridEntity.enemy(), new Field.FieldPosition(x, y));
+                            break; //we only want to spawn one enemy
+                        }
+                    }
+
+
+                }
+            }
+        }
+
         //handling xp
         if (xp >= requiredXp()){
             xp -= requiredXp();
             draw_cards();
-        }
-
-        //handling wave spawning
-        if (entities.size()==1) { // if our only entity is the player, may need updates if we do grid-based weapons
-            spawn_wave();
         }
     }
 
@@ -328,9 +358,12 @@ public class Game {
             double relative_pos_x = pos.x - cameraX;
             double relative_pos_y = pos.y - cameraY;
 
-            //bounds check, if we would be visible on screen
-            if (is_rect_on_screen(pos.x, pos.y, entity.getWidth(), entity.getHeight())) {
-                draw_sprite_on_grid(g2D, entity.getSprite(), relative_pos_x, relative_pos_y, entity.getWidth(), entity.getHeight());
+            //we want to draw the player later on top of the other entities
+            if (entity != get_player()) {
+                //bounds check, if we would be visible on screen
+                if (is_rect_on_screen(pos.x, pos.y, entity.getWidth(), entity.getHeight())) {
+                    draw_sprite_on_grid(g2D, entity.getSprite(), relative_pos_x, relative_pos_y, entity.getWidth(), entity.getHeight());
+                }
             }
 
             entity.getBehavior().paint(entity, this, relative_pos_x, relative_pos_y, g2D);
@@ -355,19 +388,22 @@ public class Game {
             g2D.setColor(Color.WHITE);
             g2D.setStroke(new BasicStroke(6.0f));
             g2D.drawLine(Main.SCREEN_WIDTH - 3, 0, Main.SCREEN_WIDTH - 3, Main.SCREEN_HEIGHT);
+            //timer
+            int s = time_since_start_seconds();
+            GameFont.draw(g2D, "Time: " + String.format("%d:%02d", (s % 3600) / 60, (s % 60)), Main.SCREEN_TILE_WIDTH + 0.1, 0, Color.WHITE);
             //health
-            GameFont.draw(g2D, "Health: " + get_player().getHealth(), Main.SCREEN_TILE_WIDTH + 0.1, 0, Color.WHITE);
+            GameFont.draw(g2D, "Health: " + get_player().getHealth(), Main.SCREEN_TILE_WIDTH + 0.1, 2, Color.WHITE);
             //xp
-            GameFont.draw(g2D, "XP: " + xp + "/" + requiredXp(), Main.SCREEN_TILE_WIDTH + 0.1, 2, Color.WHITE);
+            GameFont.draw(g2D, "XP: " + xp + "/" + requiredXp(), Main.SCREEN_TILE_WIDTH + 0.1, 4, Color.WHITE);
             //cards
-            GameFont.draw(g2D, "Cards:", Main.SCREEN_TILE_WIDTH + 0.1, 4, Color.WHITE);
+            GameFont.draw(g2D, "Cards:", Main.SCREEN_TILE_WIDTH + 0.1, 6, Color.WHITE);
             for (int i = 0; i < cards.size(); i++) {
                 TarotDeck.Card card = cards.get(i);
                 draw_sprite_on_screen(
                         g2D,
                         card.getSprite(),
-                        Main.SCREEN_TILE_WIDTH + 0.1 + 1.1 * (i % 3),
-                        5 + 1.6 * (i / 3),
+                        Main.SCREEN_TILE_WIDTH + 0.1 + 1.1 * (i%3),
+                        7 + 1.6*(i/3),
                         1.0,
                         1.5
                 );
@@ -375,27 +411,36 @@ public class Game {
         }
 
         //draw pause screens
-        if (paused != PauseStates.NotPaused) {
+        if (paused != PauseStates.NotPaused){
             g2D.setColor(new Color(105, 45, 230, 173)); // nice semi-transparent purple
             g2D.fillRect(0, 0, Main.SCREEN_WIDTH, Main.SCREEN_HEIGHT);
         }
 
-        switch (paused) {
+        switch (paused){
             case NotPaused:
                 break;
             case CardSelect:
                 for (int i = 0; i < drawn_cards.length; i++) {
+                    //distance between card centers in Tiles
                     final double card_distance = 5;
+                    //Card width in Tiles
                     final double width = 3;
 
+                    //draw the card
                     TarotDeck.Card card = drawn_cards[i];
-                    double y = Main.SCREEN_TILE_HEIGHT / 2.0;
-                    double x = Main.SCREEN_TILE_WIDTH / 2.0 + (i - (drawn_cards.length - 1) / 2.0) * card_distance;
+                    double y = Main.SCREEN_TILE_HEIGHT/3.0;
+                    double x = Main.SCREEN_TILE_WIDTH/2.0 + (i - (drawn_cards.length - 1)/2.0)*card_distance;
                     double height = 1.5 * width;
-                    draw_sprite_on_screen(g2D, card.getSprite(), x - width / 2, y - height / 2, width, height);
-                    if (current_selected_card == i) {
-                        draw_sprite_on_screen(g2D, Sprites.CardSelect, x - width / 2, y - height / 2, width, height);
+                    draw_sprite_on_screen(g2D, card.getSprite(), x-width/2, y - height/2, width, height);
+                    //draw outline if the card is selected
+                    if (current_selected_card == i){
+                        draw_sprite_on_screen(g2D, Sprites.CardSelect, x-width/2, y - height/2, width, height);
                     }
+
+                    //draw card description
+                    String desc = card.getDescription();
+                    double desc_width = GameFont.get_width(desc);
+                    GameFont.draw(g2D, desc, x-(width/4 + card_distance/4), y+ height/2.0 + 1, width/2 + card_distance/2, Color.GREEN);
                 }
                 break;
             case WinScreen:
@@ -469,21 +514,5 @@ public class Game {
 
     private static int transform_y(int preimage) {
         return -preimage + Main.SCREEN_HEIGHT / 2;
-    }
-
-    public void spawn_wave() {
-        for(int i = 0; i < ENEMIES_PER_WAVE; i++) {
-            spawn_enemy();
-        }
-    }
-
-    public void spawn_enemy() {
-        //maybe add some more implementation to do different enemy types, randomize between the things in GridEntity
-        GridEntity.EnemyType type = GridEntity.EnemyType.NORMAL;
-
-        int xPos = (int)((Math.random() - 1.0d/2) * Main.SCREEN_TILE_WIDTH) + field.get_pos(player).x;
-        int yPos = (int)((Math.random() - 1.0d/2) * Main.SCREEN_TILE_HEIGHT) + field.get_pos(player).y;
-
-        add_entity(GridEntity.enemy(type), new Field.FieldPosition(xPos, yPos));
     }
 }

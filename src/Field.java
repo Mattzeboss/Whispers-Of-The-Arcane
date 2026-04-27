@@ -22,6 +22,7 @@ public class Field {
             return new FieldPosition(x - other.x, y - other.y);
         }
 
+        public FieldPosition mult(int factor) {return new FieldPosition(x*factor, y*factor);}
         @Override
         public boolean equals(Object obj) {
             FieldPosition other = (FieldPosition) obj;
@@ -91,12 +92,14 @@ public class Field {
         ArrayList<GridEntity> overlapping = new ArrayList<>();
         for (int i = 0; i < e.getWidth(); i++) {
             for (int j = 0; j < e.getHeight(); j++) {
-                //we only remove if we already inserted
-                position_to_entity.get(get_pos(e).add(new FieldPosition(i, j))).forEach((ent) -> {
-                    //we won't add ourselves or anything we have already marked
-                    //we use a list because, presumably, the # of elements will be small enough for a list to be faster than a set
-                    if (!ent.equals(e) && !overlapping.contains(ent)) overlapping.add(ent);
-                });
+                FieldPosition pos = get_pos(e).add(new FieldPosition(i, -j));
+                if (position_to_entity.containsKey(pos)) {
+                    position_to_entity.get(pos).forEach((ent) -> {
+                        //we won't add ourselves or anything we have already marked
+                        //we use a list because, presumably, the # of elements will be small enough for a list to be faster than a set
+                        if (!ent.equals(e) && !overlapping.contains(ent)) overlapping.add(ent);
+                    });
+                }
             }
         }
         return overlapping;

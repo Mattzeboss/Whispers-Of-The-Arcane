@@ -14,7 +14,7 @@ public class TarotDeck {
     public Card[] getOptions() {
         Card[] ans = new Card[Math.min(3, deck.size())];
 
-        for(int i = 0; i < ans.length; i++) {
+        for (int i = 0; i < ans.length; i++) {
             ans[i] = getTopCard();
         }
 
@@ -36,26 +36,26 @@ public class TarotDeck {
         Collections.shuffle(deck);
     }
 
-    public int size(){
+    public int size() {
         return deck.size();
     }
 
     public Card getTopCard() {
-        if(deck.isEmpty()) {
+        if (deck.isEmpty()) {
             throw new EmptyStackException();
         }
-        return deck.remove(deck.size()-1);
+        return deck.remove(deck.size() - 1);
     }
 
     public Card seeTopCard() {
         if (deck.isEmpty()) {
             throw new EmptyStackException();
         }
-        return deck.get(deck.size()-1);
+        return deck.get(deck.size() - 1);
     }
 
     public void putOnBottom(Card c) {
-        if(deck.isEmpty()) {
+        if (deck.isEmpty()) {
             deck.add(c);
         } else {
             deck.add(0, c);
@@ -63,22 +63,50 @@ public class TarotDeck {
     }
 
     public enum Card {
-        THE_MAGICIAN("./src/graphics/cards/placeholder_card.png"),
-        THE_LOVERS("./src/graphics/cards/placeholder_card.png"),
-        THE_CHARIOT("./src/graphics/cards/placeholder_card.png"),
-        STRENGTH("./src/graphics/cards/placeholder_card.png"),
-        THE_HANGED_MAN("./src/graphics/cards/placeholder_card.png"),
-        THE_MOON("./src/graphics/cards/placeholder_card.png"),
-        THE_SUN("./src/graphics/cards/placeholder_card.png");
+        THE_MAGICIAN(
+                "./src/graphics/cards/placeholder_card.png",
+                "+ Fireball replaces projectile"
+        ),
+        THE_LOVERS(
+                "./src/graphics/cards/placeholder_card.png",
+                "+ Dual wield pistols"
+        ),
+        THE_CHARIOT(
+                "./src/graphics/cards/placeholder_card.png",
+                "+ Movement Speed"
+        ),
+        STRENGTH(
+                "./src/graphics/cards/placeholder_card.png",
+                "+ Projectile damage\n" +
+                        "+ Attack Speed"
+        ),
+        THE_HANGED_MAN(
+                "./src/graphics/cards/placeholder_card.png",
+                "+ Revive"
+        ),
+        THE_MOON(
+                "./src/graphics/cards/placeholder_card.png",
+                "+ Slows Enemies near the Moon"
+        ),
+        THE_SUN(
+                "./src/graphics/cards/placeholder_card.png",
+                "+ Damage enemies near the Sun"
+        );
 
         private final BufferedImage sprite;
+        private final String description;
 
-        Card(String path){
+        Card(String path, String description) {
             this.sprite = Sprites.loadImage(path);
+            this.description = description;
         }
 
         public BufferedImage getSprite() {
             return sprite;
+        }
+
+        public String getDescription() {
+            return description;
         }
     }
 }
