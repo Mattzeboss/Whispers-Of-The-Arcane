@@ -168,6 +168,29 @@ public class Game {
     }
 
     /*
+        Enemy Spawning stuff
+     */
+
+
+    final int[] times = new int[]{0, 15, 45, 90, 300}; //in seconds
+    final int[] enemy_count = new int[]{10, 10, 25, 50, 100};
+
+    private int max_enemies(){
+        //linearly interpolates between the points on the enemy_count vs time graph to get enemy count at specific points
+        int secs = time_since_start_seconds();
+
+        int prev = 0;
+        int current = 1;
+        while (current < times.length - 1 && times[current] < secs){
+            prev = current;
+            current++;
+        }
+
+        double t = (double) (secs - times[prev]) /(times[current]-times[prev]);
+        return (int) (enemy_count[prev]*(1-t) + enemy_count[current]*t);
+    }
+
+    /*
             Constructor
              */
     public Game(KeyManager keyManager, MouseManager mouseManager) {
@@ -305,7 +328,7 @@ public class Game {
         //enemy spawning
         if (tick_counter % (TICKS_PER_SECOND * 5) == 0){ //every 5 seconds
 
-            int max_enemies = (int) (5 + Math.pow(Math.min(time_since_start_seconds(), 5 * 60) / 30.0, 2));
+            int max_enemies = max_enemies();
             int current_enemies = entities.size() - 1; //subtract 1 for the player
             if (current_enemies < max_enemies){ //if we can spawn more enemies
                 int enemies_to_spawn = (int)Math.ceil((max_enemies - current_enemies)/4.0); //spawn 1/4 of however many we can spawn
