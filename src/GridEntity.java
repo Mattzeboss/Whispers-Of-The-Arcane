@@ -66,6 +66,7 @@ public class GridEntity {
 
     //returns true if this damage killed the entity
     public boolean take_damage(int damage) {
+        behavior.on_take_damage(this, damage);
         if (health > 0) {
             health = Math.max(0, health - damage); //we want to clamp at 0 so that we don't go below
             return is_dead();//are we still alive
