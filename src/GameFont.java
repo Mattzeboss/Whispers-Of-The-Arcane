@@ -12,10 +12,10 @@ public abstract class GameFont {
     static {
         for (int i = 0; i < char_width.length; i++) {
             BufferedImage character = Sprites.Font.getSubimage(8 * (i % 10), 16 * (i / 10), 8, 16);
-            while (!column_is_clear(character, char_width[i])) {
+            while (char_width[i] < 7 && column_is_clear(character, 7-char_width[i])) {
                 char_width[i]++;
             }
-            char_width[i]++;
+            char_width[i] = 9 - char_width[i];
         }
 
         char_width[0] = 5; //space should be wide, even though it takes up no space
