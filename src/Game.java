@@ -7,6 +7,7 @@ import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -138,7 +139,8 @@ public class Game {
     Entities and projectiles
      */
     private final GridEntity player = GridEntity.player();
-    private final Set<GridEntity> entities = ConcurrentHashMap.newKeySet();
+    private final Set<GridEntity> entities = new HashSet<>();
+    private final Set<GridEntity> scheduled_for_deletion = new HashSet<>();
     private final Field field = new Field();
 
     private final SwapAndPopList<Projectile> projectiles = new SwapAndPopList<>();
@@ -149,8 +151,7 @@ public class Game {
     }
 
     public void remove_entity(GridEntity entity) {
-        entities.removeIf(entity::equals); // inefficient (i think), but gets around ConcurrentModificiationExceptions
-        field.remove_entity(entity);
+        scheduled_for_deletion.add(entity);
     }
 
     public GridEntity get_player() {
@@ -299,6 +300,12 @@ public class Game {
             entity.getBehavior().update(entity, this);
         }
         keyManager.update();
+
+        for (GridEntity entity: scheduled_for_deletion){
+            entities.remove(entity);
+            field.remove_entity(entity);
+        }
+        scheduled_for_deletion.clear();
 
         //projectile movement & hitting
         proj:
