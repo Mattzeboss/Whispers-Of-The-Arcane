@@ -39,7 +39,7 @@ public class Game {
     /*
         Camera stuff
          */
-    private double cameraX = 0.0;
+    private double cameraX = (double) -Main.UI_TILE_WIDTH / 2;
     private double cameraY = 0.0;
     private static final double camera_follow_speed = 1.0 - Math.pow(.25, 1.0 / TICKS_PER_SECOND); // 0 means it will not move at all, 1 means it will follow the player perfectly
 
@@ -197,7 +197,7 @@ public class Game {
         this.keyManager = keyManager;
         this.mouseManager = mouseManager;
 
-        add_entity(get_player(), new Field.FieldPosition((int) cameraX, (int) cameraY)); //adding the player
+        add_entity(get_player(), new Field.FieldPosition(0, 0)); //adding the player
         //TODO: remove this code eventually, it only for testing
         add_entity(GridEntity.enemy(GridEntity.EnemyType.TANK), new Field.FieldPosition(5, 1));
         //projectiles.add(new Projectile(true, Sprites.Ball, -5, 0.5, 0, 2.0/TICKS_PER_SECOND, 100, 0.5));

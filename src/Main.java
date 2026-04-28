@@ -105,7 +105,11 @@ public class Main extends Canvas {
     //Title screen should be 336x202 in terms of texture size
     public void paint_title_screen(Graphics2D g2D){
         g2D.drawImage(Sprites.TitleScreen, 0, 0, SCREEN_WIDTH + UI_WIDTH, SCREEN_HEIGHT, null);
-        GameFont.draw(g2D, "Press any key to start", 0, 0, Color.WHITE);
+        String title = "Whispers of the Arcane";
+        GameFont.draw(g2D, title, (SCREEN_TILE_WIDTH + UI_TILE_WIDTH-GameFont.get_width(title))/2, 0.5, Color.WHITE);
+        String info = "Press any key to start";
+        GameFont.draw(g2D, info, (SCREEN_TILE_WIDTH + UI_TILE_WIDTH-GameFont.get_width(title))/2, SCREEN_TILE_HEIGHT - 1.5, Color.WHITE);
+        //GameFont.draw(g2D, "Press any key to start", 0, 0, Color.WHITE);
     }
 
     public void render() {
