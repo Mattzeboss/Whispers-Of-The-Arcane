@@ -197,7 +197,7 @@ public class PlayerBehavior implements Behavior {
         double distX = Math.abs(rotPosX - game.getField().get_pos(g).x - g.getWidth()/2.0) - g.getWidth()/2.0;
         double distY = Math.abs(rotPosY - game.getField().get_pos(g).y + g.getHeight()/2.0) - g.getHeight()/2.0;
 
-        double squaredDist = Math.pow(distX, 2) + Math.pow(distY, 2);
+        double squaredDist = Math.pow(Math.max(distX, 0), 2) + Math.pow(Math.max(distY, 0), 2);
 
         return squaredDist <= DAMAGE_DEBUFF_RADIUS * DAMAGE_DEBUFF_RADIUS;
     }
