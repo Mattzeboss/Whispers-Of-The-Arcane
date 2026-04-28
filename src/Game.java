@@ -10,6 +10,8 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Game {
     /*
@@ -136,7 +138,7 @@ public class Game {
     Entities and projectiles
      */
     private final GridEntity player = GridEntity.player();
-    private final HashSet<GridEntity> entities = new HashSet<>();
+    private final Set<GridEntity> entities = ConcurrentHashMap.newKeySet();
     private final Field field = new Field();
 
     private final SwapAndPopList<Projectile> projectiles = new SwapAndPopList<>();
@@ -147,7 +149,7 @@ public class Game {
     }
 
     public void remove_entity(GridEntity entity) {
-        entities.remove(entity);
+        entities.removeIf(entity::equals); // inefficient (i think), but gets around ConcurrentModificiationExceptions
         field.remove_entity(entity);
     }
 
@@ -199,7 +201,7 @@ public class Game {
 
         add_entity(get_player(), new Field.FieldPosition(0, 0)); //adding the player
         //TODO: remove this code eventually, it only for testing
-        add_entity(GridEntity.enemy(GridEntity.EnemyType.TANK), new Field.FieldPosition(5, 1));
+        add_entity(GridEntity.enemy(GridEntity.EnemyType.TANK), new Field.FieldPosition(3, 1));
         //projectiles.add(new Projectile(true, Sprites.Ball, -5, 0.5, 0, 2.0/TICKS_PER_SECOND, 100, 0.5));
         cards.add(TarotDeck.Card.STRENGTH);
         cards.add(TarotDeck.Card.STRENGTH);
@@ -207,6 +209,7 @@ public class Game {
         cards.add(TarotDeck.Card.STRENGTH);
         cards.add(TarotDeck.Card.THE_CHARIOT);
         cards.add(TarotDeck.Card.THE_MAGICIAN);
+        cards.add(TarotDeck.Card.THE_SUN);
     }
 
     /*
@@ -538,5 +541,9 @@ public class Game {
 
     private static int transform_y(int preimage) {
         return -preimage + Main.SCREEN_HEIGHT / 2;
+    }
+
+    public Set<GridEntity> getEntities() {
+        return entities;
     }
 }
