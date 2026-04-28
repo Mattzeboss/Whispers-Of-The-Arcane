@@ -17,6 +17,9 @@ public class PlayerBehavior implements Behavior {
     private int last_shoot_tick = -TICKS_PER_SHOT;
     private static final double PROJECTILE_SPEED = 2.0; //unit is tiles per second
     private static final double PROJECTILE_SIZE = 0.5; //unit is tiles per second
+    private double SUN_POSITION = 0;
+    private static final double SUN_MOON_RADIUS = 2;
+    private static final double DAMAGE_DEBUFF_RADIUS = 1;
 
     private double DAMAGE_MULTIPLIER = 1.0d;
 
@@ -79,6 +82,20 @@ public class PlayerBehavior implements Behavior {
             last_action_tick = game.getTick_counter();
         }
 
+        // sun & moon
+        if(game.getCards().contains(TarotDeck.Card.THE_SUN) || game.getCards().contains(TarotDeck.Card.THE_MOON)) {
+            SUN_POSITION += 2 * Math.PI / Game.TICKS_PER_SECOND;
+            if(game.getCards().contains(TarotDeck.Card.THE_SUN)) {
+                for(GridEntity g : game.getEntities()) {
+                    if(g != game.get_player() && enemy_in_range(g, game, true)) {
+                        if(g.take_damage((int)(100 * DAMAGE_MULTIPLIER))) {
+                            g.getBehavior().on_death(g, game);
+                        }
+                    }
+                }
+            }
+        }
+
 
         //projectiles
         has_shot_yet = false;
@@ -102,7 +119,14 @@ public class PlayerBehavior implements Behavior {
     //use this to paint card specific effects, we don't want to litter the Game.java file
     @Override
     public void paint(GridEntity entity, Game game, double screen_x, double screen_y, Graphics2D g2D) {
-
+        if(game.getCards().contains(TarotDeck.Card.THE_SUN)) {
+            Game.draw_sprite_on_grid(g2D, Sprites.Ball,
+                    screen_x + SUN_MOON_RADIUS * Math.cos(SUN_POSITION),
+                    screen_y + SUN_MOON_RADIUS * Math.sin(SUN_POSITION),
+                    1,
+                    1
+            );
+        }
     }
 
     public int get_ticks_per_action() {
@@ -162,5 +186,19 @@ public class PlayerBehavior implements Behavior {
         mouse_y -= (pos.y - game.getCameraY()) * Main.TILE_SIZE_PX;
 
         return Math.atan2(mouse_y, mouse_x);
+    }
+
+    public boolean enemy_in_range(GridEntity g, Game game, boolean fromSun) {
+        Field.FieldPosition pos = game.getField().get_pos(game.get_player());
+
+        double rotPosX = pos.x + 0.5 + SUN_MOON_RADIUS * Math.cos(fromSun ? SUN_POSITION : 2 * Math.PI - SUN_POSITION);
+        double rotPosY = pos.y - 0.5 + SUN_MOON_RADIUS * Math.sin(fromSun ? SUN_POSITION : 2 * Math.PI - SUN_POSITION);
+
+        double distX = Math.abs(rotPosX - game.getField().get_pos(g).x - g.getWidth()/2.0) - g.getWidth()/2.0;
+        double distY = Math.abs(rotPosY - game.getField().get_pos(g).y + g.getHeight()/2.0) - g.getHeight()/2.0;
+
+        double squaredDist = Math.pow(distX, 2) + Math.pow(distY, 2);
+
+        return squaredDist <= DAMAGE_DEBUFF_RADIUS * DAMAGE_DEBUFF_RADIUS;
     }
 }

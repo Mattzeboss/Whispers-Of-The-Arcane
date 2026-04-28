@@ -1,9 +1,6 @@
 package src.behaviors;
 
-import src.Behavior;
-import src.Field;
-import src.Game;
-import src.GridEntity;
+import src.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,12 +11,12 @@ import java.util.stream.IntStream;
 //TODO: make it move towards the player
 public class EnemyBehavior implements Behavior {
     private int time_of_last_move = 0;
-    private final static int time_to_move = 40;
+    private final static int base_time_to_move = 40;
     private final static int damage = 20;
 
     @Override
     public void update(GridEntity entity, Game game) {
-        if (game.getTick_counter() - time_of_last_move > time_to_move) {
+        if (game.getTick_counter() - time_of_last_move > time_to_move(entity, game)) {
             Field field = game.getField();
             Field.FieldPosition our_pos = field.get_pos(entity);
             GridEntity player = game.get_player();
@@ -80,5 +77,17 @@ public class EnemyBehavior implements Behavior {
     public void on_death(GridEntity entity, Game game) {
         game.remove_entity(entity);
         game.gainXp(15);
+    }
+
+    private int time_to_move(GridEntity entity, Game game) {
+        if(game.getCards().contains(TarotDeck.Card.THE_MOON)) {
+            if(((PlayerBehavior)(game.get_player().getBehavior())).enemy_in_range(entity, game, false)) {
+                return base_time_to_move * 2;
+            } else {
+                return base_time_to_move;
+            }
+        } else {
+            return base_time_to_move;
+        }
     }
 }
