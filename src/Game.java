@@ -359,9 +359,10 @@ public class Game {
                     for (int j = 0; j < 100; j++) { // we get 100 attempts to spawn choose a spawn location
                         int x = (int) (Math.random() * (right_bound - left_bound) + left_bound);
                         int y = (int) (Math.random() * (top_bound - bottom_bound) + bottom_bound);
-
-                        if (!is_rect_on_screen(x, y, 1.0, 1.0)) { //rejection sampling
-                            add_entity(GridEntity.enemy(GridEntity.EnemyType.generate_random()), new Field.FieldPosition(x, y));
+                        Field.FieldPosition pos = new Field.FieldPosition(x, y);
+                        if (!is_rect_on_screen(x, y, 1.0, 1.0) && field.get_entities(pos).isEmpty()) { //rejection sampling
+                            GridEntity entity = GridEntity.enemy(GridEntity.EnemyType.generate_random());
+                            add_entity(entity, pos);
                             break; //we only want to spawn one enemy
                         }
                     }
