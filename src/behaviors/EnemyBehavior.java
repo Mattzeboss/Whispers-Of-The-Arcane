@@ -2,6 +2,7 @@ package src.behaviors;
 
 import src.*;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -11,12 +12,19 @@ import java.util.stream.IntStream;
 //TODO: make it move towards the player
 public class EnemyBehavior implements Behavior {
     private int time_of_last_move = 0;
-    private final static int base_time_to_move = 40;
+    private final static int time_to_move = 40;
     private final static int damage = 20;
+
+    private int damage_taken_time = -hit_indicator_time;
+    private final static int hit_indicator_time = Game.TICKS_PER_SECOND/4;
+
+    private int current_tick = 0; //we can't access the game in the on_damage_taken method
 
     @Override
     public void update(GridEntity entity, Game game) {
         if (game.getTick_counter() - time_of_last_move > time_to_move(entity, game)) {
+        current_tick = game.getTick_counter();
+        if (game.getTick_counter() - time_of_last_move > time_to_move) {
             Field field = game.getField();
             Field.FieldPosition our_pos = field.get_pos(entity);
             GridEntity player = game.get_player();
@@ -77,6 +85,20 @@ public class EnemyBehavior implements Behavior {
     public void on_death(GridEntity entity, Game game) {
         game.remove_entity(entity);
         game.gainXp(15);
+    }
+
+    @Override
+    public void paint(GridEntity entity, Game game, double screen_x, double screen_y, Graphics2D g2D) {
+        if (game.getTick_counter() - damage_taken_time < hit_indicator_time) {
+            g2D.setXORMode(Color.RED);
+            Game.draw_sprite_on_grid(g2D, entity.getSprite(), screen_x, screen_y, entity.getWidth(), entity.getHeight());
+            g2D.setPaintMode();
+        }
+    }
+
+    @Override
+    public void on_take_damage(GridEntity entity, int amount) {
+        damage_taken_time = current_tick;
     }
 
     private int time_to_move(GridEntity entity, Game game) {

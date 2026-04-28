@@ -19,4 +19,9 @@ public interface Behavior {
     used to draw extra effects if needed
      */
     default void paint(GridEntity entity, Game game, double screen_x, double screen_y, Graphics2D g2D){}
+
+    /*
+    runs before damage is applied to the entity
+     */
+    default void on_take_damage(GridEntity entity, int amount){}
 }
