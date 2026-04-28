@@ -175,8 +175,14 @@ public class Game {
      */
 
 
-    final int[] times = new int[]{0, 15, 45, 90, 300}; //in seconds
-    final int[] enemy_count = new int[]{10, 10, 25, 50, 100};
+    static final int[] times = new int[]{0, 15, 45, 90, 300, 420, 480, 600}; //in seconds
+    static final int[] enemy_count = new int[]{10, 10, 25, 50, 100, 200, 1000, 5000};
+
+
+    static {
+        assert times.length == enemy_count.length : "times and enemy_count have to be the same length";
+    }
+
 
     private int max_enemies() {
         //linearly interpolates between the points on the enemy_count vs time graph to get enemy count at specific points
