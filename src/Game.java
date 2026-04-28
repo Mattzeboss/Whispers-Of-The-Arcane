@@ -6,10 +6,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
-import java.time.Instant;
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -27,9 +24,10 @@ public class Game {
 
     private long time_since_start = 0;
 
-    public int time_since_start_seconds(){
-        return (int) (time_since_start/1e9);
+    public int time_since_start_seconds() {
+        return (int) (time_since_start / 1e9);
     }
+
     private double fps = TICKS_PER_SECOND;
 
     /*
@@ -92,7 +90,7 @@ public class Game {
     private int current_selected_card = 1;
     private TarotDeck.Card[] drawn_cards = new TarotDeck.Card[0];
 
-    private void draw_cards(){
+    private void draw_cards() {
         setPaused(PauseStates.CardSelect);
         drawn_cards = new TarotDeck.Card[Math.min(3, deck.size())];
         for (int i = 0; i < drawn_cards.length; i++) {
@@ -101,7 +99,7 @@ public class Game {
         current_selected_card = 1;
     }
 
-    private void select_card(){
+    private void select_card() {
         if (drawn_cards.length != 0) {
             TarotDeck.Card card = drawn_cards[current_selected_card];
             cards.add(card);
@@ -109,7 +107,9 @@ public class Game {
 
         //cards that weren't selected are sent to the bottom of the deck
         for (int i = 0; i < drawn_cards.length; i++) {
-            if (i == current_selected_card){ continue;}
+            if (i == current_selected_card) {
+                continue;
+            }
             deck.putOnBottom(drawn_cards[i]);
         }
 
@@ -121,16 +121,16 @@ public class Game {
      */
     private int xp = 0;
 
-    public int getXp(){
+    public int getXp() {
         return xp;
     }
 
-    public void gainXp(int amount){
+    public void gainXp(int amount) {
         xp += amount;
     }
 
-    public int requiredXp(){
-        return 15 * (int)Math.pow(2, cards.size());
+    public int requiredXp() {
+        return 15 * (int) Math.pow(2, cards.size());
     }
 
 
@@ -177,19 +177,19 @@ public class Game {
     final int[] times = new int[]{0, 15, 45, 90, 300}; //in seconds
     final int[] enemy_count = new int[]{10, 10, 25, 50, 100};
 
-    private int max_enemies(){
+    private int max_enemies() {
         //linearly interpolates between the points on the enemy_count vs time graph to get enemy count at specific points
         int secs = time_since_start_seconds();
 
         int prev = 0;
         int current = 1;
-        while (current < times.length - 1 && times[current] < secs){
+        while (current < times.length - 1 && times[current] < secs) {
             prev = current;
             current++;
         }
 
-        double t = (double) (secs - times[prev]) /(times[current]-times[prev]);
-        return (int) (enemy_count[prev]*(1-t) + enemy_count[current]*t);
+        double t = (double) (secs - times[prev]) / (times[current] - times[prev]);
+        return (int) (enemy_count[prev] * (1 - t) + enemy_count[current] * t);
     }
 
     /*
@@ -239,7 +239,7 @@ public class Game {
 
 
             //TODO: Remove this code, it is for testing
-            if (keyManager.isPressed(KeyEvent.VK_C)){
+            if (keyManager.isPressed(KeyEvent.VK_C)) {
                 draw_cards();
             }
 
@@ -266,15 +266,15 @@ public class Game {
 
     private void handle_ui_update() {
         //TODO: finish implementing
-        switch (paused){
+        switch (paused) {
             case NotPaused:
                 break;
             case CardSelect:
                 //change selected card
-                if (keyManager.isPressed(KeyEvent.VK_A)){
+                if (keyManager.isPressed(KeyEvent.VK_A)) {
                     current_selected_card -= 1;
                 }
-                if (keyManager.isPressed(KeyEvent.VK_D)){
+                if (keyManager.isPressed(KeyEvent.VK_D)) {
                     current_selected_card += 1;
                 }
                 if (drawn_cards.length != 0) {
@@ -282,7 +282,7 @@ public class Game {
                 }
 
                 //finalize selection
-                if (keyManager.isReleased(KeyEvent.VK_ENTER)){
+                if (keyManager.isReleased(KeyEvent.VK_ENTER)) {
                     select_card();
                 }
                 break;
@@ -329,19 +329,19 @@ public class Game {
         }
 
         //enemy spawning
-        if (tick_counter % (TICKS_PER_SECOND * 5) == 0){ //every 5 seconds
+        if (tick_counter % (TICKS_PER_SECOND * 5) == 0) { //every 5 seconds
 
             int max_enemies = max_enemies();
             int current_enemies = entities.size() - 1; //subtract 1 for the player
-            if (current_enemies < max_enemies){ //if we can spawn more enemies
-                int enemies_to_spawn = (int)Math.ceil((max_enemies - current_enemies)/4.0); //spawn 1/4 of however many we can spawn
+            if (current_enemies < max_enemies) { //if we can spawn more enemies
+                int enemies_to_spawn = (int) Math.ceil((max_enemies - current_enemies) / 4.0); //spawn 1/4 of however many we can spawn
                 for (int i = 0; i < enemies_to_spawn; i++) {
                     final int spawn_radius = 10;
 
-                    int left_bound = (int)Math.ceil(cameraX - Main.SCREEN_TILE_WIDTH / 2.0) - spawn_radius;
-                    int right_bound = (int)Math.ceil(cameraX + Main.SCREEN_TILE_WIDTH / 2.0) + spawn_radius;
-                    int top_bound = (int)Math.floor(cameraY + Main.SCREEN_TILE_HEIGHT / 2.0) + spawn_radius;
-                    int bottom_bound =(int)Math.floor( cameraY - Main.SCREEN_TILE_HEIGHT / 2.0) - spawn_radius;
+                    int left_bound = (int) Math.ceil(cameraX - Main.SCREEN_TILE_WIDTH / 2.0) - spawn_radius;
+                    int right_bound = (int) Math.ceil(cameraX + Main.SCREEN_TILE_WIDTH / 2.0) + spawn_radius;
+                    int top_bound = (int) Math.floor(cameraY + Main.SCREEN_TILE_HEIGHT / 2.0) + spawn_radius;
+                    int bottom_bound = (int) Math.floor(cameraY - Main.SCREEN_TILE_HEIGHT / 2.0) - spawn_radius;
 
                     for (int j = 0; j < 100; j++) { // we get 100 attempts to spawn choose a spawn location
                         int x = (int) (Math.random() * (right_bound - left_bound) + left_bound);
@@ -359,7 +359,7 @@ public class Game {
         }
 
         //handling xp
-        if (xp >= requiredXp()){
+        if (xp >= requiredXp()) {
             xp -= requiredXp();
             draw_cards();
         }
@@ -390,7 +390,8 @@ public class Game {
                 //bounds check, if we would be visible on screen
                 if (is_rect_on_screen(pos.x, pos.y, entity.getWidth(), entity.getHeight())) {
                     draw_sprite_on_grid(g2D, entity.getSprite(), relative_pos_x, relative_pos_y, entity.getWidth(), entity.getHeight());
-                }entity.getBehavior().paint(entity, this, relative_pos_x, relative_pos_y, g2D);
+                }
+                entity.getBehavior().paint(entity, this, relative_pos_x, relative_pos_y, g2D);
             }
 
         }
@@ -429,8 +430,8 @@ public class Game {
                 draw_sprite_on_screen(
                         g2D,
                         card.getSprite(),
-                        Main.SCREEN_TILE_WIDTH + 0.1 + 1.1 * (i%3),
-                        7 + 1.6*(i/3),
+                        Main.SCREEN_TILE_WIDTH + 0.1 + 1.1 * (i % 3),
+                        7 + 1.6 * (i / 3),
                         1.0,
                         1.5
                 );
@@ -438,12 +439,12 @@ public class Game {
         }
 
         //draw pause screens
-        if (paused != PauseStates.NotPaused){
+        if (paused != PauseStates.NotPaused) {
             g2D.setColor(new Color(105, 45, 230, 173)); // nice semi-transparent purple
             g2D.fillRect(0, 0, Main.SCREEN_WIDTH, Main.SCREEN_HEIGHT);
         }
 
-        switch (paused){
+        switch (paused) {
             case NotPaused:
                 break;
             case CardSelect:
@@ -455,19 +456,19 @@ public class Game {
 
                     //draw the card
                     TarotDeck.Card card = drawn_cards[i];
-                    double y = Main.SCREEN_TILE_HEIGHT/3.0;
-                    double x = Main.SCREEN_TILE_WIDTH/2.0 + (i - (drawn_cards.length - 1)/2.0)*card_distance;
+                    double y = Main.SCREEN_TILE_HEIGHT / 3.0;
+                    double x = Main.SCREEN_TILE_WIDTH / 2.0 + (i - (drawn_cards.length - 1) / 2.0) * card_distance;
                     double height = 1.5 * width;
-                    draw_sprite_on_screen(g2D, card.getSprite(), x-width/2, y - height/2, width, height);
+                    draw_sprite_on_screen(g2D, card.getSprite(), x - width / 2, y - height / 2, width, height);
                     //draw outline if the card is selected
-                    if (current_selected_card == i){
-                        draw_sprite_on_screen(g2D, Sprites.CardSelect, x-width/2, y - height/2, width, height);
+                    if (current_selected_card == i) {
+                        draw_sprite_on_screen(g2D, Sprites.CardSelect, x - width / 2, y - height / 2, width, height);
                     }
 
                     //draw card description
                     String desc = card.getDescription();
                     double desc_width = GameFont.get_width(desc);
-                    GameFont.draw(g2D, desc, x-(width/4 + card_distance/4), y+ height/2.0 + 1, width/2 + card_distance/2, Color.GREEN);
+                    GameFont.draw(g2D, desc, x - (width / 4 + card_distance / 4), y + height / 2.0 + 1, width / 2 + card_distance / 2, Color.GREEN);
                 }
                 break;
             case WinScreen:
@@ -488,17 +489,13 @@ public class Game {
     public static void draw_sprite_on_grid(Graphics2D g2D, BufferedImage sprite, double x, double y, double width, double height) {
         g2D.drawImage(
                 sprite,
-                transform_x(
-                        (int) (
-                                (x - 0.5) *
-                                        Main.TILE_SIZE_PX
-                        )
+                (int) transform_x(
+                        (x - 0.5) *
+                                Main.TILE_SIZE_PX
                 ),
-                transform_y(
-                        (int) (
-                                (y + 0.5) *
-                                        Main.TILE_SIZE_PX
-                        )
+                (int) transform_y(
+                        (y + 0.5) *
+                                Main.TILE_SIZE_PX
                 ),
                 (int) (Main.TILE_SIZE_PX * width),
                 (int) (Main.TILE_SIZE_PX * height),
@@ -535,12 +532,12 @@ public class Game {
     }
 
     //lets us go from the standard Cartesian coordinates( 0,0 at the center +x is right and +y is up) to screen space coordinates
-    private static int transform_x(int preimage) {
-        return preimage + Main.SCREEN_WIDTH / 2;
+    public static double transform_x(double preimage) {
+        return preimage + (double) Main.SCREEN_WIDTH / 2;
     }
 
-    private static int transform_y(int preimage) {
-        return -preimage + Main.SCREEN_HEIGHT / 2;
+    public static double transform_y(double preimage) {
+        return -preimage + (double) Main.SCREEN_HEIGHT / 2;
     }
 
     public Set<GridEntity> getEntities() {

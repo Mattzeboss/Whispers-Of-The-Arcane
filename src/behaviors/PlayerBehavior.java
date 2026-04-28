@@ -38,34 +38,44 @@ public class PlayerBehavior implements Behavior {
     static {
         assert keys.length == actions.length : "keys and action have to be the same length";
     }
-    private enum Action{
+
+    private enum Action {
         Up,
         Down,
         Left,
         Right,
     }
-    
+
+    /*
+    Damage indicator
+     */
+
+    private int damage_taken_time = -hit_indicator_time;
+    private final static int hit_indicator_time = Game.TICKS_PER_SECOND / 4;
+    private int current_tick = 0; //we can't access the game in the on_damage_taken method
+
     @Override
     public void update(GridEntity entity, Game game) {
         //TODO: Movement and projectile spawning
         handle_static_cards(game.getCards());
+        current_tick = game.getTick_counter();
 
         //updates current action
         for (int i = 0; i < keys.length; i++) {
             int key = keys[i];
             Action action = actions[i];
-            if (game.getKeyManager().isPressed(key) && !current_actions.contains(action)){
+            if (game.getKeyManager().isPressed(key) && !current_actions.contains(action)) {
                 current_actions.add(action);
             }
-            if (!game.getKeyManager().isDown(key)){
+            if (!game.getKeyManager().isDown(key)) {
                 current_actions.remove(action);
             }
         }
 
 
         //resolves current action
-        if (game.getTick_counter() - last_action_tick > get_ticks_per_action() && !current_actions.isEmpty()){
-            switch (current_actions.get(current_actions.size() - 1)){
+        if (game.getTick_counter() - last_action_tick > get_ticks_per_action() && !current_actions.isEmpty()) {
+            switch (current_actions.get(current_actions.size() - 1)) {
                 case Up:
                     game.getField().move_entity(entity, new Field.FieldPosition(0, 1));
                     break;
@@ -83,12 +93,12 @@ public class PlayerBehavior implements Behavior {
         }
 
         // sun & moon
-        if(game.getCards().contains(TarotDeck.Card.THE_SUN) || game.getCards().contains(TarotDeck.Card.THE_MOON)) {
+        if (game.getCards().contains(TarotDeck.Card.THE_SUN) || game.getCards().contains(TarotDeck.Card.THE_MOON)) {
             SUN_POSITION += 2 * Math.PI / Game.TICKS_PER_SECOND;
-            if(game.getCards().contains(TarotDeck.Card.THE_SUN)) {
-                for(GridEntity g : game.getEntities()) {
-                    if(g != game.get_player() && enemy_in_range(g, game, true)) {
-                        if(g.take_damage((int)(100 * DAMAGE_MULTIPLIER))) {
+            if (game.getCards().contains(TarotDeck.Card.THE_SUN)) {
+                for (GridEntity g : game.getEntities()) {
+                    if (g != game.get_player() && enemy_in_range(g, game, true)) {
+                        if (g.take_damage((int) (1 * DAMAGE_MULTIPLIER))) {
                             g.getBehavior().on_death(g, game);
                         }
                     }
@@ -99,9 +109,9 @@ public class PlayerBehavior implements Behavior {
 
         //projectiles
         has_shot_yet = false;
-        if (game.getTick_counter() - last_shoot_tick > TICKS_PER_SHOT && game.getKeyManager().isDown(KeyEvent.VK_SPACE)){
+        if (game.getTick_counter() - last_shoot_tick > TICKS_PER_SHOT && game.getKeyManager().isDown(KeyEvent.VK_SPACE)) {
             handle_card_behavior(game, entity);
-            if (!has_shot_yet){
+            if (!has_shot_yet) {
                 launch_projectile_at_mouse(game, entity, (int) (4 * DAMAGE_MULTIPLIER), 0.5, Sprites.Ball);
             }
             last_shoot_tick = game.getTick_counter();
@@ -119,14 +129,38 @@ public class PlayerBehavior implements Behavior {
     //use this to paint card specific effects, we don't want to litter the Game.java file
     @Override
     public void paint(GridEntity entity, Game game, double screen_x, double screen_y, Graphics2D g2D) {
-        if(game.getCards().contains(TarotDeck.Card.THE_SUN)) {
+        if (game.getTick_counter() - damage_taken_time < hit_indicator_time) {
+            g2D.setXORMode(Color.RED);
+            Game.draw_sprite_on_grid(g2D, entity.getSprite(), screen_x, screen_y, entity.getWidth(), entity.getHeight());
+            g2D.setPaintMode();
+        }
+
+        if (game.getCards().contains(TarotDeck.Card.THE_SUN)) {
+            double sun_x = screen_x + SUN_MOON_RADIUS * Math.cos(SUN_POSITION);
+            double sun_y = screen_y + SUN_MOON_RADIUS * Math.sin(SUN_POSITION);
+
+            //aura of damage
+            g2D.setColor(new Color(255, 0, 0, 128));
+            g2D.fillOval(
+                    (int) Game.transform_x((sun_x - DAMAGE_DEBUFF_RADIUS) * Main.TILE_SIZE_PX),
+                    (int) Game.transform_y((sun_y + DAMAGE_DEBUFF_RADIUS) * Main.TILE_SIZE_PX),
+                    (int) (2 * DAMAGE_DEBUFF_RADIUS * Main.TILE_SIZE_PX),
+                    (int) (2 * DAMAGE_DEBUFF_RADIUS * Main.TILE_SIZE_PX)
+            );
+
+            //sun
             Game.draw_sprite_on_grid(g2D, Sprites.Ball,
-                    screen_x + SUN_MOON_RADIUS * Math.cos(SUN_POSITION),
-                    screen_y + SUN_MOON_RADIUS * Math.sin(SUN_POSITION),
+                    sun_x,
+                    sun_y,
                     1,
                     1
             );
         }
+    }
+
+    @Override
+    public void on_take_damage(GridEntity entity, int amount) {
+        damage_taken_time = current_tick;
     }
 
     public int get_ticks_per_action() {
@@ -138,8 +172,8 @@ public class PlayerBehavior implements Behavior {
 
         handle_static_cards(cards);
 
-        for(TarotDeck.Card card : cards) {
-            if(card == TarotDeck.Card.THE_MAGICIAN) {
+        for (TarotDeck.Card card : cards) {
+            if (card == TarotDeck.Card.THE_MAGICIAN) {
                 launch_projectile_at_mouse(game, player, (int) (16 * DAMAGE_MULTIPLIER), 1.25, Sprites.Ball);
                 has_shot_yet = true;
             }
@@ -150,16 +184,16 @@ public class PlayerBehavior implements Behavior {
         DAMAGE_MULTIPLIER = 1.0d;
         ACTIONS_PER_SECOND = 3;
 
-        for(TarotDeck.Card card : cards) {
+        for (TarotDeck.Card card : cards) {
             if (card == TarotDeck.Card.STRENGTH) {
                 DAMAGE_MULTIPLIER *= 1.5;
-            } else if(card == TarotDeck.Card.THE_CHARIOT) {
+            } else if (card == TarotDeck.Card.THE_CHARIOT) {
                 ACTIONS_PER_SECOND *= 2;
             }
         }
     }
 
-    private void launch_projectile_at_mouse(Game game, GridEntity entity, int damage, double size, BufferedImage sprite){
+    private void launch_projectile_at_mouse(Game game, GridEntity entity, int damage, double size, BufferedImage sprite) {
         Field.FieldPosition pos = game.getField().get_pos(entity);
         //spawn projectile
         game.getProjectiles().add(new Projectile(
@@ -168,19 +202,19 @@ public class PlayerBehavior implements Behavior {
                 pos.x + 0.5,
                 pos.y - 0.5,
                 angle_to_mouse(game, entity),
-                PROJECTILE_SPEED/Game.TICKS_PER_SECOND,
+                PROJECTILE_SPEED / Game.TICKS_PER_SECOND,
                 damage,
                 size
         ));
     }
 
-    private double angle_to_mouse(Game game, GridEntity entity){
+    private double angle_to_mouse(Game game, GridEntity entity) {
         //calculate mousex and y relative to player
         Field.FieldPosition pos = game.getField().get_pos(entity);
         double mouse_x = game.getMouseManager().getMouse_x();
         double mouse_y = game.getMouseManager().getMouse_y();
-        mouse_x -= Main.SCREEN_WIDTH/2.0;
-        mouse_y -= Main.SCREEN_HEIGHT/2.0;
+        mouse_x -= Main.SCREEN_WIDTH / 2.0;
+        mouse_y -= Main.SCREEN_HEIGHT / 2.0;
         mouse_y = -mouse_y;
         mouse_x -= (pos.x - game.getCameraX()) * Main.TILE_SIZE_PX;
         mouse_y -= (pos.y - game.getCameraY()) * Main.TILE_SIZE_PX;
@@ -194,8 +228,8 @@ public class PlayerBehavior implements Behavior {
         double rotPosX = pos.x + 0.5 + SUN_MOON_RADIUS * Math.cos(fromSun ? SUN_POSITION : 2 * Math.PI - SUN_POSITION);
         double rotPosY = pos.y - 0.5 + SUN_MOON_RADIUS * Math.sin(fromSun ? SUN_POSITION : 2 * Math.PI - SUN_POSITION);
 
-        double distX = Math.abs(rotPosX - game.getField().get_pos(g).x - g.getWidth()/2.0) - g.getWidth()/2.0;
-        double distY = Math.abs(rotPosY - game.getField().get_pos(g).y + g.getHeight()/2.0) - g.getHeight()/2.0;
+        double distX = Math.abs(rotPosX - game.getField().get_pos(g).x - g.getWidth() / 2.0) - g.getWidth() / 2.0;
+        double distY = Math.abs(rotPosY - game.getField().get_pos(g).y + g.getHeight() / 2.0) - g.getHeight() / 2.0;
 
         double squaredDist = Math.pow(Math.max(distX, 0), 2) + Math.pow(Math.max(distY, 0), 2);
 

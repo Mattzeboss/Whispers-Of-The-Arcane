@@ -22,8 +22,8 @@ public class EnemyBehavior implements Behavior {
 
     @Override
     public void update(GridEntity entity, Game game) {
+        current_tick = game.getTick_counter();
         if (game.getTick_counter() - time_of_last_move > time_to_move(entity, game)) {
-            current_tick = game.getTick_counter();
             Field field = game.getField();
             Field.FieldPosition our_pos = field.get_pos(entity);
             GridEntity player = game.get_player();
