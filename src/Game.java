@@ -42,7 +42,7 @@ public class Game {
          */
     private double cameraX = (double) -Main.UI_TILE_WIDTH / 2;
     private double cameraY = 0.0;
-    private static final double camera_follow_speed = 1.0 - Math.pow(.25, 1.0 / TICKS_PER_SECOND); // 0 means it will not move at all, 1 means it will follow the player perfectly
+    private static final double camera_follow_speed = 1.0 - Math.pow(1.0 - 0.75, 1.0 / TICKS_PER_SECOND); // will move 75% of the way towards the player every second
 
     public double getCameraX() {
         return cameraX;
