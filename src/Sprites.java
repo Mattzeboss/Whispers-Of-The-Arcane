@@ -17,8 +17,6 @@ public abstract class Sprites {
     //card sprites are handled inside the Card enum
     public static final BufferedImage TitleScreen = loadImage("./src/graphics/titlescreen.png");
     public static final BufferedImage Player = loadImage("./src/graphics/player.png");
-    public static final BufferedImage Enemy = loadImage("./src/graphics/smile_pink.png");
-    public static final BufferedImage LargeEnemy = loadImage("./src/graphics/large_frown.png");
     public static final BufferedImage Jack = loadImage("./src/graphics/enemyjack.png");
     public static final BufferedImage Joker = loadImage("./src/graphics/enemyjoker.png");
     public static final BufferedImage King = loadImage("./src/graphics/enemyking.png");
