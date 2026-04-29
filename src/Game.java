@@ -9,7 +9,6 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class Game {
     /*
@@ -481,8 +480,10 @@ public class Game {
 
                     //draw card description
                     String desc = card.getDescription();
-                    double desc_width = GameFont.get_width(desc);
-                    GameFont.draw(g2D, desc, x - (width / 4 + card_distance / 4), y + height / 2.0 + 1, width / 2 + card_distance / 2, Color.GREEN);
+                    String card_name = card.toString();
+                    card_name = card_name.replaceAll("_", " ");
+                    GameFont.draw(g2D, card_name, x - GameFont.get_width(card_name)/2, y - height / 2.0 - 1, Color.GREEN);
+                    GameFont.draw(g2D, desc, x - (width / 4 + card_distance / 4), y + height / 2.0 + 0.5, width / 2 + card_distance / 2, Color.GREEN);
                 }
                 break;
             case WinScreen:
