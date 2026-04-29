@@ -41,7 +41,7 @@ public class Game {
          */
     private double cameraX = (double) -Main.UI_TILE_WIDTH / 2;
     private double cameraY = 0.0;
-    private static final double camera_follow_speed = 1.0 - Math.pow(1.0 - 0.75, 1.0 / TICKS_PER_SECOND); // will move 75% of the way towards the player every second
+    private static final double camera_follow_speed = 1.0 - Math.pow(1.0 - 0.90, 1.0 / TICKS_PER_SECOND); // will move 75% of the way towards the player every second
 
     public double getCameraX() {
         return cameraX;
@@ -215,7 +215,7 @@ public class Game {
         cards.add(TarotDeck.Card.STRENGTH);
         cards.add(TarotDeck.Card.THE_CHARIOT);
         cards.add(TarotDeck.Card.THE_MAGICIAN);
-        cards.add(TarotDeck.Card.THE_SUN);
+        cards.add(TarotDeck.Card.THE_MOON);
     }
 
     /*
@@ -323,7 +323,7 @@ public class Game {
             //hit detection
             for (Field.FieldPosition tile : projectile.hitting()) {
                 for (GridEntity ent : getField().get_entities(tile)) {
-                    if (projectile.isParent_is_player() != ent.getBehavior() instanceof PlayerBehavior) { //if our projectile and entity aren't on the same team
+                    if (projectile.isParent_is_player() != ent.getBehavior() instanceof PlayerBehavior && !ent.is_dead()) { //if our projectile and entity aren't on the same team
                         if (ent.take_damage(projectile.getDamage())) { // we killed it
                             ent.getBehavior().on_death(ent, this);
                         }

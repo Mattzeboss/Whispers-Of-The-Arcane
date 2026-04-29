@@ -17,13 +17,22 @@ public class PlayerBehavior implements Behavior {
     private int last_shoot_tick = -TICKS_PER_SHOT;
     private static final double PROJECTILE_SPEED = 2.0; //unit is tiles per second
     private static final double PROJECTILE_SIZE = 0.5; //unit is tiles per second
-    private double SUN_POSITION = 0;
-    private static final double SUN_MOON_RADIUS = 2;
-    private static final double DAMAGE_DEBUFF_RADIUS = 1;
 
     private double DAMAGE_MULTIPLIER = 1.0d;
 
     private boolean has_shot_yet = false;
+
+    /*
+    sun and moon stuff
+     */
+    private double SUN_POSITION = 0;
+    private static final double SUN_MOON_RADIUS = 6;
+    private static final double DAMAGE_DEBUFF_RADIUS = 3;
+    private static final double rotation_per_second = 0.25;
+    public static final int MOON_FREEZE_TICKS = (int) (Game.TICKS_PER_SECOND * 0.25); //freeze the enemies for 1/4 of a second
+    private static final double SUN_DAMAGE = 1;
+
+
 
     /*
     moment stuff
@@ -94,11 +103,11 @@ public class PlayerBehavior implements Behavior {
 
         // sun & moon
         if (game.getCards().contains(TarotDeck.Card.THE_SUN) || game.getCards().contains(TarotDeck.Card.THE_MOON)) {
-            SUN_POSITION += 2 * Math.PI / Game.TICKS_PER_SECOND;
+            SUN_POSITION += 2 * Math.PI / Game.TICKS_PER_SECOND * rotation_per_second;
             if (game.getCards().contains(TarotDeck.Card.THE_SUN)) {
                 for (GridEntity g : game.getEntities()) {
                     if (g != game.get_player() && enemy_in_range(g, game, true)) {
-                        if (g.take_damage((int) (1 * DAMAGE_MULTIPLIER))) {
+                        if (g.take_damage((int) (SUN_DAMAGE * DAMAGE_MULTIPLIER))) {
                             g.getBehavior().on_death(g, game);
                         }
                     }
@@ -136,8 +145,8 @@ public class PlayerBehavior implements Behavior {
         }
 
         if (game.getCards().contains(TarotDeck.Card.THE_SUN)) {
-            double sun_x = screen_x + SUN_MOON_RADIUS * Math.cos(SUN_POSITION);
-            double sun_y = screen_y + SUN_MOON_RADIUS * Math.sin(SUN_POSITION);
+            double sun_x = SUN_MOON_RADIUS * Math.cos(SUN_POSITION);
+            double sun_y = SUN_MOON_RADIUS * Math.sin(SUN_POSITION);
 
             //aura of damage
             g2D.setColor(new Color(255, 0, 0, 128));
@@ -152,6 +161,28 @@ public class PlayerBehavior implements Behavior {
             Game.draw_sprite_on_grid(g2D, Sprites.Ball,
                     sun_x,
                     sun_y,
+                    1,
+                    1
+            );
+        }
+
+        if (game.getCards().contains(TarotDeck.Card.THE_MOON)) {
+            double moon_x = SUN_MOON_RADIUS * Math.cos(SUN_POSITION - Math.PI);
+            double moon_y =  SUN_MOON_RADIUS * Math.sin(SUN_POSITION - Math.PI);
+
+            //aura of damage
+            g2D.setColor(new Color(50, 50, 200, 128));
+            g2D.fillOval(
+                    (int) Game.transform_x((moon_x - DAMAGE_DEBUFF_RADIUS) * Main.TILE_SIZE_PX),
+                    (int) Game.transform_y((moon_y + DAMAGE_DEBUFF_RADIUS) * Main.TILE_SIZE_PX),
+                    (int) (2 * DAMAGE_DEBUFF_RADIUS * Main.TILE_SIZE_PX),
+                    (int) (2 * DAMAGE_DEBUFF_RADIUS * Main.TILE_SIZE_PX)
+            );
+
+            //sun
+            Game.draw_sprite_on_grid(g2D, Sprites.Ball,
+                    moon_x,
+                    moon_y,
                     1,
                     1
             );
@@ -223,10 +254,8 @@ public class PlayerBehavior implements Behavior {
     }
 
     public boolean enemy_in_range(GridEntity g, Game game, boolean fromSun) {
-        Field.FieldPosition pos = game.getField().get_pos(game.get_player());
-
-        double rotPosX = pos.x + 0.5 + SUN_MOON_RADIUS * Math.cos(fromSun ? SUN_POSITION : 2 * Math.PI - SUN_POSITION);
-        double rotPosY = pos.y - 0.5 + SUN_MOON_RADIUS * Math.sin(fromSun ? SUN_POSITION : 2 * Math.PI - SUN_POSITION);
+        double rotPosX = game.getCameraX() + 0.5 + SUN_MOON_RADIUS * Math.cos(fromSun ? SUN_POSITION : SUN_POSITION - Math.PI);
+        double rotPosY = game.getCameraY() - 0.5 + SUN_MOON_RADIUS * Math.sin(fromSun ? SUN_POSITION : SUN_POSITION - Math.PI);
 
         double distX = Math.abs(rotPosX - game.getField().get_pos(g).x - g.getWidth() / 2.0) - g.getWidth() / 2.0;
         double distY = Math.abs(rotPosY - game.getField().get_pos(g).y + g.getHeight() / 2.0) - g.getHeight() / 2.0;

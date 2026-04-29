@@ -8,6 +8,8 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.stream.IntStream;
 
+import static src.behaviors.PlayerBehavior.MOON_FREEZE_TICKS;
+
 
 //TODO: make it move towards the player
 public class EnemyBehavior implements Behavior {
@@ -23,6 +25,11 @@ public class EnemyBehavior implements Behavior {
     @Override
     public void update(GridEntity entity, Game game) {
         current_tick = game.getTick_counter();
+        if (game.getCards().contains(TarotDeck.Card.THE_MOON)) {
+            if (((PlayerBehavior) (game.get_player().getBehavior())).enemy_in_range(entity, game, false)) {
+                time_of_last_move = Math.min(time_of_last_move + MOON_FREEZE_TICKS, game.getTick_counter() + MOON_FREEZE_TICKS);
+            }
+        }
         if (game.getTick_counter() - time_of_last_move > time_to_move(entity, game) && !entity.is_dead()) {
             Field field = game.getField();
             Field.FieldPosition our_pos = field.get_pos(entity);
@@ -105,7 +112,7 @@ public class EnemyBehavior implements Behavior {
     private int time_to_move(GridEntity entity, Game game) {
         if (game.getCards().contains(TarotDeck.Card.THE_MOON)) {
             if (((PlayerBehavior) (game.get_player().getBehavior())).enemy_in_range(entity, game, false)) {
-                return base_time_to_move * 2;
+                return Integer.MAX_VALUE;
             } else {
                 return base_time_to_move;
             }
@@ -114,3 +121,4 @@ public class EnemyBehavior implements Behavior {
         }
     }
 }
+
