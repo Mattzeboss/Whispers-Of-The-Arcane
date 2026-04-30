@@ -22,7 +22,9 @@ public abstract class Sprites {
     public static final BufferedImage King = loadImage("./src/graphics/enemyking.png");
     public static final BufferedImage Queen = loadImage("./src/graphics/enemyqueen.png");
     public static final BufferedImage Background = loadImage("./src/graphics/tile.png");
-    public static final BufferedImage Ball = loadImage("./src/graphics/ball.png");
+    public static final BufferedImage PlayerProjectile = loadImage("./src/graphics/ball.png");
+    public static final BufferedImage EnemyProjectile = loadImage("./src/graphics/ball.png");
+    public static final BufferedImage Fireball = loadImage("./src/graphics/ball.png");
     public static final BufferedImage Font = loadImage("./src/graphics/bitmap_font_8x16.png");
     public static final BufferedImage CardSelect = loadImage("./src/graphics/cards/card_select.png");
 }

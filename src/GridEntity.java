@@ -1,7 +1,9 @@
 package src;
 
 import src.behaviors.EnemyBehavior;
+import src.behaviors.FastEnemyBehavior;
 import src.behaviors.PlayerBehavior;
+import src.behaviors.RangedEnemyBehavior;
 
 import java.awt.image.BufferedImage;
 import java.util.Random;
@@ -115,13 +117,13 @@ public class GridEntity {
     public static GridEntity enemy(EnemyType type) {
         switch (type) {
             case NORMAL:
-                return new GridEntity(Sprites.Jack, 100, 1, 1, new EnemyBehavior());
+                return new GridEntity(Sprites.Jack, 75, 1, 1, new EnemyBehavior());
             case TANK:
                 return new GridEntity(Sprites.King, 100, 2, 2, new EnemyBehavior());
             case RANGED:
-                return new GridEntity(Sprites.Queen, 100, 1, 1, new EnemyBehavior());
+                return new GridEntity(Sprites.Queen, 50, 1, 1, new RangedEnemyBehavior());
             case FAST:
-                return new GridEntity(Sprites.Joker, 100,1, 1, new EnemyBehavior());
+                return new GridEntity(Sprites.Joker, 50,1, 1, new FastEnemyBehavior());
             default:
                 return enemy(EnemyType.NORMAL);
         }

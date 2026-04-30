@@ -2,7 +2,6 @@ package src.behaviors;
 
 import src.*;
 
-import javax.swing.text.html.parser.Entity;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
@@ -121,7 +120,7 @@ public class PlayerBehavior implements Behavior {
         if (game.getTick_counter() - last_shoot_tick > TICKS_PER_SHOT && game.getKeyManager().isDown(KeyEvent.VK_SPACE)) {
             handle_card_behavior(game, entity);
             if (!has_shot_yet) {
-                launch_projectile_at_mouse(game, entity, (int) (4 * DAMAGE_MULTIPLIER), 0.5, Sprites.Ball);
+                launch_projectile_at_mouse(game, entity, (int) (4 * DAMAGE_MULTIPLIER), 0.5, Sprites.PlayerProjectile);
             }
             last_shoot_tick = game.getTick_counter();
 
@@ -158,7 +157,7 @@ public class PlayerBehavior implements Behavior {
             );
 
             //sun
-            Game.draw_sprite_on_grid(g2D, Sprites.Ball,
+            Game.draw_sprite_on_grid(g2D, Sprites.PlayerProjectile,
                     sun_x,
                     sun_y,
                     1,
@@ -180,7 +179,7 @@ public class PlayerBehavior implements Behavior {
             );
 
             //sun
-            Game.draw_sprite_on_grid(g2D, Sprites.Ball,
+            Game.draw_sprite_on_grid(g2D, Sprites.PlayerProjectile,
                     moon_x,
                     moon_y,
                     1,
@@ -205,7 +204,7 @@ public class PlayerBehavior implements Behavior {
 
         for (TarotDeck.Card card : cards) {
             if (card == TarotDeck.Card.THE_MAGICIAN) {
-                launch_projectile_at_mouse(game, player, (int) (16 * DAMAGE_MULTIPLIER), 1.25, Sprites.Ball);
+                launch_projectile_at_mouse(game, player, (int) (16 * DAMAGE_MULTIPLIER), 1.25, Sprites.Fireball);
                 has_shot_yet = true;
             }
         }
