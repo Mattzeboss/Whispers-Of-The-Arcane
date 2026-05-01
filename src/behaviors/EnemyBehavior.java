@@ -13,14 +13,14 @@ import static src.behaviors.PlayerBehavior.MOON_FREEZE_TICKS;
 
 //TODO: make it move towards the player
 public class EnemyBehavior implements Behavior {
-    private int time_of_last_move = 0;
-    private final static int base_time_to_move = 40;
-    private final static int damage = 20;
+    protected int time_of_last_move = 0;
+    protected final static int base_time_to_move = 40;
+    protected final static int damage = 20;
 
-    private int damage_taken_time = -hit_indicator_time;
-    private final static int hit_indicator_time = Game.TICKS_PER_SECOND / 4;
+    protected int damage_taken_time = -hit_indicator_time;
+    protected final static int hit_indicator_time = Game.TICKS_PER_SECOND / 4;
 
-    private int current_tick = 0; //we can't access the game in the on_damage_taken method
+    protected int current_tick = 0; //we can't access the game in the on_damage_taken method
 
     @Override
     public void update(GridEntity entity, Game game) {
@@ -117,7 +117,7 @@ public class EnemyBehavior implements Behavior {
     protected int time_to_move(GridEntity entity, Game game) {
         if (game.getCards().contains(TarotDeck.Card.THE_MOON)) {
             if (((PlayerBehavior) (game.get_player().getBehavior())).enemy_in_range(entity, game, false)) {
-                return Integer.MAX_VALUE;
+                return base_time_to_move;
             } else {
                 return base_time_to_move;
             }

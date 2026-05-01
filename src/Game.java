@@ -207,7 +207,7 @@ public class Game {
 
         add_entity(get_player(), new Field.FieldPosition(0, 0)); //adding the player
         //TODO: remove this code eventually, it only for testing
-        add_entity(GridEntity.enemy(GridEntity.EnemyType.TANK), new Field.FieldPosition(3, 1));
+        add_entity(GridEntity.enemy(GridEntity.EnemyType.BOSS), new Field.FieldPosition(3, 1));
         //projectiles.add(new Projectile(true, Sprites.Ball, -5, 0.5, 0, 2.0/TICKS_PER_SECOND, 100, 0.5));
 //        cards.add(TarotDeck.Card.STRENGTH);
 //        cards.add(TarotDeck.Card.STRENGTH);

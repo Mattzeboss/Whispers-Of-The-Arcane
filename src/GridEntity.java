@@ -1,9 +1,6 @@
 package src;
 
-import src.behaviors.EnemyBehavior;
-import src.behaviors.FastEnemyBehavior;
-import src.behaviors.PlayerBehavior;
-import src.behaviors.RangedEnemyBehavior;
+import src.behaviors.*;
 
 import java.awt.image.BufferedImage;
 import java.util.Random;
@@ -21,7 +18,8 @@ public class GridEntity {
         NORMAL,
         RANGED,
         FAST,
-        TANK;
+        TANK,
+        BOSS;
 
         // NORMAL, RANGED, FAST, TANK
         private static final int[] WEIGHTS = {50, 25, 15, 10};
@@ -38,7 +36,7 @@ public class GridEntity {
             int sum = 0;
             EnemyType[] values = values();
 
-            for (int i = 0; i < values.length; i++) {
+            for (int i = 0; i < values.length - 1; i++) {
                 sum += WEIGHTS[i];
                 if (roll < sum) return values[i];
             }
@@ -124,6 +122,8 @@ public class GridEntity {
                 return new GridEntity(Sprites.Queen, 25, 1, 1, new RangedEnemyBehavior());
             case FAST:
                 return new GridEntity(Sprites.Joker, 25,1, 1, new FastEnemyBehavior());
+            case BOSS:
+                return new GridEntity(Sprites.Joker, 1000, 3, 3, new BossBehavior());
             default:
                 return enemy(EnemyType.NORMAL);
         }
