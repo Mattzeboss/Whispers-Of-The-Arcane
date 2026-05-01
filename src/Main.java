@@ -87,18 +87,31 @@ public class Main extends Canvas {
         //focuses us
         requestFocusInWindow(false);
 
-        //wait for keypress
-        while (!keyManager.isAnyDown()){
-            keyManager.update();
-            render();
-            try {
-                Thread.sleep(16);
-            } catch (InterruptedException ignored) {
+        //game loop
+        while (true) {
+            game = null;
+            //wait for keypress
+            while (!keyManager.isAnyDown()){
+                keyManager.update();
+                render();
+                try {
+                    Thread.sleep(16);
+                } catch (InterruptedException ignored) {
+                }
+            }
+
+            //starts the game
+            game = new Game(keyManager, mouseManager);
+            game.start(this);
+
+            //to restart the game
+            while(!keyManager.isReleased(KeyEvent.VK_R)){
+                try {
+                    Thread.sleep(16);
+                } catch (InterruptedException e) {
+                }
             }
         }
-        //starts the game
-        game = new Game(keyManager, mouseManager);
-        game.start(this);
     }
 
     //TODO: Improve title screen

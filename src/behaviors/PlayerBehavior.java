@@ -103,7 +103,7 @@ public class PlayerBehavior implements Behavior {
         // sun & moon
         if (game.getCards().contains(TarotDeck.Card.THE_SUN) || game.getCards().contains(TarotDeck.Card.THE_MOON)) {
             SUN_POSITION += 2 * Math.PI / Game.TICKS_PER_SECOND * rotation_per_second;
-            if (game.getCards().contains(TarotDeck.Card.THE_SUN)) {
+            if (game.getCards().contains(TarotDeck.Card.THE_SUN) && game.getTick_counter()%5==0) {
                 for (GridEntity g : game.getEntities()) {
                     if (g != game.get_player() && enemy_in_range(g, game, true)) {
                         if (g.take_damage((int) (SUN_DAMAGE * DAMAGE_MULTIPLIER))) {
@@ -120,7 +120,7 @@ public class PlayerBehavior implements Behavior {
         if (game.getTick_counter() - last_shoot_tick > TICKS_PER_SHOT && game.getKeyManager().isDown(KeyEvent.VK_SPACE)) {
             handle_card_behavior(game, entity);
             if (!has_shot_yet) {
-                launch_projectile_at_mouse(game, entity, (int) (4 * DAMAGE_MULTIPLIER), 0.5, Sprites.PlayerProjectile);
+                launch_projectile_at_mouse(game, entity, (int) (4 * DAMAGE_MULTIPLIER), PROJECTILE_SIZE, Sprites.PlayerProjectile);
             }
             last_shoot_tick = game.getTick_counter();
 
@@ -204,7 +204,7 @@ public class PlayerBehavior implements Behavior {
 
         for (TarotDeck.Card card : cards) {
             if (card == TarotDeck.Card.THE_MAGICIAN) {
-                launch_projectile_at_mouse(game, player, (int) (16 * DAMAGE_MULTIPLIER), 1.25, Sprites.Fireball);
+                launch_projectile_at_mouse(game, player, (int) (16 * DAMAGE_MULTIPLIER), PROJECTILE_SIZE * 2, Sprites.Fireball);
                 has_shot_yet = true;
             }
         }

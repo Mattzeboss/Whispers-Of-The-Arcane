@@ -267,6 +267,10 @@ public class Game {
 
             //render
             main.render();
+
+            if (player.is_dead()){
+                break;
+            }
         }
     }
 
@@ -490,7 +494,7 @@ public class Game {
                 GameFont.draw(g2D, "you win", 0, 0, Color.WHITE);
                 break;
             case LoseScreen:
-                GameFont.draw(g2D, "you ded", 0, 0, Color.WHITE);
+                GameFont.draw(g2D, "you ded, press R to restart", 0, 0, Color.WHITE);
                 break;
         }
 
