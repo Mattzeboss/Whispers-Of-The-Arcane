@@ -112,7 +112,7 @@ public class Game {
             }
             deck.putOnBottom(drawn_cards[i]);
         }
-
+        player.heal(100);
         setPaused(PauseStates.NotPaused);
     }
 
@@ -130,7 +130,7 @@ public class Game {
     }
 
     public int requiredXp() {
-        return 15 * (int) Math.pow(2, cards.size());
+        return 15 * (int) Math.pow(3, cards.size());
     }
 
 
@@ -209,13 +209,14 @@ public class Game {
         //TODO: remove this code eventually, it only for testing
         add_entity(GridEntity.enemy(GridEntity.EnemyType.TANK), new Field.FieldPosition(3, 1));
         //projectiles.add(new Projectile(true, Sprites.Ball, -5, 0.5, 0, 2.0/TICKS_PER_SECOND, 100, 0.5));
-        cards.add(TarotDeck.Card.STRENGTH);
-        cards.add(TarotDeck.Card.STRENGTH);
-        cards.add(TarotDeck.Card.STRENGTH);
-        cards.add(TarotDeck.Card.STRENGTH);
-        cards.add(TarotDeck.Card.THE_CHARIOT);
-        cards.add(TarotDeck.Card.THE_MAGICIAN);
-        cards.add(TarotDeck.Card.THE_MOON);
+//        cards.add(TarotDeck.Card.STRENGTH);
+//        cards.add(TarotDeck.Card.STRENGTH);
+//        cards.add(TarotDeck.Card.STRENGTH);
+//        cards.add(TarotDeck.Card.STRENGTH);
+//        cards.add(TarotDeck.Card.THE_CHARIOT);
+//        cards.add(TarotDeck.Card.THE_MAGICIAN);
+//        cards.add(TarotDeck.Card.THE_MOON);
+        cards.add(TarotDeck.Card.THE_SUN);
     }
 
     /*
@@ -437,11 +438,12 @@ public class Game {
             int s = time_since_start_seconds();
             GameFont.draw(g2D, "Time: " + String.format("%d:%02d", (s % 3600) / 60, (s % 60)), Main.SCREEN_TILE_WIDTH + 0.1, 0, Color.WHITE);
             //health
-            GameFont.draw(g2D, "Health: " + get_player().getHealth(), Main.SCREEN_TILE_WIDTH + 0.1, 2, Color.WHITE);
+            GameFont.draw(g2D, "Health: " + get_player().getHealth(), Main.SCREEN_TILE_WIDTH + 0.1, 1.5, Color.WHITE);
             //xp
-            GameFont.draw(g2D, "XP: " + xp + "/" + requiredXp(), Main.SCREEN_TILE_WIDTH + 0.1, 4, Color.WHITE);
+            GameFont.draw(g2D, "XP:" , Main.SCREEN_TILE_WIDTH + 0.1, 3, Color.WHITE);
+            GameFont.draw(g2D, xp + "/" + requiredXp(), Main.SCREEN_TILE_WIDTH + 0.1, 4, Color.WHITE);
             //cards
-            GameFont.draw(g2D, "Cards:", Main.SCREEN_TILE_WIDTH + 0.1, 6, Color.WHITE);
+            GameFont.draw(g2D, "Cards:", Main.SCREEN_TILE_WIDTH + 0.1, 5.5, Color.WHITE);
             for (int i = 0; i < cards.size(); i++) {
                 TarotDeck.Card card = cards.get(i);
                 draw_sprite_on_screen(

@@ -117,13 +117,13 @@ public class GridEntity {
     public static GridEntity enemy(EnemyType type) {
         switch (type) {
             case NORMAL:
-                return new GridEntity(Sprites.Jack, 75, 1, 1, new EnemyBehavior());
+                return new GridEntity(Sprites.Jack, 50, 1, 1, new EnemyBehavior());
             case TANK:
-                return new GridEntity(Sprites.King, 100, 2, 2, new EnemyBehavior());
+                return new GridEntity(Sprites.King, 75, 2, 2, new EnemyBehavior());
             case RANGED:
-                return new GridEntity(Sprites.Queen, 50, 1, 1, new RangedEnemyBehavior());
+                return new GridEntity(Sprites.Queen, 25, 1, 1, new RangedEnemyBehavior());
             case FAST:
-                return new GridEntity(Sprites.Joker, 50,1, 1, new FastEnemyBehavior());
+                return new GridEntity(Sprites.Joker, 25,1, 1, new FastEnemyBehavior());
             default:
                 return enemy(EnemyType.NORMAL);
         }

@@ -3,7 +3,7 @@ package src.behaviors;
 import src.*;
 
 public class RangedEnemyBehavior extends EnemyBehavior{
-    private final static int MOVES_PER_SHOT = 3;
+    private final static int MOVES_PER_SHOT = 5;
     private int moves = 0;
 
     @Override
