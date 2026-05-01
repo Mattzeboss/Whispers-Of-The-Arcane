@@ -22,7 +22,7 @@ public class GridEntity {
         BOSS;
 
         // NORMAL, RANGED, FAST, TANK
-        private static final int[] WEIGHTS = {50, 25, 15, 10};
+        private static final int[] WEIGHTS = {50, 20, 25, 5};
         private static final int TOTAL_WEIGHT;
 
         static {
@@ -123,7 +123,7 @@ public class GridEntity {
             case FAST:
                 return new GridEntity(Sprites.Joker, 25,1, 1, new FastEnemyBehavior());
             case BOSS:
-                return new GridEntity(Sprites.Joker, 1000, 3, 3, new BossBehavior());
+                return new GridEntity(Sprites.Joker, 2000, 3, 3, new BossBehavior());
             default:
                 return enemy(EnemyType.NORMAL);
         }

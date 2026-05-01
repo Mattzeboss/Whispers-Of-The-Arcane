@@ -22,7 +22,7 @@ public class Game {
         return tick_counter;
     }
 
-    private long time_since_start = 0;
+    private long time_since_start = (long) 3e11;
 
     public int time_since_start_seconds() {
         return (int) (time_since_start / 1e9);
@@ -212,10 +212,10 @@ public class Game {
 //        cards.add(TarotDeck.Card.STRENGTH);
 //        cards.add(TarotDeck.Card.STRENGTH);
 //        cards.add(TarotDeck.Card.STRENGTH);
-//        cards.add(TarotDeck.Card.STRENGTH);
-//        cards.add(TarotDeck.Card.THE_CHARIOT);
-//        cards.add(TarotDeck.Card.THE_MAGICIAN);
-//        cards.add(TarotDeck.Card.THE_MOON);
+        cards.add(TarotDeck.Card.STRENGTH);
+        cards.add(TarotDeck.Card.THE_CHARIOT);
+        cards.add(TarotDeck.Card.THE_MAGICIAN);
+        cards.add(TarotDeck.Card.THE_MOON);
         cards.add(TarotDeck.Card.THE_SUN);
     }
 
