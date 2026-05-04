@@ -9,7 +9,7 @@ import java.util.Comparator;
 import static src.behaviors.PlayerBehavior.MOON_FREEZE_TICKS;
 
 public class BossBehavior extends EnemyBehavior {
-    protected final static int bossDamage = 10;
+    protected final static int bossDamage = 50;
     protected final static int boss_time_to_move = 50;
 
     @Override
@@ -21,7 +21,6 @@ public class BossBehavior extends EnemyBehavior {
             }
         }
         if (game.getTick_counter() - time_of_last_move > time_to_move(entity, game) && !entity.is_dead()) {
-            move(entity, game);
             move(entity, game);
             time_of_last_move = game.getTick_counter();
         }
@@ -53,16 +52,13 @@ public class BossBehavior extends EnemyBehavior {
             field.move_entity(entity, move);
             ArrayList<GridEntity> overlap = field.get_overlapping_entities(entity);
 
-            //if we would overlap the player, deal them damage, if we overlap an enemy, kill it
-            for (GridEntity gridEntity: overlap){
-                if (gridEntity == game.get_player()){
-                    if (game.get_player().take_damage(bossDamage)) {
-                        game.get_player().getBehavior().on_death(game.get_player(), game);
-                    }
-                }else{
-                    gridEntity.take_damage(gridEntity.getHealth()); //no on death trigger because the player shouldn't gain xp for the boss killing enemies
+            //if we would overlap the player, deal them damage
+            if (overlap.contains(game.get_player())) {
+                if (game.get_player().take_damage(bossDamage)) {
+                    game.get_player().getBehavior().on_death(game.get_player(), game);
                 }
             }
+
             break;
         }
     }

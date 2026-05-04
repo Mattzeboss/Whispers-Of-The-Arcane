@@ -212,10 +212,10 @@ public class Game {
 //        cards.add(TarotDeck.Card.STRENGTH);
 //        cards.add(TarotDeck.Card.STRENGTH);
 //        cards.add(TarotDeck.Card.STRENGTH);
-        cards.add(TarotDeck.Card.STRENGTH);
-        cards.add(TarotDeck.Card.THE_CHARIOT);
-        cards.add(TarotDeck.Card.THE_MAGICIAN);
-        cards.add(TarotDeck.Card.THE_MOON);
+//        cards.add(TarotDeck.Card.STRENGTH);
+//        cards.add(TarotDeck.Card.THE_CHARIOT);
+//        cards.add(TarotDeck.Card.THE_MAGICIAN);
+//        cards.add(TarotDeck.Card.THE_MOON);
         cards.add(TarotDeck.Card.THE_SUN);
     }
 
@@ -388,14 +388,10 @@ public class Game {
      */
     //everything that we will render
     public void paint(Graphics2D g2D) {
-        g2D.setColor(Color.WHITE);
-
         //background
-        for (int i = 0; i <= Main.SCREEN_TILE_WIDTH; i++) {
-            for (int j = 0; j <= Main.SCREEN_TILE_HEIGHT; j++) {
-                draw_sprite_on_grid(g2D, Sprites.Background, (i - Main.SCREEN_TILE_WIDTH / 2) - Util.true_mod(cameraX, 1.0), (j - Main.SCREEN_TILE_HEIGHT / 2) - Util.true_mod(cameraY, 1.0), 1.0, 1.0);
-            }
-        }
+        g2D.setColor(Color.BLACK);
+        g2D.fillRect(0, 0, Main.SCREEN_WIDTH, Main.SCREEN_HEIGHT);
+        draw_sprite_on_screen(g2D, Sprites.BackgroundCached, -Util.true_mod(cameraX, 1.0), -1+Util.true_mod(cameraY, 1.0), Sprites.BackgroundCached.getWidth()/Main.TILE_SIZE, Sprites.BackgroundCached.getHeight()/Main.TILE_SIZE);
 
         //entity rendering
         for (GridEntity entity : entities) {

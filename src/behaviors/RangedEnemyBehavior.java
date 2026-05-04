@@ -24,7 +24,7 @@ public class RangedEnemyBehavior extends EnemyBehavior{
                     our_pos.y,
                     angle,
                     3.0 / Game.TICKS_PER_SECOND,
-                    2,
+                    5,
                     0.5
             ));
         }

@@ -15,6 +15,8 @@ public class Main extends Canvas {
         new Main();
     }
 
+    private BufferStrategy bufferStrategy;
+
     /*
     Tile and Screen Sizes
      */
@@ -84,6 +86,10 @@ public class Main extends Canvas {
         addMouseListener(mouseManager);
         addMouseMotionListener(mouseManager);
 
+        //double buffering
+        createBufferStrategy(2);
+        bufferStrategy = getBufferStrategy();
+
         //focuses us
         requestFocusInWindow(false);
 
@@ -128,22 +134,21 @@ public class Main extends Canvas {
     public void render() {
         //renders # of frames in the background then shows them in order
         //the parameter is the number of frames that are cycled through
-        createBufferStrategy(2);
-        BufferStrategy strategy = getBufferStrategy();
-        Graphics g = null;
         do {
-            try {
-                g = strategy.getDrawGraphics();
-            } finally {
-                if (game != null) { //render can be called before game is initialized
-                    game.paint((Graphics2D) g);
-                }else{
-                    paint_title_screen((Graphics2D) g);
+            do {
+                Graphics g = bufferStrategy.getDrawGraphics();
+                try {
+                    if (game != null){
+                        game.paint((Graphics2D) g);
+                    }else{
+                        paint_title_screen((Graphics2D) g);
+                    }
+                } finally {
+                    g.dispose();
                 }
-            }
-            strategy.show();
-            g.dispose();
-        } while (strategy.contentsLost());
-        Toolkit.getDefaultToolkit().sync();
+            } while (bufferStrategy.contentsRestored());
+
+            bufferStrategy.show();
+        } while (bufferStrategy.contentsLost());
     }
 }
