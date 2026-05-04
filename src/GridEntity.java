@@ -3,7 +3,6 @@ package src;
 import src.behaviors.*;
 
 import java.awt.image.BufferedImage;
-import java.util.Random;
 
 public class GridEntity {
     /*
@@ -13,6 +12,13 @@ public class GridEntity {
     private int health;
     private int width;
     private int height;
+
+
+    /*
+    hit and death indicator stuff
+     */
+    private int last_hit_time = -HIT_INDICATOR_DURATION;
+    private static final int HIT_INDICATOR_DURATION = Game.TICKS_PER_SECOND/4;
 
     public enum EnemyType {
         NORMAL,
@@ -60,10 +66,16 @@ public class GridEntity {
     /*
     Sprite for drawing
      */
-    private final BufferedImage sprite;
+    private final GridEntitySprite sprite;
 
-    public BufferedImage getSprite() {
-        return sprite;
+    public BufferedImage getSprite(Game game) {
+        if (game.getTick_counter() - last_hit_time > HIT_INDICATOR_DURATION) {
+            return sprite.sprite;
+        }else if (!is_dead()){
+            return sprite.hit_sprite;
+        }else{
+            return sprite.dead_sprite;
+        }
     }
 
     /*
@@ -75,7 +87,7 @@ public class GridEntity {
         return behavior;
     }
 
-    private GridEntity(BufferedImage sprite, int MAX_HEALTH, int width, int height, Behavior behavior) {
+    private GridEntity(GridEntitySprite sprite, int MAX_HEALTH, int width, int height, Behavior behavior) {
         this.sprite = sprite;
         this.MAX_HEALTH = MAX_HEALTH;
         health = MAX_HEALTH;
@@ -88,9 +100,13 @@ public class GridEntity {
         return health <= 0;
     }
 
+    public boolean should_remove(Game game){
+        return (game.getTick_counter() - last_hit_time >= HIT_INDICATOR_DURATION && is_dead());
+    }
+
     //returns true if this damage killed the entity
-    public boolean take_damage(int damage) {
-        behavior.on_take_damage(this, damage);
+    public boolean take_damage(int damage, Game game) {
+        this.last_hit_time = game.getTick_counter();
         if (health > 0) {
             health = Math.max(0, health - damage); //we want to clamp at 0 so that we don't go below
             return is_dead();//are we still alive

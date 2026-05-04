@@ -54,19 +54,9 @@ public class PlayerBehavior implements Behavior {
         Right,
     }
 
-    /*
-    Damage indicator
-     */
-
-    private int damage_taken_time = -hit_indicator_time;
-    private final static int hit_indicator_time = Game.TICKS_PER_SECOND / 4;
-    private int current_tick = 0; //we can't access the game in the on_damage_taken method
-
     @Override
     public void update(GridEntity entity, Game game) {
-        //TODO: Movement and projectile spawning
         handle_static_cards(game.getCards());
-        current_tick = game.getTick_counter();
 
         //updates current action
         for (int i = 0; i < keys.length; i++) {
@@ -106,7 +96,7 @@ public class PlayerBehavior implements Behavior {
             if (game.getCards().contains(TarotDeck.Card.THE_SUN) && game.getTick_counter()%5==0) {
                 for (GridEntity g : game.getEntities()) {
                     if (g != game.get_player() && enemy_in_range(g, game, true)) {
-                        if (g.take_damage((int) (SUN_DAMAGE * DAMAGE_MULTIPLIER))) {
+                        if (g.take_damage((int) (SUN_DAMAGE * DAMAGE_MULTIPLIER), game)) {
                             g.getBehavior().on_death(g, game);
                         }
                     }
@@ -137,12 +127,6 @@ public class PlayerBehavior implements Behavior {
     //use this to paint card specific effects, we don't want to litter the Game.java file
     @Override
     public void paint(GridEntity entity, Game game, double screen_x, double screen_y, Graphics2D g2D) {
-        if (game.getTick_counter() - damage_taken_time < hit_indicator_time) {
-            g2D.setXORMode(Color.RED);
-            Game.draw_sprite_on_grid(g2D, entity.getSprite(), screen_x, screen_y, entity.getWidth(), entity.getHeight());
-            g2D.setPaintMode();
-        }
-
         if (game.getCards().contains(TarotDeck.Card.THE_SUN)) {
             double sun_x = SUN_MOON_RADIUS * Math.cos(SUN_POSITION);
             double sun_y = SUN_MOON_RADIUS * Math.sin(SUN_POSITION);
@@ -186,11 +170,6 @@ public class PlayerBehavior implements Behavior {
                     1
             );
         }
-    }
-
-    @Override
-    public void on_take_damage(GridEntity entity, int amount) {
-        damage_taken_time = current_tick;
     }
 
     public int get_ticks_per_action() {

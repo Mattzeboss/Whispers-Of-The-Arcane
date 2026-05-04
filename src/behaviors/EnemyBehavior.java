@@ -17,14 +17,9 @@ public class EnemyBehavior implements Behavior {
     protected final static int base_time_to_move = 40;
     protected final static int damage = 20;
 
-    protected int damage_taken_time = -hit_indicator_time;
-    protected final static int hit_indicator_time = Game.TICKS_PER_SECOND / 4;
-
-    protected int current_tick = 0; //we can't access the game in the on_damage_taken method
 
     @Override
     public void update(GridEntity entity, Game game) {
-        current_tick = game.getTick_counter();
         if (game.getCards().contains(TarotDeck.Card.THE_MOON)) {
             if (((PlayerBehavior) (game.get_player().getBehavior())).enemy_in_range(entity, game, false)) {
                 time_of_last_move = Math.min(time_of_last_move + MOON_FREEZE_TICKS, game.getTick_counter() + MOON_FREEZE_TICKS);
@@ -33,10 +28,6 @@ public class EnemyBehavior implements Behavior {
         if (game.getTick_counter() - time_of_last_move > time_to_move(entity, game) && !entity.is_dead()) {
             move(entity, game);
             time_of_last_move = game.getTick_counter();
-        }
-
-        if (game.getTick_counter() - damage_taken_time >= hit_indicator_time && entity.is_dead()) {
-            game.remove_entity(entity);
         }
     }
 
@@ -84,7 +75,7 @@ public class EnemyBehavior implements Behavior {
 
             //if we would overlap the player, deal them damage
             if (overlap.contains(game.get_player())) {
-                if (game.get_player().take_damage(damage)) {
+                if (game.get_player().take_damage(damage, game)) {
                     game.get_player().getBehavior().on_death(game.get_player(), game);
                 }
             }
@@ -98,20 +89,6 @@ public class EnemyBehavior implements Behavior {
     public void on_death(GridEntity entity, Game game) {
         //we schedule the enemy for removal after the death indicator clears
         game.gainXp(15);
-    }
-
-    @Override
-    public void paint(GridEntity entity, Game game, double screen_x, double screen_y, Graphics2D g2D) {
-        if (game.getTick_counter() - damage_taken_time < hit_indicator_time) {
-            g2D.setXORMode(entity.is_dead() ? Color.BLACK : Color.RED);
-            Game.draw_sprite_on_grid(g2D, entity.getSprite(), screen_x, screen_y, entity.getWidth(), entity.getHeight());
-            g2D.setPaintMode();
-        }
-    }
-
-    @Override
-    public void on_take_damage(GridEntity entity, int amount) {
-        damage_taken_time = current_tick;
     }
 
     protected int time_to_move(GridEntity entity, Game game) {

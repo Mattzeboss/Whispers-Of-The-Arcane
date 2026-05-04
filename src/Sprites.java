@@ -15,13 +15,15 @@ public abstract class Sprites {
         }
     }
 
+    //entity sprites
+    public static final GridEntitySprite Player = new GridEntitySprite(loadImage("./src/graphics/player.png"));
+    public static final GridEntitySprite Jack = new GridEntitySprite(loadImage("./src/graphics/enemyjack.png"));
+    public static final GridEntitySprite Joker = new GridEntitySprite(loadImage("./src/graphics/enemyjoker.png"));
+    public static final GridEntitySprite King = new GridEntitySprite(loadImage("./src/graphics/enemyking.png"));
+    public static final GridEntitySprite Queen = new GridEntitySprite(loadImage("./src/graphics/enemyqueen.png"));
+
     //card sprites are handled inside the Card enum
     public static final BufferedImage TitleScreen = loadImage("./src/graphics/titlescreen.png");
-    public static final BufferedImage Player = loadImage("./src/graphics/player.png");
-    public static final BufferedImage Jack = loadImage("./src/graphics/enemyjack.png");
-    public static final BufferedImage Joker = loadImage("./src/graphics/enemyjoker.png");
-    public static final BufferedImage King = loadImage("./src/graphics/enemyking.png");
-    public static final BufferedImage Queen = loadImage("./src/graphics/enemyqueen.png");
     public static final BufferedImage Background = loadImage("./src/graphics/tile.png");
     public static final BufferedImage PlayerProjectile = loadImage("./src/graphics/ball.png");
     public static final BufferedImage EnemyProjectile = loadImage("./src/graphics/ball.png");

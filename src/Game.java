@@ -329,7 +329,7 @@ public class Game {
             for (Field.FieldPosition tile : projectile.hitting()) {
                 for (GridEntity ent : getField().get_entities(tile)) {
                     if (projectile.isParent_is_player() != ent.getBehavior() instanceof PlayerBehavior && !ent.is_dead()) { //if our projectile and entity aren't on the same team
-                        if (ent.take_damage(projectile.getDamage())) { // we killed it
+                        if (ent.take_damage(projectile.getDamage(), this)) { // we killed it
                             ent.getBehavior().on_death(ent, this);
                         }
                         projectiles.remove(i);
@@ -403,7 +403,7 @@ public class Game {
             if (entity != get_player()) {
                 //bounds check, if we would be visible on screen
                 if (is_rect_on_screen(pos.x, pos.y, entity.getWidth(), entity.getHeight())) {
-                    draw_sprite_on_grid(g2D, entity.getSprite(), relative_pos_x, relative_pos_y, entity.getWidth(), entity.getHeight());
+                    draw_sprite_on_grid(g2D, entity.getSprite(this), relative_pos_x, relative_pos_y, entity.getWidth(), entity.getHeight());
                 }
                 entity.getBehavior().paint(entity, this, relative_pos_x, relative_pos_y, g2D);
             }
@@ -412,7 +412,7 @@ public class Game {
 
         //draw player
         Field.FieldPosition player_pos = field.get_pos(get_player());
-        draw_sprite_on_grid(g2D, get_player().getSprite(), player_pos.x - cameraX, player_pos.y - cameraY, get_player().getWidth(), get_player().getHeight());
+        draw_sprite_on_grid(g2D, get_player().getSprite(this), player_pos.x - cameraX, player_pos.y - cameraY, get_player().getWidth(), get_player().getHeight());
         get_player().getBehavior().paint(get_player(), this, player_pos.x - cameraX, player_pos.y - cameraY, g2D);
 
         //projectile rendering
