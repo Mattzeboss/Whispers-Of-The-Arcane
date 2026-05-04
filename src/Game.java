@@ -75,10 +75,6 @@ public class Game {
 
     private PauseStates paused = PauseStates.NotPaused;
 
-    public PauseStates getPaused() {
-        return paused;
-    }
-
     public void setPaused(PauseStates paused) {
         this.paused = paused;
     }
@@ -121,9 +117,6 @@ public class Game {
      */
     private int xp = 0;
 
-    public int getXp() {
-        return xp;
-    }
 
     public void gainXp(int amount) {
         xp += amount;
@@ -308,6 +301,9 @@ public class Game {
         //entity updating
         for (GridEntity entity : entities) {
             entity.getBehavior().update(entity, this);
+            if (entity.should_remove(this) && entity != player){
+                remove_entity(entity);
+            }
         }
         keyManager.update();
 
@@ -483,7 +479,7 @@ public class Game {
                     //draw card description
                     String desc = card.getDescription();
                     String card_name = card.toString();
-                    card_name = card_name.replaceAll("_", " ");
+                    card_name = card_name.replace("_", " ");
                     GameFont.draw(g2D, card_name, x - GameFont.get_width(card_name)/2, y - height / 2.0 - 1, Color.GREEN);
                     GameFont.draw(g2D, desc, x - (width / 4 + card_distance / 4), y + height / 2.0 + 0.5, width / 2 + card_distance / 2, Color.GREEN);
                 }

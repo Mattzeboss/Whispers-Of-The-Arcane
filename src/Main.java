@@ -15,7 +15,7 @@ public class Main extends Canvas {
         new Main();
     }
 
-    private BufferStrategy bufferStrategy;
+    private final BufferStrategy bufferStrategy;
 
     /*
     Tile and Screen Sizes

@@ -10,8 +10,8 @@ public class GridEntity {
          */
     private final int MAX_HEALTH;
     private int health;
-    private int width;
-    private int height;
+    private final int width;
+    private final int height;
 
 
     /*
