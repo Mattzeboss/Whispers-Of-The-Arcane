@@ -121,7 +121,15 @@ public class PlayerBehavior implements Behavior {
 
     @Override
     public void on_death(GridEntity entity, Game game) {
-        game.setPaused(Game.PauseStates.LoseScreen);
+        if (game.getCards().contains(TarotDeck.Card.THE_HANGED_MAN)){
+            entity.heal(100);
+            game.xp /= 3;
+            game.getCards().remove(TarotDeck.Card.THE_HANGED_MAN);
+            System.out.println("revive");
+            game.setPaused(Game.PauseStates.NotPaused);
+        }else {
+            game.setPaused(Game.PauseStates.LoseScreen);
+        }
     }
 
     //use this to paint card specific effects, we don't want to litter the Game.java file

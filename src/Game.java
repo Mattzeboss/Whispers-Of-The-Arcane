@@ -115,7 +115,7 @@ public class Game {
     /*
     XP system
      */
-    private int xp = 0;
+    public int xp = 0;
 
 
     public void gainXp(int amount) {
@@ -210,6 +210,7 @@ public class Game {
 //        cards.add(TarotDeck.Card.THE_MAGICIAN);
 //        cards.add(TarotDeck.Card.THE_MOON);
         cards.add(TarotDeck.Card.THE_SUN);
+        cards.add(TarotDeck.Card.THE_HANGED_MAN);
     }
 
     /*

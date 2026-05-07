@@ -115,9 +115,7 @@ public class GridEntity {
     }
 
     public void heal(int heal) {
-        if (!is_dead()) { //can't heal if we are dead
-            health = Math.min(MAX_HEALTH, health + heal);
-        }
+        health = Math.min(MAX_HEALTH, health + heal);
     }
 
     /*
