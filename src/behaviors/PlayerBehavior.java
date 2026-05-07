@@ -29,7 +29,7 @@ public class PlayerBehavior implements Behavior {
     private static final double DAMAGE_DEBUFF_RADIUS = 3;
     private static final double rotation_per_second = 0.25;
     public static final int MOON_FREEZE_TICKS = (int) (Game.TICKS_PER_SECOND * 0.25); //freeze the enemies for 1/4 of a second
-    private static final double SUN_DAMAGE = 6;
+    private static final double SUN_DAMAGE = 3;
 
 
 
@@ -96,7 +96,7 @@ public class PlayerBehavior implements Behavior {
             if (game.getCards().contains(TarotDeck.Card.THE_SUN) && game.getTick_counter()%5==0) {
                 for (GridEntity g : game.getEntities()) {
                     if (g != game.get_player() && enemy_in_range(g, game, true)) {
-                        if (g.take_damage((int) (SUN_DAMAGE * DAMAGE_MULTIPLIER), game)) {
+                        if (g.take_damage((int) (SUN_DAMAGE * DAMAGE_MULTIPLIER/2), game)) {
                             g.getBehavior().on_death(g, game);
                         }
                     }
