@@ -29,7 +29,7 @@ public class PlayerBehavior implements Behavior {
     private static final double DAMAGE_DEBUFF_RADIUS = 3;
     private static final double rotation_per_second = 0.25;
     public static final int MOON_FREEZE_TICKS = (int) (Game.TICKS_PER_SECOND * 0.25); //freeze the enemies for 1/4 of a second
-    private static final double SUN_DAMAGE = 1;
+    private static final double SUN_DAMAGE = 6;
 
 
 
