@@ -9,8 +9,8 @@ import java.util.Comparator;
 import static src.behaviors.PlayerBehavior.MOON_FREEZE_TICKS;
 
 public class BossBehavior extends EnemyBehavior {
-    protected final static int bossDamage = 50;
-    protected final static int boss_time_to_move = 50;
+    protected final static int bossDamage = 20;
+    protected final static int boss_time_to_move = 40;
 
     @Override
     public void update(GridEntity entity, Game game) {
