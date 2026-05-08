@@ -44,8 +44,7 @@ public class EnemyBehavior implements Behavior {
         )/2;
     }
 
-    protected void move(GridEntity entity, Game game){
-        Field field = game.getField();
+    Field.FieldPosition[] get_sorted_movements(GridEntity entity, Game game){
         //every possible move we can make
         Field.FieldPosition[] movements = new Field.FieldPosition[]{
                 new Field.FieldPosition(0, 0),
@@ -55,9 +54,15 @@ public class EnemyBehavior implements Behavior {
                 new Field.FieldPosition(0, -1),
         };
         //sort our movements by how close they will make us towards the player
-        Field.FieldPosition[] sorted_movements = Arrays.stream(movements)
+        return Arrays.stream(movements)
                 .sorted(Comparator.comparing((move) -> distance_to_player_with_move(entity, game, move)))
                 .toArray(Field.FieldPosition[]::new);
+    }
+
+    protected void move(GridEntity entity, Game game){
+        Field field = game.getField();
+
+        Field.FieldPosition[] sorted_movements = get_sorted_movements(entity, game);
 
         //we go through each movement
         for (Field.FieldPosition move : sorted_movements) {
@@ -90,15 +95,7 @@ public class EnemyBehavior implements Behavior {
     }
 
     protected int time_to_move(GridEntity entity, Game game) {
-        if (game.getCards().contains(TarotDeck.Card.THE_MOON)) {
-            if (((PlayerBehavior) (game.get_player().getBehavior())).enemy_in_range(entity, game, false)) {
-                return base_time_to_move;
-            } else {
-                return base_time_to_move;
-            }
-        } else {
-            return base_time_to_move;
-        }
+        return base_time_to_move;
     }
 }
 

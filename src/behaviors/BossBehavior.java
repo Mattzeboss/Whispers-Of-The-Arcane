@@ -14,11 +14,11 @@ public class BossBehavior extends EnemyBehavior {
 
     @Override
     public void update(GridEntity entity, Game game) {
-        if (game.getCards().contains(TarotDeck.Card.THE_MOON)) {
-            if (((PlayerBehavior) (game.get_player().getBehavior())).enemy_in_range(entity, game, false)) {
-                time_of_last_move = Math.min(time_of_last_move + MOON_FREEZE_TICKS, game.getTick_counter() + MOON_FREEZE_TICKS);
-            }
-        }
+//        if (game.getCards().contains(TarotDeck.Card.THE_MOON)) {
+//            if (((PlayerBehavior) (game.get_player().getBehavior())).enemy_in_range(entity, game, false)) {
+//                time_of_last_move = Math.min(time_of_last_move + MOON_FREEZE_TICKS, game.getTick_counter() + MOON_FREEZE_TICKS);
+//            }
+//        }
         if (game.getTick_counter() - time_of_last_move > time_to_move(entity, game) && !entity.is_dead()) {
             move(entity, game);
             time_of_last_move = game.getTick_counter();
@@ -28,24 +28,19 @@ public class BossBehavior extends EnemyBehavior {
     @Override
     public void move(GridEntity entity, Game game) {
         Field field = game.getField();
-        //every possible move we can make
-        Field.FieldPosition[] movements = new Field.FieldPosition[]{
-                new Field.FieldPosition(0, 0),
-                new Field.FieldPosition(-1, 0),
-                new Field.FieldPosition(0, 1),
-                new Field.FieldPosition(1, 0),
-                new Field.FieldPosition(0, -1),
-        };
-        //sort our movements by how close they will make us towards the player
-        Field.FieldPosition[] sorted_movements = Arrays.stream(movements)
-                .sorted(Comparator.comparing((move) -> distance_to_player_with_move(entity, game, move)))
-                .toArray(Field.FieldPosition[]::new);
+
+        Field.FieldPosition[] sorted_movements = get_sorted_movements(entity, game);
 
         //we go through each movement
         for (Field.FieldPosition move : sorted_movements) {
             //move in that direction
             field.move_entity(entity, move);
             ArrayList<GridEntity> overlap = field.get_overlapping_entities(entity);
+
+            for (GridEntity enemy: overlap){
+                if (enemy == game.get_player()){ continue; }
+                enemy.take_damage(bossDamage, game); //we don't run the enemies on_death because the player shouldn't gain xp for the boss killing enemies
+            }
 
             //if we would overlap the player, deal them damage
             if (overlap.contains(game.get_player())) {
