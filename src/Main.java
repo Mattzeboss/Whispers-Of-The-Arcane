@@ -113,7 +113,6 @@ public class Main extends Canvas {
         }
     }
 
-    //TODO: Improve title screen
     //Title screen should be 336x202 in terms of texture size
     public void paint_title_screen(Graphics2D g2D){
         g2D.drawImage(Sprites.TitleScreen, 0, 0, SCREEN_WIDTH + UI_WIDTH, SCREEN_HEIGHT, null);

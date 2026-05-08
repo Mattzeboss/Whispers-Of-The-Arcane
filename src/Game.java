@@ -271,7 +271,6 @@ public class Game {
     }
 
     private void handle_ui_update() {
-        //TODO: finish implementing
         switch (paused) {
             case NotPaused:
                 break;

@@ -10,7 +10,6 @@ import java.util.Comparator;
 import static src.behaviors.PlayerBehavior.MOON_FREEZE_TICKS;
 
 
-//TODO: make it move towards the player
 public class EnemyBehavior implements Behavior {
     protected int time_of_last_move = 0;
     protected final static int base_time_to_move = 40;
