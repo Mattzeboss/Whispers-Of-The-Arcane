@@ -237,7 +237,7 @@ public class Game {
             //prep for next tick
             fps = 1e9 / time_since_last_tick;
             last_tick_time = tick_start;
-            tick_counter += 1;
+
 
 
             //TODO: Remove this code, it is for testing
@@ -249,10 +249,10 @@ public class Game {
             if (paused == PauseStates.NotPaused) {
                 handle_update_world();
                 time_since_start += time_since_last_tick;
+                tick_counter += 1;
             } else { //if we are paused
                 handle_ui_update();
                 keyManager.update();
-                tick_counter--;
             }
 
 
@@ -264,7 +264,7 @@ public class Game {
             //render
             main.render();
 
-            if (player.is_dead()){
+            if ((paused == PauseStates.LoseScreen || paused == PauseStates.WinScreen) && keyManager.isPressed(KeyEvent.VK_R)){
                 break;
             }
         }
@@ -499,11 +499,15 @@ public class Game {
                 break;
             case WinScreen:
                 text = "You Win!";
-                GameFont.draw(g2D, text, (Main.SCREEN_TILE_WIDTH - GameFont.get_width(text))/2.0 , (Main.SCREEN_TILE_HEIGHT - 1)/2.0, Color.WHITE);
+                GameFont.draw(g2D, text, (Main.SCREEN_TILE_WIDTH - GameFont.get_width(text))/2.0 , (Main.SCREEN_TILE_HEIGHT - 1)/2.0 - 0.55, Color.WHITE);
+                text = "Press R to Restart";
+                GameFont.draw(g2D, text, (Main.SCREEN_TILE_WIDTH - GameFont.get_width(text))/2.0 , (Main.SCREEN_TILE_HEIGHT - 1)/2.0 + 0.55, Color.WHITE);
                 break;
             case LoseScreen:
                 text = "You Lose!";
-                GameFont.draw(g2D, text, (Main.SCREEN_TILE_WIDTH - GameFont.get_width(text))/2.0 , (Main.SCREEN_TILE_HEIGHT - 1)/2.0, Color.WHITE);
+                GameFont.draw(g2D, text, (Main.SCREEN_TILE_WIDTH - GameFont.get_width(text))/2.0 , (Main.SCREEN_TILE_HEIGHT - 1)/2.0 - 0.55, Color.WHITE);
+                text = "Press R to Restart";
+                GameFont.draw(g2D, text, (Main.SCREEN_TILE_WIDTH - GameFont.get_width(text))/2.0 , (Main.SCREEN_TILE_HEIGHT - 1)/2.0 + 0.55, Color.WHITE);
                 break;
         }
 

@@ -109,14 +109,7 @@ public class Main extends Canvas {
             //starts the game
             game = new Game(keyManager, mouseManager);
             game.start(this);
-
-            //to restart the game
-            while(!keyManager.isReleased(KeyEvent.VK_R)){
-                try {
-                    Thread.sleep(16);
-                } catch (InterruptedException e) {
-                }
-            }
+            //we only exit start when we want to restart the game
         }
     }
 
