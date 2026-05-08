@@ -1,5 +1,6 @@
 package src;
 
+import src.behaviors.BossBehavior;
 import src.behaviors.PlayerBehavior;
 
 import javax.swing.*;
@@ -350,33 +351,42 @@ public class Game {
             if (current_enemies < max_enemies) { //if we can spawn more enemies
                 int enemies_to_spawn = (int) Math.ceil((max_enemies - current_enemies) / 4.0); //spawn 1/4 of however many we can spawn
                 for (int i = 0; i < enemies_to_spawn; i++) {
-                    final int spawn_radius = 10;
-
-                    int left_bound = (int) Math.ceil(cameraX - Main.SCREEN_TILE_WIDTH / 2.0) - spawn_radius;
-                    int right_bound = (int) Math.ceil(cameraX + Main.SCREEN_TILE_WIDTH / 2.0) + spawn_radius;
-                    int top_bound = (int) Math.floor(cameraY + Main.SCREEN_TILE_HEIGHT / 2.0) + spawn_radius;
-                    int bottom_bound = (int) Math.floor(cameraY - Main.SCREEN_TILE_HEIGHT / 2.0) - spawn_radius;
-
-                    for (int j = 0; j < 100; j++) { // we get 100 attempts to spawn choose a spawn location
-                        int x = (int) (Math.random() * (right_bound - left_bound) + left_bound);
-                        int y = (int) (Math.random() * (top_bound - bottom_bound) + bottom_bound);
-                        Field.FieldPosition pos = new Field.FieldPosition(x, y);
-                        if (!is_rect_on_screen(x, y, 1.0, 1.0) && field.get_entities(pos).isEmpty()) { //rejection sampling
-                            GridEntity entity = GridEntity.enemy(GridEntity.EnemyType.generate_random());
-                            add_entity(entity, pos);
-                            break; //we only want to spawn one enemy
-                        }
-                    }
-
-
+                    spawn_enemy_in_valid_location(GridEntity.enemy(GridEntity.EnemyType.generate_random()));
                 }
             }
+        }
+
+        //boss spawning
+        if (
+                entities.stream().noneMatch(e -> e.getBehavior() instanceof BossBehavior) && //the boss hasn't spawned yet
+                time_since_start_seconds() >= 5*60 //5 minutes have passed
+        ){
+            spawn_enemy_in_valid_location(GridEntity.enemy(GridEntity.EnemyType.BOSS));
         }
 
         //handling xp
         if (xp >= requiredXp()) {
             xp -= requiredXp();
             draw_cards();
+        }
+    }
+
+    private void spawn_enemy_in_valid_location(GridEntity enemy){
+        final int spawn_radius = 10;
+
+        int left_bound = (int) Math.ceil(cameraX - Main.SCREEN_TILE_WIDTH / 2.0) - spawn_radius;
+        int right_bound = (int) Math.ceil(cameraX + Main.SCREEN_TILE_WIDTH / 2.0) + spawn_radius;
+        int top_bound = (int) Math.floor(cameraY + Main.SCREEN_TILE_HEIGHT / 2.0) + spawn_radius;
+        int bottom_bound = (int) Math.floor(cameraY - Main.SCREEN_TILE_HEIGHT / 2.0) - spawn_radius;
+
+        for (int j = 0; j < 100; j++) { // we get 100 attempts to spawn choose a spawn location
+            int x = (int) (Math.random() * (right_bound - left_bound) + left_bound);
+            int y = (int) (Math.random() * (top_bound - bottom_bound) + bottom_bound);
+            Field.FieldPosition pos = new Field.FieldPosition(x, y);
+            if (!is_rect_on_screen(x, y, 1.0, 1.0) && field.get_entities(pos).isEmpty()) { //rejection sampling
+                add_entity(enemy, pos);
+                break; //we only want to spawn one enemy
+            }
         }
     }
 
