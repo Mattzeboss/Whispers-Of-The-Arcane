@@ -191,7 +191,7 @@ public class PlayerBehavior implements Behavior {
 
         for (TarotDeck.Card card : cards) {
             if (card == TarotDeck.Card.THE_MAGICIAN) {
-                launch_projectile_at_mouse(game, player, (int) (16 * DAMAGE_MULTIPLIER), PROJECTILE_SIZE * 2, Sprites.Fireball);
+                launch_projectile_at_mouse(game, player, (int) (16 * DAMAGE_MULTIPLIER), PROJECTILE_SIZE * 1.5, Sprites.Fireball);
                 has_shot_yet = true;
             }
         }
@@ -213,16 +213,46 @@ public class PlayerBehavior implements Behavior {
     private void launch_projectile_at_mouse(Game game, GridEntity entity, int damage, double size, BufferedImage sprite) {
         Field.FieldPosition pos = game.getField().get_pos(entity);
         //spawn projectile
-        game.getProjectiles().add(new Projectile(
-                true,
-                sprite,
-                pos.x + 0.5,
-                pos.y - 0.5,
-                angle_to_mouse(game, entity),
-                PROJECTILE_SPEED / Game.TICKS_PER_SECOND,
-                damage,
-                size
-        ));
+        double pos_x = pos.x + 0.5;
+        double pos_y = pos.y - 0.5;
+        double angle = angle_to_mouse(game, entity);
+        double speed = PROJECTILE_SPEED / Game.TICKS_PER_SECOND;
+
+        if (!game.getCards().contains(TarotDeck.Card.THE_LOVERS)) {
+            game.getProjectiles().add(new Projectile(
+                    true,
+                    sprite,
+                    pos_x,
+                    pos_y,
+                    angle,
+                    speed,
+                    damage,
+                    size
+            ));
+        }else{
+            double shift_y = size * Math.cos(angle) / 2;
+            double shift_x = size * Math.sin(angle) / 2;
+            game.getProjectiles().add(new Projectile(
+                    true,
+                    sprite,
+                    pos_x - shift_x,
+                    pos_y + shift_y,
+                    angle,
+                    speed,
+                    damage,
+                    size
+            ));
+            game.getProjectiles().add(new Projectile(
+                    true,
+                    sprite,
+                    pos_x + shift_x,
+                    pos_y - shift_y,
+                    angle,
+                    speed,
+                    damage,
+                    size
+            ));
+        }
     }
 
     private double angle_to_mouse(Game game, GridEntity entity) {

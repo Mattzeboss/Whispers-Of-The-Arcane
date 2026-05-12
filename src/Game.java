@@ -208,10 +208,11 @@ public class Game {
 //        cards.add(TarotDeck.Card.STRENGTH);
 //        cards.add(TarotDeck.Card.STRENGTH);
 //        cards.add(TarotDeck.Card.THE_CHARIOT);
-//        cards.add(TarotDeck.Card.THE_MAGICIAN);
-        cards.add(TarotDeck.Card.THE_MOON);
+        cards.add(TarotDeck.Card.THE_MAGICIAN);
+//        cards.add(TarotDeck.Card.THE_MOON);
 //        cards.add(TarotDeck.Card.THE_SUN);
 //        cards.add(TarotDeck.Card.THE_HANGED_MAN);
+        cards.add(TarotDeck.Card.THE_LOVERS);
     }
 
     /*
