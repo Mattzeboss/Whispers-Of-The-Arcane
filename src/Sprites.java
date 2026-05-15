@@ -25,9 +25,11 @@ public abstract class Sprites {
     //card sprites are handled inside the Card enum
     public static final BufferedImage TitleScreen = loadImage("./src/graphics/titlescreen.png");
     public static final BufferedImage Background = loadImage("./src/graphics/tile.png");
-    public static final BufferedImage PlayerProjectile = loadImage("./src/graphics/ball.png");
-    public static final BufferedImage EnemyProjectile = loadImage("./src/graphics/ball.png");
-    public static final BufferedImage Fireball = loadImage("./src/graphics/ball.png");
+    public static final BufferedImage PlayerProjectile = loadImage("./src/graphics/player_projectile.png");
+    public static final BufferedImage EnemyProjectile = loadImage("./src/graphics/enemy_projectile.png");
+    public static final BufferedImage Fireball = loadImage("./src/graphics/fireball.png");
+    public static final BufferedImage Moon = loadImage("./src/graphics/moon.png");
+    public static final BufferedImage Sun = loadImage("./src/graphics/sun.png");
     public static final BufferedImage Font = loadImage("./src/graphics/bitmap_font_8x16.png");
     public static final BufferedImage CardSelect = loadImage("./src/graphics/cards/card_select.png");
     public static final BufferedImage BackgroundCached;

@@ -97,5 +97,36 @@ public class EnemyBehavior implements Behavior {
     protected int time_to_move(GridEntity entity, Game game) {
         return base_time_to_move;
     }
+
+    //stuff for shooting
+    protected int MOVES_PER_SHOT = 5;
+    protected double projectile_speed = 3;
+    protected int projectile_damage = 5;
+    protected double size = 0.5;
+
+    private int moves = 0;
+
+    protected void try_fire(GridEntity entity, Game game){
+        Field field = game.getField();
+        if (moves % MOVES_PER_SHOT == 0) {
+            //fire projectile at player
+            Field.FieldPosition player_pos = field.get_pos(game.get_player());
+            Field.FieldPosition our_pos = field.get_pos(entity);
+
+            double angle = Math.atan2(player_pos.y - our_pos.y, player_pos.x - our_pos.x);
+            game.getProjectiles().add(new Projectile(
+                    false,
+                    Sprites.EnemyProjectile,
+                    our_pos.x + entity.getWidth()/2.0 - 0.5,
+                    our_pos.y - entity.getHeight()/2.0 + 0.5,
+                    angle,
+                    projectile_speed/ Game.TICKS_PER_SECOND,
+                    projectile_damage,
+                    size
+            ));
+        }
+
+        moves += 1;
+    }
 }
 

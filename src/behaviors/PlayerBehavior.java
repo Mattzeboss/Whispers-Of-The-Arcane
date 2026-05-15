@@ -149,7 +149,7 @@ public class PlayerBehavior implements Behavior {
             );
 
             //sun
-            Game.draw_sprite_on_grid(g2D, Sprites.PlayerProjectile,
+            Game.draw_sprite_on_grid(g2D, Sprites.Sun,
                     sun_x,
                     sun_y,
                     1,
@@ -170,8 +170,8 @@ public class PlayerBehavior implements Behavior {
                     (int) (2 * DAMAGE_DEBUFF_RADIUS * Main.TILE_SIZE_PX)
             );
 
-            //sun
-            Game.draw_sprite_on_grid(g2D, Sprites.PlayerProjectile,
+            //moon
+            Game.draw_sprite_on_grid(g2D, Sprites.Moon,
                     moon_x,
                     moon_y,
                     1,

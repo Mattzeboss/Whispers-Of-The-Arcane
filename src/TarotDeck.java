@@ -22,17 +22,6 @@ public class TarotDeck {
     }
 
     public void shuffle() {
-        //TODO: remove the commented out code
-//        ArrayList<Card> temp = new ArrayList<Card>();
-//
-//        while(!deck.isEmpty()) {
-//            temp.add(deck.remove((int)(Math.random() * deck.size())));
-//        }
-//
-//        while(!temp.isEmpty()) {
-//            deck.add(temp.remove(0));
-//        }
-
         Collections.shuffle(deck);
     }
 
@@ -69,7 +58,7 @@ public class TarotDeck {
         ),
         THE_LOVERS(
                 "./src/graphics/cards/placeholder_card.png",
-                "+ Dual wield pistols"
+                "+ Fire two projectiles"
         ),
         THE_CHARIOT(
                 "./src/graphics/cards/placeholder_card.png",
