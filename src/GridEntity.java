@@ -137,7 +137,7 @@ public class GridEntity {
             case FAST:
                 return new GridEntity(Sprites.Joker, 25,1, 1, new FastEnemyBehavior());
             case BOSS:
-                return new GridEntity(Sprites.Joker, 3000, 3, 3, new BossBehavior());
+                return new GridEntity(Sprites.Boss, 3000, 3, 3, new BossBehavior());
             default:
                 return enemy(EnemyType.NORMAL);
         }
