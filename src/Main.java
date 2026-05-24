@@ -109,7 +109,6 @@ public class Main extends Canvas {
             //starts the game
             game = new Game(keyManager, mouseManager);
             game.start(this);
-            //we only exit start when we want to restart the game
         }
     }
 
