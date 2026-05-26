@@ -53,32 +53,32 @@ public class TarotDeck {
 
     public enum Card {
         THE_MAGICIAN(
-                "./src/graphics/cards/placeholder_card.png",
+                "./src/graphics/cards/themagician.png",
                 "+ Fireball replaces projectile"
         ),
         THE_LOVERS(
-                "./src/graphics/cards/placeholder_card.png",
+                "./src/graphics/cards/thelovers.png",
                 "+ Fire two projectiles"
         ),
         THE_CHARIOT(
-                "./src/graphics/cards/placeholder_card.png",
+                "./src/graphics/cards/thechariot.png",
                 "+ Movement Speed"
         ),
         STRENGTH(
-                "./src/graphics/cards/placeholder_card.png",
+                "./src/graphics/cards/strength.png",
                 "+ Projectile damage\n" +
                         "+ Attack Speed"
         ),
         THE_HANGED_MAN(
-                "./src/graphics/cards/placeholder_card.png",
+                "./src/graphics/cards/thehangedman.png",
                 "+ Revive"
         ),
         THE_MOON(
-                "./src/graphics/cards/placeholder_card.png",
+                "./src/graphics/cards/themoon.png",
                 "+ Slows Enemies near the Moon"
         ),
         THE_SUN(
-                "./src/graphics/cards/placeholder_card.png",
+                "./src/graphics/cards/thesun.png",
                 "+ Damage enemies near the Sun"
         );
 
