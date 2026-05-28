@@ -4,21 +4,11 @@ import java.awt.image.BufferedImage;
 import java.util.*;
 
 public class TarotDeck {
-    private final ArrayList<Card> deck = new ArrayList<Card>();
+    private final ArrayList<Card> deck = new ArrayList<>();
 
     public TarotDeck() {
         deck.addAll(Arrays.asList(Card.values()));
         shuffle();
-    }
-
-    public Card[] getOptions() {
-        Card[] ans = new Card[Math.min(3, deck.size())];
-
-        for (int i = 0; i < ans.length; i++) {
-            ans[i] = getTopCard();
-        }
-
-        return ans;
     }
 
     public void shuffle() {
@@ -34,13 +24,6 @@ public class TarotDeck {
             throw new EmptyStackException();
         }
         return deck.remove(deck.size() - 1);
-    }
-
-    public Card seeTopCard() {
-        if (deck.isEmpty()) {
-            throw new EmptyStackException();
-        }
-        return deck.get(deck.size() - 1);
     }
 
     public void putOnBottom(Card c) {

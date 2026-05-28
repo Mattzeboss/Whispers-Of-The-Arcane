@@ -2,7 +2,6 @@ package src.behaviors;
 
 import src.*;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -37,7 +36,7 @@ public class EnemyBehavior implements Behavior {
         Field.FieldPosition player_pos = field.get_pos(game.get_player());
         //this formula is a bit weird, but it gets the distance between two axis-aligned-bounding boxes(non-rotated rectangles)
         //The formula is made weirder by the fact that entity positions are stored in the top left and not the bottom left
-        //I checked in Desmos and the math seems to work (desmos link https://www.desmos.com/calculator/pe7og0kzzk)
+        //I checked in Desmos and the math seems to work (Desmos link https://www.desmos.com/calculator/pe7og0kzzk)
         return Math.hypot(
                 Math.max(Math.abs((our_pos.x + move.x) * 2 + entity.getWidth() - player_pos.x * 2 - player.getWidth()) - entity.getWidth() - player.getWidth() + 2, 0),
                 Math.max(Math.abs((our_pos.y + move.y) * 2 - entity.getHeight() - player_pos.y * 2 + player.getHeight()) - entity.getHeight() - player.getHeight() + 2, 0)

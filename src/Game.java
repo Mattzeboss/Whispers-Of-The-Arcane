@@ -3,7 +3,6 @@ package src;
 import src.behaviors.BossBehavior;
 import src.behaviors.PlayerBehavior;
 
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
@@ -23,7 +22,7 @@ public class Game {
         return tick_counter;
     }
 
-    private long time_since_start = (long) 0;
+    private long time_since_start = 0;
 
     public int time_since_start_seconds() {
         return (int) (time_since_start / 1e9);
@@ -200,19 +199,6 @@ public class Game {
         this.mouseManager = mouseManager;
 
         add_entity(get_player(), new Field.FieldPosition(0, 0)); //adding the player
-        //TODO: remove this code eventually, it only for testing
-//        add_entity(GridEntity.enemy(GridEntity.EnemyType.BOSS), new Field.FieldPosition(3, 1));
-//        projectiles.add(new Projectile(true, Sprites.Ball, -5, 0.5, 0, 2.0/TICKS_PER_SECOND, 100, 0.5));
-//        cards.add(TarotDeck.Card.STRENGTH);
-//        cards.add(TarotDeck.Card.STRENGTH);
-//        cards.add(TarotDeck.Card.STRENGTH);
-//        cards.add(TarotDeck.Card.STRENGTH);
-//        cards.add(TarotDeck.Card.THE_CHARIOT);
-//        cards.add(TarotDeck.Card.THE_MAGICIAN);
-//        cards.add(TarotDeck.Card.THE_MOON);
-//        cards.add(TarotDeck.Card.THE_SUN);
-//        cards.add(TarotDeck.Card.THE_HANGED_MAN);
-//        cards.add(TarotDeck.Card.THE_LOVERS);
     }
 
     /*
@@ -238,13 +224,6 @@ public class Game {
             //prep for next tick
             fps = 1e9 / time_since_last_tick;
             last_tick_time = tick_start;
-
-
-
-            //TODO: Remove this code, it is for testing
-//            if (keyManager.isPressed(KeyEvent.VK_C)) {
-//                draw_cards();
-//            }
 
             //update state
             if (paused == PauseStates.NotPaused) {
@@ -274,6 +253,8 @@ public class Game {
     private void handle_ui_update() {
         switch (paused) {
             case NotPaused:
+            case WinScreen:
+            case LoseScreen:
                 break;
             case CardSelect:
                 //change selected card
@@ -291,10 +272,6 @@ public class Game {
                 if (keyManager.isReleased(KeyEvent.VK_ENTER)) {
                     select_card();
                 }
-                break;
-            case WinScreen:
-                break;
-            case LoseScreen:
                 break;
         }
     }
@@ -412,7 +389,7 @@ public class Game {
                 if (is_rect_on_screen(pos.x, pos.y, entity.getWidth(), entity.getHeight())) {
                     draw_sprite_on_grid(g2D, entity.getSprite(this), relative_pos_x, relative_pos_y, entity.getWidth(), entity.getHeight());
                 }
-                entity.getBehavior().paint(entity, this, relative_pos_x, relative_pos_y, g2D);
+                entity.getBehavior().paint(this, g2D);
             }
 
         }
@@ -420,7 +397,7 @@ public class Game {
         //draw player
         Field.FieldPosition player_pos = field.get_pos(get_player());
         draw_sprite_on_grid(g2D, get_player().getSprite(this), player_pos.x - cameraX, player_pos.y - cameraY, get_player().getWidth(), get_player().getHeight());
-        get_player().getBehavior().paint(get_player(), this, player_pos.x - cameraX, player_pos.y - cameraY, g2D);
+        get_player().getBehavior().paint(this, g2D);
 
         //projectile rendering
         for (Projectile projectile : projectiles) {
@@ -552,7 +529,7 @@ public class Game {
         );
     }
 
-    //used for occulsion culling
+    //used for occlusion culling
     //x and y are given in field space not screen space
     public boolean is_rect_on_screen(double x, double y, double w, double h) {
         double left_bound = cameraX - Main.SCREEN_TILE_WIDTH / 2.0;

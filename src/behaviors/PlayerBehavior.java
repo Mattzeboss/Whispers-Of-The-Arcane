@@ -134,7 +134,7 @@ public class PlayerBehavior implements Behavior {
 
     //use this to paint card specific effects, we don't want to litter the Game.java file
     @Override
-    public void paint(GridEntity entity, Game game, double screen_x, double screen_y, Graphics2D g2D) {
+    public void paint(Game game, Graphics2D g2D) {
         if (game.getCards().contains(TarotDeck.Card.THE_SUN)) {
             double sun_x = SUN_MOON_RADIUS * Math.cos(SUN_POSITION);
             double sun_y = SUN_MOON_RADIUS * Math.sin(SUN_POSITION);
@@ -256,7 +256,7 @@ public class PlayerBehavior implements Behavior {
     }
 
     private double angle_to_mouse(Game game, GridEntity entity) {
-        //calculate mousex and y relative to player
+        //calculate mouse x and y relative to player
         Field.FieldPosition pos = game.getField().get_pos(entity);
         double mouse_x = game.getMouseManager().getMouse_x();
         double mouse_y = game.getMouseManager().getMouse_y();

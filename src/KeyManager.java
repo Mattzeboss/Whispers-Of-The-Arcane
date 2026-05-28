@@ -4,7 +4,6 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.util.HashMap;
 import java.util.HashSet;
 
 public class KeyManager implements KeyListener, FocusListener {
@@ -24,11 +23,6 @@ public class KeyManager implements KeyListener, FocusListener {
         released.addAll(down);
         down.clear();
         pressed.clear();
-    }
-
-
-    public enum KeyState {
-        Pressed, Released, Down, Up,
     }
 
     //we will not be using this because this is for text input not key presses
@@ -60,11 +54,6 @@ public class KeyManager implements KeyListener, FocusListener {
     //pressed counts as down
     public boolean isDown(int keycode){
         return down.contains(keycode);
-    }
-
-    //released counts as up
-    public boolean isUp(int keycode){
-        return !down.contains(keycode);
     }
 
     public boolean isPressed(int keycode){

@@ -3,10 +3,6 @@ package src.behaviors;
 import src.*;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-
-import static src.behaviors.PlayerBehavior.MOON_FREEZE_TICKS;
 
 public class BossBehavior extends EnemyBehavior {
     protected final static int bossDamage = 20;

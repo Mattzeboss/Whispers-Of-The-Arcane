@@ -5,8 +5,8 @@ import java.util.HashMap;
 
 public class Field {
     public static class FieldPosition {
-        public int x;
-        public int y;
+        public final int x;
+        public final int y;
 
         public FieldPosition(int x, int y) {
             this.x = x;
@@ -17,10 +17,6 @@ public class Field {
             return new FieldPosition(other.x + x, other.y + y);
         }
 
-
-        public FieldPosition sub(FieldPosition other) {
-            return new FieldPosition(x - other.x, y - other.y);
-        }
 
         public FieldPosition mult(int factor) {return new FieldPosition(x*factor, y*factor);}
         @Override
@@ -68,9 +64,9 @@ public class Field {
             for (int j = 0; j < e.getHeight(); j++) {
                 //we only remove if we already inserted
                 FieldPosition pos = get_pos(e).add(new FieldPosition(i, -j));
-                ArrayList<GridEntity> entites = position_to_entity.get(pos);
-                entites.remove(e);
-                if (entites.isEmpty()){ //no need to keep empty arrays around
+                ArrayList<GridEntity> entities = position_to_entity.get(pos);
+                entities.remove(e);
+                if (entities.isEmpty()){ //no need to keep empty arrays around
                     position_to_entity.remove(pos);
                 }
             }
