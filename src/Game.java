@@ -28,8 +28,6 @@ public class Game {
         return (int) (time_since_start / 1e9);
     }
 
-    private double fps = TICKS_PER_SECOND;
-
     /*
     Card related stuff
      */
@@ -222,7 +220,6 @@ public class Game {
                 continue;
             }
             //prep for next tick
-            fps = 1e9 / time_since_last_tick;
             last_tick_time = tick_start;
 
             //update state
@@ -487,11 +484,6 @@ public class Game {
                 GameFont.draw(g2D, text, (Main.SCREEN_TILE_WIDTH - GameFont.get_width(text))/2.0 , (Main.SCREEN_TILE_HEIGHT - 1)/2.0 + 0.55, Color.WHITE);
                 break;
         }
-
-        //FPS counter
-        g2D.setColor(Color.RED);
-        g2D.setFont(new Font("Ariel", Font.BOLD, 50));
-        g2D.drawString("FPS: " + (int) Math.round(fps), 0, 50);
     }
 
     //drawing at tiles from the center
